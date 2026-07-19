@@ -1,14 +1,67 @@
-[
-    {
-        "title": "Início",
-        "path": "index"
-    },
-    {
-        "title": "Bibliotecas",
-        "path": "biblioteca"
-    },
-    {
-        "title": "Relatório",
-        "path": "relatorio"
-    }
-]
+{
+    "en": [
+        { "title": "Home", "path": "index" },
+        { "title": "Libraries", "path": "biblioteca" },
+        { "title": "Installation", "path": "instalacao" },
+        { "title": "Usage", "path": "uso" },
+        { "title": "Linter", "path": "linter" },
+        { "title": "AI Providers", "path": "providers" },
+        { "title": "Skills", "path": "skills" },
+        { "title": "i18n", "path": "i18n" },
+        { "title": "Cache & Updates", "path": "cache" },
+        { "title": "Contributing", "path": "contribuicao" },
+        { "title": "Report", "path": "relatorio" }
+    ],
+    "pt_br": [
+        { "title": "Início", "path": "index" },
+        { "title": "Bibliotecas", "path": "biblioteca" },
+        { "title": "Instalação", "path": "instalacao" },
+        { "title": "Uso", "path": "uso" },
+        { "title": "Linter", "path": "linter" },
+        { "title": "Provedores IA", "path": "providers" },
+        { "title": "Skills", "path": "skills" },
+        { "title": "i18n", "path": "i18n" },
+        { "title": "Cache e Atualizações", "path": "cache" },
+        { "title": "Contribuição", "path": "contribuicao" },
+        { "title": "Relatório", "path": "relatorio" }
+    ],
+    "pt_pt": [
+        { "title": "Início", "path": "index" },
+        { "title": "Bibliotecas", "path": "biblioteca" },
+        { "title": "Instalação", "path": "instalacao" },
+        { "title": "Utilização", "path": "uso" },
+        { "title": "Linter", "path": "linter" },
+        { "title": "Fornecedores IA", "path": "providers" },
+        { "title": "Skills", "path": "skills" },
+        { "title": "i18n", "path": "i18n" },
+        { "title": "Cache e Atualizações", "path": "cache" },
+        { "title": "Contribuição", "path": "contribuicao" },
+        { "title": "Relatório", "path": "relatorio" }
+    ],
+    "fr": [
+        { "title": "Accueil", "path": "index" },
+        { "title": "Bibliothèques", "path": "biblioteca" },
+        { "title": "Installation", "path": "instalacao" },
+        { "title": "Utilisation", "path": "uso" },
+        { "title": "Linter", "path": "linter" },
+        { "title": "Fournisseurs IA", "path": "providers" },
+        { "title": "Skills", "path": "skills" },
+        { "title": "i18n", "path": "i18n" },
+        { "title": "Cache et MàJ", "path": "cache" },
+        { "title": "Contribution", "path": "contribuicao" },
+        { "title": "Rapport", "path": "relatorio" }
+    ],
+    "es": [
+        { "title": "Inicio", "path": "index" },
+        { "title": "Bibliotecas", "path": "biblioteca" },
+        { "title": "Instalación", "path": "instalacao" },
+        { "title": "Uso", "path": "uso" },
+        { "title": "Linter", "path": "linter" },
+        { "title": "Proveedores IA", "path": "providers" },
+        { "title": "Skills", "path": "skills" },
+        { "title": "i18n", "path": "i18n" },
+        { "title": "Caché y Actualiz.", "path": "cache" },
+        { "title": "Contribución", "path": "contribuicao" },
+        { "title": "Informe", "path": "relatorio" }
+    ]
+}

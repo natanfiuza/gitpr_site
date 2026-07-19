@@ -1,0 +1,117 @@
+# Linter Local — Análise Estática
+
+O linter do GitPR valida código contra regras personalizadas **sem consumir quotas de IA**. Analisa apenas as **linhas adicionadas** no seu `git diff`, tornando-o rápido, focado e pronto para CI/CD.
+
+---
+
+## Início Rápido
+
+```bash
+# Gerar a configuração padrão do linter
+gitpr -s
+
+# Executar o linter standalone (sem IA)
+gitpr -l
+```
+
+O linter também executa automaticamente como parte do `--review` e `--fullreview`, com violações destacadas no topo da saída da revisão.
+
+---
+
+## Configuração: `.gitpr.linter.yml`
+
+Defina regras usando **Expressões Regulares**:
+
+```yaml
+rules:
+  - name: "check-localhost"
+    extensions: ["js", "php", "py"]
+    regex: 'http(s)?://(localhost|127\.0\.0\.1)'
+    message: "🚨 Uso de localhost detetado no ficheiro {file_name}"
+    ignore_comments: true
+    ignore_paths:
+      - "vendor/*"
+      - "node_modules/*"
+      - "tests/*"
+
+  - name: "no-console-log"
+    extensions: ["js", "ts"]
+    regex: 'console\.log\('
+    message: "🚨 console.log() encontrado em {file_name}:{line_number}"
+    ignore_comments: false
+
+  - name: "no-debugger"
+    extensions: ["js", "ts"]
+    regex: 'debugger'
+    message: "🚨 declaração debugger encontrada em {file_name}:{line_number}"
+    ignore_comments: true
+
+  - name: "no-todo-without-ticket"
+    extensions: ["*"]
+    regex: 'TODO(?!\s*\(\w+-\d+\))'
+    message: "📝 TODO sem referência de ticket em {file_name}:{line_number}"
+    ignore_comments: false
+```
+
+---
+
+## Campos da Regra
+
+| Campo | Obrigatório | Descrição |
+| --- | --- | --- |
+| `name` | Sim | Identificador único da regra |
+| `extensions` | Sim | Extensões de ficheiro a verificar (`["*"]` para todos) |
+| `regex` | Sim | Expressão regular para correspondência |
+| `message` | Sim | Mensagem de violação. Suporta `{file_name}` e `{line_number}` |
+| `ignore_comments` | Não | Ignorar linhas que estão comentadas (padrão: `false`) |
+| `ignore_paths` | Não | Padrões glob para diretórios/ficheiros a ignorar |
+
+---
+
+## Integração CI/CD
+
+Execute o linter no seu pipeline para **bloquear merges** com violações:
+
+### Exemplo GitHub Actions
+
+```yaml
+name: GitPR Linter
+on: [pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Executar GitPR Linter
+        run: |
+          gitpr --linter
+```
+
+---
+
+## Hooks Pre-Commit
+
+Instale automaticamente com:
+
+```bash
+gitpr --installhooks
+```
+
+Isto cria hooks `pre-commit` e `prepare-commit-msg` que executam o linter antes de cada commit, detetando problemas no momento mais precoce possível (abordagem **Shift-Left**).
+
+---
+
+## Porquê um Linter Local?
+
+- **Custo zero de IA** — sem chamadas de API, sem limites de taxa
+- **Feedback instantâneo** — executa em milissegundos
+- **Personalizável** — regras que correspondem aos padrões da SUA equipa
+- **Consciente do Git** — verifica apenas o que alterou, não toda a base de código
+- **Nativo para CI/CD** — comando único, sem serviços externos
+
+---
+
+[← Guia de Utilização](/uso) &nbsp;|&nbsp; [Fornecedores IA →](/providers)

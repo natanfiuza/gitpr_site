@@ -1,0 +1,114 @@
+# Instalação e Configuração
+
+Escolha o método que melhor se adapta ao seu fluxo de trabalho.
+
+---
+
+## Windows: Usando o Executável
+
+1. Transfira o `gitpr.exe` da página de [GitHub Releases](https://github.com/natafiuza/gitpr/releases)
+2. Mova-o para um diretório no seu `PATH` (ex: a sua pasta de utilizador ou `C:\Windows\System32`)
+3. Execute:
+
+```bash
+gitpr
+```
+
+Na primeira execução, o assistente de configuração irá guiá-lo:
+
+```
+🚀 Automação Inteligente de PR com IA
+
+🔧 Primeira execução detetada! Vamos configurar o GitPR CLI.
+
+🔑 Introduza a sua GEMINI_API_KEY:
+
+📄 Padrão de nome do ficheiro de saída [{branch}_{datetime}_PR_DESC.md]:
+```
+
+A sua configuração é guardada com segurança em `~/.gitpr/.env`.
+
+---
+
+## Linux / macOS: Via PyPI (Recomendado)
+
+Instale diretamente do [PyPI](https://pypi.org/project/gitpr-cli/):
+
+```bash
+pip install gitpr-cli
+```
+
+Depois execute:
+
+```bash
+gitpr
+```
+
+Na primeira execução, o assistente irá guiá-lo pela configuração da chave API.
+
+---
+
+## A Partir do Código Fonte
+
+```bash
+# 1. Clone o repositório
+git clone https://github.com/natanfiuza/gitpr.git
+
+# 2. Entre no diretório
+cd gitpr
+
+# 3. Instale as dependências
+pipenv install google-genai openai python-dotenv click cryptography
+
+# 4. Execute
+pipenv run python src/main.py
+```
+
+---
+
+## Compilando o Seu Próprio Executável
+
+Use o **PyInstaller** para gerar um binário independente:
+
+```bash
+# Instale as dependências de desenvolvimento
+pipenv install --dev
+
+# Compile
+pipenv run pyinstaller --noconfirm --onefile --icon=icon.ico --name gitpr run.py
+```
+
+O binário estará na pasta `dist/`:
+- `gitpr` no Linux/macOS
+- `gitpr.exe` no Windows
+
+A flag `--onefile` empacota o Python, todas as bibliotecas e dependências num único executável.
+
+---
+
+## 🔒 Segurança
+
+O GitPR usa **encriptação simétrica Fernet** para proteger as suas chaves de API:
+
+- A sua `GEMINI_API_KEY` é armazenada como um hash encriptado em `~/.gitpr/.env`
+- Uma chave mestra de desencriptação é gerada automaticamente em `~/.gitpr/secret.key`
+- **Nunca partilhe o seu ficheiro `secret.key`**
+
+---
+
+## Referência de Configuração
+
+Todas as definições ficam em `~/.gitpr/.env`:
+
+| Variável | Descrição | Padrão |
+| --- | --- | --- |
+| `GEMINI_API_KEY` | A sua chave de API do Google Gemini (encriptada) | — |
+| `GEMINI_API_MODEL` | Versão do modelo Gemini | `gemini-2.5-flash` |
+| `DEEPSEEK_API_KEY` | A sua chave de API do DeepSeek (encriptada) | — |
+| `DEEPSEEK_API_MODEL` | Versão do modelo DeepSeek | `deepseek-chat` |
+| `GITPR_PROVIDER` | Fornecedor de IA padrão | `gemini` |
+| `GITPR_LANG` | Idioma da interface | detetado automaticamente |
+
+---
+
+[← Início](/index) &nbsp;|&nbsp; [Guia de Utilização →](/uso)
