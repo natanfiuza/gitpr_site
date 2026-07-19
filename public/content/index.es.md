@@ -34,7 +34,13 @@ En la primera ejecución, un asistente te guiará en la configuración — solo 
 | **Linter Estático** | `gitpr -l` | Validación offline de reglas — coste IA cero, listo para CI/CD |
 | **Generador de Issues** | `gitpr -is` | Genera issues estructuradas con 3 motores de contexto |
 | **Git Hooks** | `gitpr -ih` | Instala hooks pre-commit y prepare-commit-msg localmente |
+| **Arqueólogo de Código** | `gitpr -b` | Rastrea el origen de reglas de negocio vía `git blame` con clasificación IA |
 | **Auto-Update** | `gitpr -u` | Actualización hot-swap del binario vía GitHub Releases |
+
+::: note Flags Técnicas Ocultas
+- **`--hook <archivo>`** — Usado internamente por los Git Hooks para inyectar mensajes de commit directamente en el archivo temporal de Git.
+- **`--pre-save`** — Flag de debug que guarda el payload completo de la IA (instrucción del sistema + prompt) en un archivo JSON antes de cada llamada. Combina con cualquier comando de IA (ej: `gitpr -c --pre-save`).
+:::
 
 ---
 
