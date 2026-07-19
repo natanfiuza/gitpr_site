@@ -5,6 +5,19 @@
         <Head>
             <title>{{ page_title }} - GitPR</title>
             <meta name="description" :content="seo_description" />
+            <!-- Open Graph / Facebook -->
+            <meta property="og:type" content="website" />
+            <meta property="og:url" :content="current_url" />
+            <meta property="og:title" :content="page_title + ' - GitPR'" />
+            <meta property="og:description" :content="seo_description" />
+            <meta property="og:image" content="/assets/img/og-banner.png" />
+
+            <!-- Twitter / X -->
+            <meta property="twitter:card" content="summary_large_image" />
+            <meta property="twitter:url" :content="current_url" />
+            <meta property="twitter:title" :content="page_title + ' - GitPR'" />
+            <meta property="twitter:description" :content="seo_description" />
+            <meta property="twitter:image" content="/assets/img/og-banner.png" />
         </Head>
 
         <!-- Top Bar (fixed) -->
@@ -144,7 +157,8 @@ const props = defineProps({
         default: () => []
     },
     seo_description: String,
-    current_lang: String
+    current_lang: String,
+    current_url: String
 });
 
 const is_mobile_menu_open = ref(false);
