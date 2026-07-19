@@ -1,68 +1,162 @@
-# GitPR CLI — Project Status Report
+# GitPR CLI — Project Status Report — v0.0.27 (2026-07-19)
 
 ---
 
 ## Overview
 
-**GitPR** is a CLI tool for Git workflow automation powered by AI (Google Gemini / DeepSeek). It acts as an intelligent local assistant that performs Code Reviews, generates Pull Request descriptions, creates semantic commit messages, audits technical debt, and injects best practices into the developer workflow (**Shift Left** approach).
+**GitPR** is an advanced CLI tool for Git workflow automation powered by AI (Google Gemini / DeepSeek / Ollama). It acts as an intelligent local assistant that performs Code Reviews, generates Pull Request descriptions, creates semantic commit messages, audits technical debt, and injects best practices into the developer workflow (**Shift Left** approach).
+
+- **Current version:** 0.0.27
+- **Distribution:** PyPI (`pip install gitpr-cli`) + GitHub Releases (standalone binary)
+- **Website:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
+- **Repository:** [github.com/natanfiuza/gitpr](https://github.com/natanfiuza/gitpr)
+- **License:** LGPL-2.1
+- **Supported languages:** en_us, pt_br, pt_pt, es_es, fr_fr (5 languages)
 
 ---
 
 ## Architecture & Core Libraries
 
-- **Language:** Python 3.x
+- **Language:** Python >= 3.10
 - **CLI Framework:** Click (commands, flags, terminal formatting)
-- **UI/Terminal:** Interactive TUI (Textual) for chat and issue editing
+- **UI/Terminal:** Textual — TUI for interactive chat, issue editing, and help screen
 - **Cryptography:** Fernet symmetric encryption for local API key protection
 - **Configuration:** dotenv, PyYAML (for the static linter)
-- **AI Providers:** Google GenAI SDK (gemini-pro-latest) + DeepSeek + Ollama
+- **AI Providers:** Google GenAI SDK (gemini-2.5-flash), OpenAI SDK (DeepSeek), OpenAI SDK (Ollama local)
+- **Testing:** Pytest + unittest.mock (7 test files, 130+ scenarios)
+- **Packaging:** PyInstaller (standalone binary) + setuptools/build (PyPI)
+- **CI/CD:** GitHub Actions (`pr-review.yml`) + `action.yml` for pipeline execution
 
 ---
 
 ## Implemented Modules
 
 ### 1. Core & Git Operations (`src/core.py`)
-Structured LLM communication requesting strictly JSON responses (`commit_message` and `pr_description`). Native Git optimization with `-U1`, `-w`, `-M`, `-B` flags for minimal, focused diffs.
+
+Structured LLM communication requesting strictly JSON responses. Map-Reduce architecture for huge diffs (~90k+ tokens) with automatic batching. Token estimation via `len() // 4` heuristic. Native Git optimization with `-U1`, `-w`, `-M`, `-B` flags. Pre-Save debug flag (`--pre-save`) to inspect full AI payloads. Smart Excludes — remote pathspec filter automatically downloaded from GitHub with versioning (`SMART_EXCLUDES_VERSION`), excluding lock files, build artifacts, and binary assets to reduce token usage.
 
 ### 2. CLI Interface & Setup (`src/main.py`, `src/config.py`)
-First-run detection, interactive API key setup, `.env` configuration in `~/.gitpr/`. Command routing for all flags (`--commit`, `--review`, `--fullreview`, `--linter`, `--skill`, `--issue`, `--blame`, `--chat`).
+
+First-run detection with interactive API key, provider, and language setup saved to `~/.gitpr/.env`. Command routing for all flags. Contextual help (`-h --flag`) with language-aware documentation links. `--lang` and `--provider` flags for per-execution overrides.
 
 ### 3. Static Analysis Engine (`src/linter_engine.py`)
-Offline linter analyzing only added lines (`+`) from `git diff`. Reads `.gitpr.linter.yml` with regex rules, comment ignoring, and path exclusion via `fnmatch`.
+
+Offline linter analyzing only added lines (`+`) from `git diff`. Reads `.gitpr.linter.yml` with regex rules, comment ignoring, and path exclusion via fnmatch. Multilingual templates available in 5 languages.
 
 ### 4. Security Vault (`src/security.py`)
-Fernet key generation (`secret.key`), `encrypt_data` and `decrypt_data` functions. API keys never stored in plain text.
+
+Fernet key generation (`secret.key`), `encrypt_data` and `decrypt_data` functions. GitHub PAT stored encrypted for issue creation via REST API.
 
 ### 5. Auto-Updater (`src/updater.py`)
-Hot-swap binary updates from GitHub Releases API with SHA-256 verification and rollback capability.
 
-### 6. Chat & Auto-Patch (`src/ui/chat_app.py`)
-Interactive TUI with per-branch message memory. F5 extracts code blocks into patch files. F6 exports sessions to Markdown. Slash commands for common actions.
+Hot-swap binary updates from GitHub Releases API with rollback capability. Daily cache to avoid repeated checks. Connection verification via socket `8.8.8.8:53` before network operations. Asset versioning: `__lang_version__`, `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`.
 
-### 7. Internationalization (`src/i18n.py`)
-Laravel-inspired `__()` helper with named placeholders. JSON translation packs in `~/.gitpr/langs/`. English fallback for missing keys. Supports `en`, `pt_br`, `pt_pt`, `fr`, `es`.
+### 6. Interactive Chat (`src/ui/chat_app.py`)
 
-### 8. Map-Reduce Architecture
-Two-tier optimization for large diffs:
-- **Tier 1:** Native Git flags (`-U1`, `-w`, `-M`, `-B`) for minimal context
-- **Tier 2:** Token estimation (`len() // 4`), safe splitting at `diff --git` boundaries, batched AI calls with `time.sleep(1)` rate limiting, and final Reduce step concatenating summaries
+Full TUI built with Textual — message history, multi-line input, status bar with visible bindings. Per-branch memory (`src/chat_memory.py`) with conversation persistence. Slash commands: `/explain`, `/tests`, `/optimize`, `/clear`. Auto-patching (F5), diff refresh (F2), session export (F6). Multilingual chat commands.
+
+### 7. Internationalization — i18n (`src/i18n.py`)
+
+Laravel-inspired `__()` helper with named placeholders. Auto-detection of OS language on first run. 5 languages: en_us (default/fallback), pt_br, pt_pt, es_es, fr_fr. Versioned language packs (`__lang_version__`). Full coverage: CLI output, Click help, linter alerts, system messages, Git Hooks, spinner, and chat.
+
+### 8. Animated Spinner (`src/spinner.py`)
+
+Braille characters + "thinking words" displayed during AI calls via background thread. Progressive word reveal with random characters, followed by dot cycle. Random 10-color palette per word. Multilingual thinking words loaded from language-specific templates with versioning.
+
+### 9. AI Providers (`src/ai_providers.py`)
+
+3 supported providers: Google Gemini (`gemini-2.5-flash` primary / `gemini-2.5-flash-lite` secondary), DeepSeek (`deepseek-chat`), Ollama (any local OpenAI-compatible model). Multi-model architecture with automatic fallback. Deterministic parameters: temperature 0.0, top_p 0.1.
+
+### 10. Smart Cache (`src/cache.py`)
+
+MD5-based exact hash of code (diff) + instructions. Per-repository caching with `repo` field for multi-project filtering. Instant millisecond returns from `~/.gitpr/cache/prompts/`.
+
+### 11. Issue Engine & TUI (`src/issue_engine.py`, `src/tui_issue.py`, `src/ui/issue_app.py`)
+
+3 context engines: new code issue (`gitpr -is`), epic/release issue (`gitpr -is -ht`), technical debt issue (`gitpr -is -b file:lines`). TUI editor with syntax highlight, F2 save local, F3 publish via GitHub API. Help screen (F1) with shortcuts.
+
+### 12. Code Archaeologist (`src/blame_engine.py`)
+
+Git Blame + AI tracing with max depth of 4 parent commits. Secondary model classifies commits as `ORIGIN` or `REFACTORING`. Advanced model generates consolidated final analysis. Color-coded terminal output (green=origin, yellow=refactoring) + Markdown report.
+
+### 13. Skills & Templates System
+
+Local templates: `.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md` as customizable System Instructions. Remote templates downloaded from GitHub via `--skill`. 5-language availability with intelligent fallback (`get_skill_context()`).
+
+### 14. Map-Reduce for Huge Diffs
+
+Automatic activation when diff exceeds ~90k estimated tokens. Safe splitting at `diff --git` boundaries. Rate limiting with `time.sleep(1)` between Map batches. Dedicated documentation page in 5 languages. Console progress with batch count and doc link.
+
+### 15. CI/CD Integration
+
+GitHub Actions workflow `pr-review.yml` for automated PR review. `action.yml` for use as GitHub Action in external pipelines. Local Git Hooks (`pre-commit` + `prepare-commit-msg`) installable via `--installhooks`.
 
 ---
 
-## Key Metrics
+## Testing & Quality
 
-- **AI Providers:** 3 (Gemini, DeepSeek, Ollama)
-- **Supported Languages:** 5 (EN, PT-BR, PT-PT, FR, ES)
-- **CLI Commands:** 12+ flags
-- **Linter:** YAML-configurable, zero AI cost
-- **Cache:** MD5-based, automatic deduplication
-- **Security:** Fernet symmetric encryption (AES-128-CBC)
+| Test File | Scenarios | Focus |
+|---|---|---|
+| `tests/test_core.py` | 25+ | Core flows, git diff, PR generation |
+| `tests/test_chat_backend.py` | 30+ | Chat memory, persistence, commands |
+| `tests/test_skill_command.py` | 10+ | Template download and validation |
+| `tests/test_pre_save.py` | 10+ | --pre-save flag and JSON payload |
+| `tests/test_smart_excludes.py` | 14+ | Smart pathspec filter |
+| `tests/test_thinking_words.py` | 10+ | Thinking words loading and parsing |
 
 ---
 
-## Documentation
+## i18n & Documentation
 
-Full documentation is available at [github.com/natafiuza/gitpr](https://github.com/natafiuza/gitpr) and on this website.
+- **130+ files** translated/versioned
+- **Full documentation in 5 languages:** 19 topics × 5 languages = 95+ documentation pages
+- **Development plans:** 6 plans in `docs/plans/`
+- **Claude Code reports:** 10+ task reports in `docs/claude-code/reports/develop_natan/`
+- **Official website:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
+
+---
+
+## Distribution Pipeline
+
+1. **PyPI:** `python -m build` → `twine upload dist/*` → `pip install gitpr-cli`
+2. **GitHub Releases:** PyInstaller → `.exe` standalone → upload via workflow
+3. **GitHub Actions:** Automated PR Review with `action.yml`
+
+---
+
+## Evolution Since Previous Report (v0.0.1)
+
+| Area | v0.0.1 (previous) | v0.0.2 (current) |
+|---|---|---|
+| **AI Providers** | Gemini + DeepSeek | Gemini + DeepSeek + **Ollama (local)** |
+| **Languages** | 2 (en, pt_br) | **5 (en, pt_br, pt_pt, es_es, fr_fr)** |
+| **Interface** | CLI + TUI Issues | CLI + TUI Issues + **Interactive Chat TUI** |
+| **Templates** | EN + PT-BR | **5 languages** |
+| **Documentation** | Partial | **95+ pages in 5 languages** |
+| **Tests** | 1 file | **7 files (130+ scenarios)** |
+| **CI/CD** | — | **GitHub Actions + action.yml** |
+| **Smart Excludes** | Local | **Remote with versioning** |
+| **Thinking Words** | Static | **Multilingual with versioning** |
+| **Pre-Save** | — | **Debug flag for payload inspection** |
+| **Chat Memory** | — | **Per-branch persistence** |
+| **Map-Reduce Docs** | — | **Documentation in 5 languages** |
+| **Website** | — | **gitpr.natanfiuza.dev.br** |
+
+---
+
+## Next Steps
+
+- **Integration tests:** End-to-end coverage of main flows
+- **MCP (Model Context Protocol):** Potential integration with editors and IDEs
+- **More providers:** Claude API, direct OpenAI, additional local providers
+- **Metrics & analytics:** Usage dashboard for teams
+- **Plugin system:** Extensibility for linter rules and custom prompts
+
+---
+
+**Report generated:** 2026-07-19
+**Branch:** `develop_natan`
+**Author:** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))
 
 ---
 

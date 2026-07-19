@@ -55,24 +55,40 @@ class DocsController extends Controller
         }
 
         $ui_strings = [
-            'en'    => ['on_this_page' => 'On this page', 'menu' => 'Menu'],
-            'pt_br' => ['on_this_page' => 'Nesta página', 'menu' => 'Menu'],
-            'pt_pt' => ['on_this_page' => 'Nesta página', 'menu' => 'Menu'],
-            'fr'    => ['on_this_page' => 'Sur cette page', 'menu' => 'Menu'],
-            'es'    => ['on_this_page' => 'En esta página', 'menu' => 'Menú'],
+            'en'    => ['on_this_page' => 'On this page', 'menu' => 'Menu', 'contributors' => 'Contributors'],
+            'pt_br' => ['on_this_page' => 'Nesta página', 'menu' => 'Menu', 'contributors' => 'Contribuidores'],
+            'pt_pt' => ['on_this_page' => 'Nesta página', 'menu' => 'Menu', 'contributors' => 'Contribuidores'],
+            'fr'    => ['on_this_page' => 'Sur cette page', 'menu' => 'Menu', 'contributors' => 'Contributeurs'],
+            'es'    => ['on_this_page' => 'En esta página', 'menu' => 'Menú', 'contributors' => 'Contribuidores'],
         ];
+
+        // Extract collaborator GitHub usernames from contribuicao.md
+        $collaborator_usernames = [];
+        $collab_file = public_path('content/contribuicao.md');
+        if (File::exists($collab_file)) {
+            $collab_content = File::get($collab_file);
+            if (preg_match('/:::\s*collaborators\s*\n([\s\S]*?):::/', $collab_content, $collab_match)) {
+                $lines = array_filter(array_map('trim', explode("\n", $collab_match[1])));
+                foreach ($lines as $line) {
+                    if (preg_match('/github\.com\/([a-zA-Z0-9_-]+)\/?$/', $line, $m)) {
+                        $collaborator_usernames[] = $m[1];
+                    }
+                }
+            }
+        }
 
         $clean_text      = trim(preg_replace('/\s+/', ' ', preg_replace('/[#*`>-]/', '', $content)));
         $seo_description = Str::limit($clean_text, 150);
 
         return Inertia::render('DocsLayout', [
-            'content'         => $content,
-            'current_page'    => $page,
-            'page_title'      => $page_title,
-            'menu_items'      => $menu_data,
-            'ui_strings'      => $ui_strings[$lang] ?? $ui_strings['en'],
-            'seo_description' => $seo_description,
-            'current_lang'    => $lang,
+            'content'               => $content,
+            'current_page'          => $page,
+            'page_title'            => $page_title,
+            'menu_items'            => $menu_data,
+            'collaborator_usernames' => $collaborator_usernames,
+            'ui_strings'            => $ui_strings[$lang] ?? $ui_strings['en'],
+            'seo_description'       => $seo_description,
+            'current_lang'          => $lang,
         ]);
 
     }
