@@ -1,20 +1,23 @@
 <template>
     <div class="relative w-full max-w-sm" ref="search_container">
         <input type="text" v-model="search_query" @input="handle_input" placeholder="Buscar na documentação..."
-            class="w-full bg-gitpr_dark border border-gitpr_dark_border text-gitpr_text text-sm rounded focus:ring-gitpr_primary focus:border-gitpr_primary block p-2 pl-8" />
+            class="w-full bg-white border border-slate-200 text-slate-900 dark:bg-gitpr_dark dark:border-gitpr_dark_border dark:text-gitpr_text text-sm rounded focus:ring-gitpr_primary focus:border-gitpr_primary block p-2 pl-8 transition-colors duration-300" />
         <span class="absolute left-2 top-2 text-gitpr_dark_border">🔍</span>
 
         <!-- Dropdown de Resultados -->
         <div v-if="search_results.length > 0"
-            class="absolute top-full left-0 right-0 mt-2 bg-gitpr_dark border border-gitpr_dark_border rounded shadow-lg z-50 max-h-96 overflow-y-auto">
+            class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gitpr_dark border border-slate-200 dark:border-gitpr_dark_border rounded shadow-lg z-50 max-h-96 overflow-y-auto transition-colors duration-300">
             <ul>
                 <li v-for="result in search_results" :key="result.path"
-                    class="border-b border-gitpr_dark_border last:border-0">
+                    class="border-b border-slate-200 dark:border-gitpr_dark_border last:border-0 transition-colors duration-300">
                     <Link :href="'/' + result.path + '?lang=' + current_lang + '&mark=' + search_query"
-                        class="block p-3 hover:bg-gitpr_dark_border transition-colors" @click="clear_search">
+                        class="block p-3 hover:bg-slate-100 dark:hover:bg-gitpr_dark_border transition-colors"
+                        @click="clear_search">
                         <span class="block font-bold text-gitpr_cyan_light text-sm"
                             v-html="highlight_text(result.title)"></span>
-                        <span class="block text-xs text-gitpr_text mt-1" v-html="highlight_text(result.snippet)"></span>
+                        <span
+                            class="block text-xs text-slate-600 dark:text-gitpr_text mt-1 transition-colors duration-300"
+                            v-html="highlight_text(result.snippet)"></span>
                     </Link>
                 </li>
             </ul>
@@ -22,7 +25,7 @@
 
         <!-- Estado Vazio -->
         <div v-else-if="search_query.length >= 3 && !is_loading"
-            class="absolute top-full left-0 right-0 mt-2 bg-gitpr_dark border border-gitpr_dark_border rounded shadow-lg z-50 p-3 text-sm text-gitpr_text">
+            class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gitpr_dark border border-slate-200 dark:border-gitpr_dark_border rounded shadow-lg z-50 p-3 text-sm text-slate-900 dark:text-gitpr_text transition-colors duration-300">
             Nenhum resultado encontrado.
         </div>
     </div>

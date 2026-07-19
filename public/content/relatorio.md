@@ -15,7 +15,7 @@
 - **UI/Terminal:** Interactive TUI (Textual) for chat and issue editing
 - **Cryptography:** Fernet symmetric encryption for local API key protection
 - **Configuration:** dotenv, PyYAML (for the static linter)
-- **AI Providers:** Google GenAI SDK (gemini-2.5-flash) + DeepSeek + Ollama
+- **AI Providers:** Google GenAI SDK (gemini-pro-latest) + DeepSeek + Ollama
 
 ---
 

@@ -14,6 +14,14 @@
         @routes
         @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
         @inertiaHead
+        <script>
+            let saved_theme = localStorage.getItem('gitpr_theme');
+            if (saved_theme === 'dark' || (!saved_theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
     </head>
     <body class="font-sans antialiased">
         @inertia

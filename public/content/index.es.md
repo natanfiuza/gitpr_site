@@ -1,5 +1,9 @@
 # GitPR CLI 🚀
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/natanfiuza/gitpr/main/docs/logo.png" alt="GitPR Logo" width="120">
+</p>
+
 **Automatización de flujo Git impulsada por IA** — Code Reviews, descripciones de PR, commits semánticos y más, directamente desde tu terminal.
 
 GitPR CLI utiliza **Google Gemini** y **DeepSeek** para analizar tu `git diff` y archivos completos, generando:
@@ -48,8 +52,8 @@ En la primera ejecución, un asistente te guiará en la configuración — solo 
 
 GitPR es **agnóstico de IA** — elige tu motor:
 
-- **Google Gemini** (por defecto: `gemini-2.5-flash`)
-- **DeepSeek** (por defecto: `deepseek-chat`)
+- **Google Gemini** (por defecto: `gemini-pro-latest`)
+- **DeepSeek** (por defecto: `deepseek-v4-pro`)
 - **Ollama** — ejecuta modelos locales sin internet
 
 Cambia en cualquier momento con `--provider <gemini|deepseek|ollama>`.

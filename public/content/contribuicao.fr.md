@@ -94,12 +94,28 @@ gitpr/
 
 ## Publication sur PyPI
 
-Pour les mainteneurs :
+[PyPI](https://pypi.org/project/gitpr-cli/) (Python Package Index) est le dépôt officiel de paquets Python — comme npm pour JavaScript ou Packagist pour PHP. Publier sur PyPI permet aux utilisateurs Linux et macOS d'installer GitPR avec une seule commande :
 
 ```bash
-pipenv run python -m build
-pipenv run twine upload dist/*
+pip install gitpr-cli
 ```
+
+### Comment Fonctionne la Publication
+
+Seul le mainteneur du projet (**Natan Fiuza**) détient les identifiants nécessaires pour publier de nouvelles versions. C'est intentionnel — cela garantit que seul du code vérifié et revu parvient aux utilisateurs finaux via le canal officiel.
+
+Le processus en deux étapes :
+
+| Commande | Ce qu'elle fait |
+| --- | --- |
+| `pipenv run python -m build` | Empaquète le code source en fichiers distribuables `.tar.gz` et `.whl` dans le dossier `dist/` |
+| `pipenv run twine upload dist/*` | Envoie ces paquets sur PyPI en utilisant le jeton authentifié du mainteneur |
+
+### Pour les Contributeurs
+
+Vous n'avez pas besoin d'accès à PyPI pour contribuer ! Forkez le dépôt, faites vos modifications et soumettez une Pull Request. Une fois fusionnée, le mainteneur inclura votre contribution dans la prochaine release PyPI.
+
+> 📦 **Page du projet sur PyPI :** [pypi.org/project/gitpr-cli](https://pypi.org/project/gitpr-cli/)
 
 ---
 
@@ -113,7 +129,19 @@ Consultez le fichier [LICENSE](https://github.com/natafiuza/gitpr/blob/main/LICE
 
 ## Remerciements
 
+### Créateur et Mainteneur
+
 Projet conçu et développé par **Natan Fiuza** — [contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br)
+
+### Contributeurs
+
+Merci à tous ceux qui ont contribué à GitPR CLI :
+
+::: collaborators
+https://github.com/natanfiuza
+:::
+
+> 💡 **Vous voulez apparaître ici ?** [Contribuez au projet →](#comment-contribuer)
 
 ---
 
