@@ -1,68 +1,69 @@
-# **🚀 Relatório de Status do Projeto: GitPR CLI**
+# GitPR CLI — Project Status Report
 
-## **📌 Visão Geral**
+---
 
-O **GitPR** é uma ferramenta de CLI (Command Line Interface) avançada para automação de processos Git utilizando Inteligência Artificial (Google Gemini / DeepSeek). O objetivo principal é atuar como um assistente inteligente local que faz Code Reviews, gera Pull Requests, mensagens de commit semânticas, audita dívida técnica e injeta boas práticas no fluxo de trabalho do desenvolvedor (Shift Left).
+## Overview
 
-## **🏗️ Arquitetura e Bibliotecas Base**
+**GitPR** is a CLI tool for Git workflow automation powered by AI (Google Gemini / DeepSeek). It acts as an intelligent local assistant that performs Code Reviews, generates Pull Request descriptions, creates semantic commit messages, audits technical debt, and injects best practices into the developer workflow (**Shift Left** approach).
 
-* **Linguagem:** Python 3.x  
-* **CLI Framework:** Click (para comandos, flags e formatação de terminal).  
-* **UI/Terminal:** Interface interativa e TUI (Text User Interface) para chat e revisão de issues.  
-* **Criptografia:** cryptography.fernet para proteção local de chaves de API.  
-* **Configuração:** dotenv, pyyaml (para o linter estático).  
-* **IA Providers:** Integração via SDK oficial do Google GenAI (gemini-2.5-flash) e DeepSeek.
+---
 
-## **🧩 Módulos Implementados e Arquitetura de Ficheiros**
+## Architecture & Core Libraries
 
-### **1\. Núcleo e Operações Git (src/core.py)**
+- **Language:** Python 3.x
+- **CLI Framework:** Click (commands, flags, terminal formatting)
+- **UI/Terminal:** Interactive TUI (Textual) for chat and issue editing
+- **Cryptography:** Fernet symmetric encryption for local API key protection
+- **Configuration:** dotenv, PyYAML (for the static linter)
+- **AI Providers:** Google GenAI SDK (gemini-2.5-flash) + DeepSeek + Ollama
 
-* **Geração Estruturada:** Comunica com a LLM pedindo retorno estritamente em JSON (commit\_message e pr\_description).
+---
 
-### **2\. Interface CLI e Setup (src/main.py e src/config.py)**
+## Implemented Modules
 
-* **Setup Inicial:** Detecta primeira execução, cria a pasta \~/.gitpr/, e solicita interativamente as chaves de API e preferências, salvando num .env.  
-* **Routing de Comandos:** Gerencia as flags (--commit, \--review, \--fullreview, \--linter, \--skill, \--issue, \--blame).
+### 1. Core & Git Operations (`src/core.py`)
+Structured LLM communication requesting strictly JSON responses (`commit_message` and `pr_description`). Native Git optimization with `-U1`, `-w`, `-M`, `-B` flags for minimal, focused diffs.
 
-### **3\. Motor de Análise Estática / Linter (src/linter\_engine.py)**
+### 2. CLI Interface & Setup (`src/main.py`, `src/config.py`)
+First-run detection, interactive API key setup, `.env` configuration in `~/.gitpr/`. Command routing for all flags (`--commit`, `--review`, `--fullreview`, `--linter`, `--skill`, `--issue`, `--blame`, `--chat`).
 
-* **Linter Offline:** Analisa estaticamente as linhas adicionadas (+) no git diff sem gastar cotas de IA.  
-* **Regras YAML:** Lê o ficheiro local .gitpr.linter.yml (criado via \--skill). Suporta regex de validação (ex: detectar console.log, localhost), ignorar comentários e ignorar diretórios específicos (usando fnmatch).
+### 3. Static Analysis Engine (`src/linter_engine.py`)
+Offline linter analyzing only added lines (`+`) from `git diff`. Reads `.gitpr.linter.yml` with regex rules, comment ignoring, and path exclusion via `fnmatch`.
 
-### **4\. Segurança e Cofre (src/security.py)**
+### 4. Security Vault (`src/security.py`)
+Fernet key generation (`secret.key`), `encrypt_data` and `decrypt_data` functions. API keys never stored in plain text.
 
-* **Criptografia:** Gera uma chave mestra secret.key na pasta \~/.gitpr/.  
-* **Funções:** encrypt\_data e decrypt\_data para garantir que tokens e chaves não fiquem em texto claro.
+### 5. Auto-Updater (`src/updater.py`)
+Hot-swap binary updates from GitHub Releases API with SHA-256 verification and rollback capability.
 
-### **5\. Auto-Updater (src/updater.py)**
+### 6. Chat & Auto-Patch (`src/ui/chat_app.py`)
+Interactive TUI with per-branch message memory. F5 extracts code blocks into patch files. F6 exports sessions to Markdown. Slash commands for common actions.
 
-* **Hot-Swap:** Verifica na API do GitHub Releases a versão mais recente (.sha256). Se houver divergência, baixa o binário compilado (gitpr.exe) em background, renomeia o executável atual e substitui sem quebrar a execução em andamento (com capacidade de rollback).
+### 7. Internationalization (`src/i18n.py`)
+Laravel-inspired `__()` helper with named placeholders. JSON translation packs in `~/.gitpr/langs/`. English fallback for missing keys. Supports `en`, `pt_br`, `pt_pt`, `fr`, `es`.
 
-### **6\. Interface de Chat e Auto-Patch (src/ui/chat\_app.py)**
+### 8. Map-Reduce Architecture
+Two-tier optimization for large diffs:
+- **Tier 1:** Native Git flags (`-U1`, `-w`, `-M`, `-B`) for minimal context
+- **Tier 2:** Token estimation (`len() // 4`), safe splitting at `diff --git` boundaries, batched AI calls with `time.sleep(1)` rate limiting, and final Reduce step concatenating summaries
 
-* **Interatividade:** Possui um histórico de mensagens (self.memory).  
-* **Atalho de Extração (F5):** Função action\_apply\_code usa Regex não-destrutivo para extrair blocos de código sugeridos pela IA e exportá-los para um ficheiro GITPR\_PATCH\_SUGGESTION.txt para fácil aplicação pelo dev.
+---
 
-### **7\. Internacionalização (i18n)**
+## Key Metrics
 
-* **Traduções:** Sistema de dicionários JSON (ex: langs/pt\_br.json) contendo traduções completas para todos os menus de ajuda do Click, alertas do linter, mensagens do sistema e retornos do Git Hooks.
+- **AI Providers:** 3 (Gemini, DeepSeek, Ollama)
+- **Supported Languages:** 5 (EN, PT-BR, PT-PT, FR, ES)
+- **CLI Commands:** 12+ flags
+- **Linter:** YAML-configurable, zero AI cost
+- **Cache:** MD5-based, automatic deduplication
+- **Security:** Fernet symmetric encryption (AES-128-CBC)
 
-### **8. Otimização Nativa e Map-reduce
+---
 
-Foi implementada uma arquitetura em duas camadas para contornar o limite de tokens (`429 RESOURCE_EXHAUSTED` e `400 Invalid Request Error`) nas APIs do Gemini e DeepSeek, garantindo a leitura completa de Pull Requests gigantes (como migrações massivas de Blade para Vue/Inertia).
+## Documentation
 
-#### 🛠️ Mudanças Técnicas (`src/core.py`)
+Full documentation is available at [github.com/natafiuza/gitpr](https://github.com/natafiuza/gitpr) and on this website.
 
-1. **Otimização Nativa do Git (Nível 1 de Defesa):**
-   - Injeção das flags cirúrgicas `-U1`, `-w`, `-M` e `-B` nos comandos das funções `get_git_diff` e `get_git_full_diff`.
-   - *Impacto:* Redução imediata de contexto inútil, ignorando reindentações e forçando a leitura de reescritas complexas como deleção/criação.
+---
 
-2. **Estimativa e Split Seguro (Nível 2 de Defesa):**
-   - Implementação da função `estimate_token_count` usando a heurística leve de `len() // 4`.
-   - Implementação da função `split_diff_into_chunks` com um limite de 90.000 tokens, quebrando o texto estritamente no delimitador regex `(^diff --git a/)` para não corromper a sintaxe de leitura da IA.
-
-3. **Arquitetura Map-Reduce:**
-   - Refatoração do fluxo da `generate_pr_content` para iterar assincronamente sobre os chunks.
-   - Aplicação de chamadas parciais exigindo um JSON com a chave `{"resumo": "..."}`.
-   - Injeção de um `time.sleep(1)` entre os lotes ("Map") para respeitar o Rate Limit.
-   - Concatenação dos resumos parciais ("Reduce") enviada no prompt principal para manter o padrão de saída e o tom de voz da arquitetura (Code Review ou PR Description).
+[← Contributing](/contribuicao) &nbsp;|&nbsp; [Home →](/index)

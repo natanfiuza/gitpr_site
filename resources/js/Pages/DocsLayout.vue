@@ -21,7 +21,7 @@
                 <ul class="space-y-2">
                     <li v-for="item in menu_items" :key="item.path">
                         <Link :href="'/' + item.path"
-                            :class="['block py-1 transition-colors', page_title === item.path ? 'text-gitpr_cyan_light font-bold' : 'text-gitpr_primary hover:text-gitpr_cyan_light']">
+                            :class="['block py-1 transition-colors', current_page === item.path ? 'text-gitpr_cyan_light font-bold' : 'text-gitpr_primary hover:text-gitpr_cyan_light']">
                             {{ item.title }}
                         </Link>
                     </li>
@@ -33,8 +33,11 @@
         <main class="flex-1 p-8 lg:p-12 overflow-auto">
             <button @click="is_mobile_menu_open = !is_mobile_menu_open"
                 class="md:hidden text-gitpr_cyan_light mb-6 border border-gitpr_dark_border px-3 py-1 rounded">
-                ☰ Menu
+                ☰ {{ ui_strings.menu }}
             </button>
+            <header class="max-w-4xl mx-auto flex justify-end mb-4">
+                <LanguageSelector :current_lang="current_lang" />
+            </header>
             <div class="max-w-4xl mx-auto">
                 <h1
                     class="text-sm uppercase tracking-wider text-gitpr_primary mb-6 border-b border-gitpr_dark_border pb-2">
@@ -44,7 +47,7 @@
                 <MarkdownViewer :content="content" @update_toc="page_toc = $event" />
             </div>
             <aside class="hidden xl:block fixed top-12 right-12 w-64 border-l border-gitpr_dark_border pl-4">
-                <h4 class="text-gitpr_cyan_light uppercase tracking-wide text-xs font-bold mb-4">Nesta página</h4>
+                <h4 class="text-gitpr_cyan_light uppercase tracking-wide text-xs font-bold mb-4">{{ ui_strings.on_this_page }}</h4>
                 <ul class="space-y-2 text-sm">
                     <li v-for="item in page_toc" :key="item.id" :class="item.level === 'h3' ? 'ml-4' : ''">
                         <button @click="scroll_to_anchor(item.id)"
@@ -59,9 +62,10 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue';
-import { Link, Head } from '@inertiajs/vue3';
+import { ref, watch, nextTick, onMounted } from 'vue';
+import { Link, Head, router } from '@inertiajs/vue3';
 import MarkdownViewer from '../Components/MarkdownViewer.vue';
+import LanguageSelector from '../Components/LanguageSelector.vue';
 
 const is_mobile_menu_open = ref(false);
 
@@ -100,11 +104,26 @@ const scroll_to_anchor = (target_id) => {
 
 defineProps({
     content: String,
+    current_page: String,
     page_title: String,
     menu_items: {
         type: Array,
         default: () => []
     },
-    seo_description: String
+    ui_strings: {
+        type: Object,
+        default: () => ({ on_this_page: 'On this page', menu: 'Menu' })
+    },
+    seo_description: String,
+    current_lang: String
+});
+
+onMounted(() => {
+    const saved_lang = localStorage.getItem('gitpr_lang');
+    const url_params = new URLSearchParams(window.location.search);
+
+    if (saved_lang && saved_lang !== props.current_lang && !url_params.has('lang')) {
+        router.get(window.location.pathname, { lang: saved_lang }, { preserveScroll: true, replace: true });
+    }
 });
 </script>
