@@ -11,11 +11,11 @@
         <header
             class="flex-shrink-0 h-14 bg-white border-b border-slate-200 dark:bg-gitpr_dark dark:border-gitpr_dark_border flex items-center px-4 lg:px-6 z-50 transition-colors duration-300">
             <!-- Brand -->
-            <div class="flex items-center gap-2">
+            <Link href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <span
                     class="font-bold text-xl text-slate-900 dark:text-gitpr_text transition-colors duration-300">GitPR</span>
                 <span class="text-xs text-gitpr_cyan_dark hidden sm:inline">[ CLI ]</span>
-            </div>
+            </Link>
 
             <!-- Right: GitHub + Theme + Language + Mobile Toggle -->
             <div class="flex items-center gap-3 ml-auto">
@@ -78,16 +78,41 @@
 
                 <!-- TOC Sidebar (desktop only) -->
                 <aside
-                    class="hidden xl:block fixed top-20 right-10 w-56 border-l border-slate-200 dark:border-gitpr_dark_border pl-4 transition-colors duration-300">
-                    <h4 class="text-gitpr_cyan_light uppercase tracking-wide text-xs font-bold mb-4">{{ ui_strings.on_this_page }}</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li v-for="item in page_toc" :key="item.id" :class="item.level === 'h3' ? 'ml-4' : ''">
-                            <button @click="scroll_to_anchor(item.id)"
-                                :class="['text-left transition-colors', active_header === item.id ? 'text-gitpr_cyan_light font-bold' : 'text-gitpr_primary hover:text-gitpr_text']">
-                                {{ item.text }}
-                            </button>
-                        </li>
-                    </ul>
+                    class="hidden xl:flex xl:flex-col fixed top-20 right-10 w-56 max-h-[calc(100vh-6rem)] border-l border-slate-200 dark:border-gitpr_dark_border pl-4 transition-colors duration-300">
+                    <div ref="toc_scroll_ref" @scroll="on_toc_scroll" class="overflow-y-auto flex-1 pr-1 toc-scroll">
+                        <h4 class="text-gitpr_cyan_light uppercase tracking-wide text-xs font-bold mb-4">{{ ui_strings.on_this_page }}</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li v-for="item in page_toc" :key="item.id" :class="item.level === 'h3' ? 'ml-4' : ''">
+                                <button @click="scroll_to_anchor(item.id)" :data-toc="item.id"
+                                    :class="['text-left transition-colors', active_header === item.id ? 'text-gitpr_cyan_light font-bold' : 'text-gitpr_primary hover:text-gitpr_text']">
+                                    {{ item.text }}
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Contributors -->
+                        <template v-if="collaborators.length">
+                            <h4 class="text-gitpr_cyan_light uppercase tracking-wide text-xs font-bold mt-8 mb-3">{{ ui_strings.contributors }}</h4>
+                            <div class="flex flex-wrap gap-2 pb-2">
+                                <a v-for="c in collaborators" :key="c.login"
+                                    :href="'https://github.com/' + c.login" target="_blank" rel="noopener noreferrer"
+                                    class="group relative"
+                                    :title="'@' + c.login">
+                                    <img :src="c.avatar_url + '&s=64'" :alt="c.login"
+                                        width="36" height="36"
+                                        class="rounded-full border-2 border-transparent group-hover:border-gitpr_cyan_light transition-all duration-200">
+                                    <span class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-xs text-gitpr_cyan_light opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity duration-200">@{{ c.login }}</span>
+                                </a>
+                            </div>
+                        </template>
+                    </div>
+                    <!-- Scroll indicator arrow -->
+                    <button v-if="toc_scrollable" @click="scroll_toc"
+                        class="flex justify-center py-1 text-gitpr_primary hover:text-gitpr_cyan_light transition-colors text-xs"
+                        :title="toc_at_bottom ? 'Voltar ao topo' : 'Rolar para baixo'">
+                        <span v-if="toc_at_bottom" class="transform rotate-180">▼</span>
+                        <span v-else>▼</span>
+                    </button>
                 </aside>
             </main>
         </div>
@@ -112,7 +137,11 @@ const props = defineProps({
     },
     ui_strings: {
         type: Object,
-        default: () => ({ on_this_page: 'On this page', menu: 'Menu' })
+        default: () => ({ on_this_page: 'On this page', menu: 'Menu', contributors: 'Contributors' })
+    },
+    collaborator_usernames: {
+        type: Array,
+        default: () => []
     },
     seo_description: String,
     current_lang: String
@@ -120,11 +149,29 @@ const props = defineProps({
 
 const is_mobile_menu_open = ref(false);
 const release_tag = ref('');
+const collaborators = ref([]);
 
 const page_toc = ref([]);
+const toc_scroll_ref = ref(null);
+const toc_scrollable = ref(false);
+const toc_at_bottom = ref(false);
 
 const active_header = ref('');
 let intersection_observer = null;
+
+// Scroll the TOC sidebar to keep the active heading visible
+const scroll_toc_to_active = (header_id) => {
+    const toc_el = toc_scroll_ref.value;
+    if (!toc_el || !header_id) return;
+    const active_btn = toc_el.querySelector(`button[data-toc="${header_id}"]`);
+    if (!active_btn) return;
+    const container_rect = toc_el.getBoundingClientRect();
+    const btn_rect = active_btn.getBoundingClientRect();
+    const offset = btn_rect.top - container_rect.top;
+    if (offset < 30 || offset > container_rect.height - 40) {
+        active_btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+};
 
 watch(page_toc, async () => {
     await nextTick();
@@ -137,6 +184,7 @@ watch(page_toc, async () => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 active_header.value = entry.target.id;
+                scroll_toc_to_active(entry.target.id);
             }
         });
     }, { rootMargin: '0px 0px -80% 0px' });
@@ -153,6 +201,51 @@ const scroll_to_anchor = (target_id) => {
         html_element.scrollIntoView({ behavior: 'smooth' });
     }
 };
+
+// ── TOC scroll indicator ───────────────────────────────────────
+const on_toc_scroll = () => {
+    const el = toc_scroll_ref.value;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    toc_scrollable.value = scrollHeight > clientHeight;
+    toc_at_bottom.value = scrollTop + clientHeight >= scrollHeight - 4;
+};
+
+const scroll_toc = () => {
+    const el = toc_scroll_ref.value;
+    if (!el) return;
+    if (toc_at_bottom.value) {
+        el.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    }
+};
+
+// Check scrollability after TOC updates
+watch(page_toc, async () => {
+    await nextTick();
+    on_toc_scroll();
+});
+
+// ── Fetch collaborator avatars from GitHub API ──────────────────
+const load_collaborators = async (usernames) => {
+    if (!usernames || !usernames.length) { collaborators.value = []; return; }
+
+    const results = [];
+    const cache = {};
+    for (const username of usernames) {
+        try {
+            if (!cache[username]) {
+                const resp = await fetch(`https://api.github.com/users/${username}`);
+                cache[username] = resp.ok ? await resp.json() : null;
+            }
+            if (cache[username]) results.push(cache[username]);
+        } catch (_) {}
+    }
+    collaborators.value = results;
+};
+
+watch(() => props.collaborator_usernames, (val) => load_collaborators(val), { immediate: true });
 
 onMounted(async () => {
     const saved_lang = localStorage.getItem('gitpr_lang');
