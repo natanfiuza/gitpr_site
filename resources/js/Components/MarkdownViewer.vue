@@ -62,10 +62,35 @@ const handle_copy = async (event) => {
     }
 };
 
+const highlight_marked_text = () => {
+    const url_params = new URLSearchParams(window.location.search);
+    const mark_term = url_params.get('mark');
+    if (!mark_term || !content_ref.value) return;
+
+    const walker = document.createTreeWalker(content_ref.value, NodeFilter.SHOW_TEXT, null, false);
+    const nodes_to_replace = [];
+    let node;
+
+    while (node = walker.nextNode()) {
+        if (node.nodeValue.toLowerCase().includes(mark_term.toLowerCase()) && node.parentNode.tagName !== 'CODE') {
+            nodes_to_replace.push(node);
+        }
+    }
+
+    nodes_to_replace.forEach(n => {
+        const regex = new RegExp(`(${mark_term})`, 'gi');
+        const wrapper = document.createElement('span');
+        wrapper.innerHTML = n.nodeValue.replace(regex, '<mark class="bg-yellow-400 text-black px-1 rounded">$1</mark>');
+        n.parentNode.replaceChild(wrapper, n);
+    });
+};
+
 watch(parsed_content, async () => {
     await nextTick();
     if (!content_ref.value) return;
 
+    highlight_marked_text();
+    
     const extracted_headers = [];
     const dom_elements = content_ref.value.querySelectorAll('h2, h3');
 
