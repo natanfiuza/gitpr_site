@@ -123,6 +123,32 @@ Ouvre un **panneau TUI** interactif pour éditer et soumettre des issues structu
 
 ---
 
+---
+
+### 🏺 Archéologue de Code (Git Blame)
+
+```bash
+gitpr -b fichier.py:10-20
+# ou
+gitpr --blame chemin/vers/fichier
+```
+
+Trace l'**origine et l'évolution** des règles métier en utilisant `git blame` avec classification par IA. Deux modes :
+
+| Mode | Commande | Description |
+| --- | --- | --- |
+| **Direct** | `gitpr --blame fichier.py:10-20` | Analyse une plage de lignes spécifique immédiatement |
+| **Interactif** | `gitpr --blame fichier.py` | Parcourt le fichier et sélectionne la région cible dans une TUI |
+
+L'IA classe chaque commit pertinent comme **ORIGIN** (la règle métier a été introduite) ou **REFACTORING** (transformation sans changement de logique).
+
+> 💡 **Combinez avec `--issue`** pour générer des issues structurées de dette technique à partir de l'analyse blame :
+> ```bash
+> gitpr -is --blame module_legacy.py:45-120
+> ```
+
+---
+
 ### 🪝 Git Hooks
 
 ```bash
@@ -132,6 +158,10 @@ gitpr --installhooks
 ```
 
 Installe les hooks `pre-commit` et `prepare-commit-msg` dans votre dépôt pour des barrières de qualité automatiques.
+
+::: note --hook `<fichier>`
+GitPR possède un flag caché `--hook <fichier>` déclenché exclusivement par le système de Git Hooks en arrière-plan. Il permet à l'IA d'injecter le message de commit suggéré directement dans le fichier temporaire de Git, sans encombrer votre terminal.
+:::
 
 ---
 
@@ -179,6 +209,10 @@ gitpr -h              # Aide générale
 gitpr -h --issue      # Aide contextuelle pour la commande issue
 gitpr -h --linter     # Aide contextuelle pour la commande linter
 ```
+
+::: note --pre-save (Debug)
+GitPR possède un flag caché de debug `--pre-save` qui peut être combiné avec n'importe quelle commande IA (ex : `gitpr -c --pre-save`). Avant chaque appel IA, il enregistre le **payload complet** envoyé au modèle — instruction système + prompt + compteurs de caractères — dans un fichier `_{action}-{datetime}.json` dans le dossier courant. Utile pour inspecter les très grands prompts. Lorsque la réponse provient du cache local, aucun appel n'est effectué et aucun fichier n'est généré.
+:::
 
 ---
 

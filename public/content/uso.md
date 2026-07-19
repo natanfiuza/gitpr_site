@@ -123,6 +123,30 @@ Opens an interactive **TUI panel** for editing and submitting structured issues.
 
 ---
 
+### 🏺 Code Archaeologist (Git Blame)
+
+```bash
+gitpr -b file.py:10-20
+# or
+gitpr --blame path/to/file
+```
+
+Traces the **origin and evolution** of business rules using `git blame` with AI classification. Two modes:
+
+| Mode | Command | Description |
+| --- | --- | --- |
+| **Direct** | `gitpr --blame file.py:10-20` | Analyze a specific line range immediately |
+| **Interactive** | `gitpr --blame file.py` | Browse the file and select the target region in a TUI |
+
+The AI classifies each relevant commit as **ORIGIN** (the business rule was introduced) or **REFACTORING** (transformation without logic change).
+
+> 💡 **Combine with `--issue`** to generate structured technical debt issues from the blame analysis:
+> ```bash
+> gitpr -is --blame legacy_module.py:45-120
+> ```
+
+---
+
 ### 🪝 Git Hooks
 
 ```bash
@@ -132,6 +156,10 @@ gitpr --installhooks
 ```
 
 Installs `pre-commit` and `prepare-commit-msg` hooks in your repository for automatic quality gates.
+
+::: note --hook `<file>`
+GitPR has a hidden flag `--hook <file>` triggered exclusively by the Git Hooks system in the background. It allows the AI to inject the suggested commit message directly into Git's temporary file, without cluttering your terminal.
+:::
 
 ---
 
@@ -179,6 +207,10 @@ gitpr -h              # General help
 gitpr -h --issue      # Contextual help for the issue command
 gitpr -h --linter     # Contextual help for the linter command
 ```
+
+::: note --pre-save (Debug)
+GitPR has a hidden debug flag `--pre-save` that can be combined with any AI command (e.g., `gitpr -c --pre-save`). Before each AI call, it saves the **full payload** sent to the model — system instruction + prompt + character counters — to a `_{action}-{datetime}.json` file in the current folder. Useful for inspecting very large prompts. When the response comes from the local cache, no call is made and no file is generated.
+:::
 
 ---
 

@@ -34,7 +34,13 @@ On first run, a wizard will guide you through setup — just enter your API key 
 | **Static Linter** | `gitpr -l` | Offline rule validation — zero AI cost, CI/CD ready |
 | **Issue Generator** | `gitpr -is` | Auto-generate structured issues with 3 context engines |
 | **Git Hooks** | `gitpr -ih` | Install pre-commit and prepare-commit-msg hooks locally |
+| **Code Archaeologist** | `gitpr -b` | Trace origin of business rules via `git blame` with AI classification |
 | **Auto-Update** | `gitpr -u` | Hot-swap binary updates from GitHub Releases |
+
+::: note Hidden Technical Flags
+- **`--hook <file>`** — Used internally by Git Hooks to inject commit messages directly into Git's temp file.
+- **`--pre-save`** — Debug flag that saves the full AI payload (system instruction + prompt) to a JSON file before each call. Combine with any AI command (e.g., `gitpr -c --pre-save`).
+:::
 
 ---
 

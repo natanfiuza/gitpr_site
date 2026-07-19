@@ -123,6 +123,32 @@ Abre um **painel TUI** interativo para editar e enviar issues estruturadas. **3 
 
 ---
 
+---
+
+### 🏺 Arqueólogo de Código (Git Blame)
+
+```bash
+gitpr -b ficheiro.py:10-20
+# ou
+gitpr --blame caminho/para/ficheiro
+```
+
+Rastreia a **origem e evolução** de regras de negócio utilizando `git blame` com classificação por IA. Dois modos:
+
+| Modo | Comando | Descrição |
+| --- | --- | --- |
+| **Direto** | `gitpr --blame ficheiro.py:10-20` | Analisa um intervalo de linhas específico imediatamente |
+| **Interativo** | `gitpr --blame ficheiro.py` | Navega pelo ficheiro e seleciona a região alvo numa TUI |
+
+A IA classifica cada commit relevante como **ORIGIN** (a regra de negócio foi introduzida) ou **REFACTORING** (transformação sem alteração de lógica).
+
+> 💡 **Combine com `--issue`** para gerar issues estruturadas de dívida técnica a partir da análise de blame:
+> ```bash
+> gitpr -is --blame modulo_legado.py:45-120
+> ```
+
+---
+
 ### 🪝 Git Hooks
 
 ```bash
@@ -132,6 +158,10 @@ gitpr --installhooks
 ```
 
 Instala hooks `pre-commit` e `prepare-commit-msg` no seu repositório para barreiras de qualidade automáticas.
+
+::: note --hook `<ficheiro>`
+O GitPR possui uma flag oculta `--hook <ficheiro>` acionada exclusivamente pelo sistema de Git Hooks em segundo plano. Permite que a IA injete a mensagem de commit sugerida diretamente no ficheiro temporário do Git, sem poluir o seu terminal.
+:::
 
 ---
 
@@ -179,6 +209,10 @@ gitpr -h              # Ajuda geral
 gitpr -h --issue      # Ajuda contextual para o comando issue
 gitpr -h --linter     # Ajuda contextual para o comando linter
 ```
+
+::: note --pre-save (Debug)
+O GitPR possui uma flag oculta de debug `--pre-save` que pode ser combinada com qualquer comando de IA (ex: `gitpr -c --pre-save`). Antes de cada chamada à IA, guarda o **payload completo** enviado ao modelo — instrução do sistema + prompt + contadores de caracteres — num ficheiro `_{action}-{datetime}.json` na pasta atual. Útil para inspecionar prompts muito grandes. Quando a resposta vem da cache local, nenhuma chamada é feita e nenhum ficheiro é gerado.
+:::
 
 ---
 

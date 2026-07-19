@@ -1,4 +1,3 @@
-<!-- Substitua a tag <div> principal por esta: -->
 <template>
     <div ref="content_ref" @click="handle_copy"
         class="prose prose-invert max-w-none prose-pre:bg-gitpr_dark_border prose-pre:relative prose-pre:mt-8"
@@ -8,8 +7,9 @@
 <script setup>
 import { computed, ref, watch, nextTick } from 'vue';
 import MarkdownIt from 'markdown-it';
+import MarkdownItContainer from 'markdown-it-container';
 import hljs from 'highlight.js';
-import 'highlight.js/styles/github-dark.css'; // Estilo do highlight
+import 'highlight.js/styles/github-dark.css';
 
 const props = defineProps({
     content: {
@@ -32,6 +32,40 @@ const md_parser = new MarkdownIt({
     }
 });
 
+// ── Admonitions (markdown-it-container) ──────────────────────────
+const admonition_types = ['note', 'warning', 'tip'];
+
+const icons = {
+    note:    '⚙️',
+    warning: '⚠️',
+    tip:     '💡',
+};
+
+const labels_en = {
+    note:    'Technical Note',
+    warning: 'Warning',
+    tip:     'Tip',
+};
+
+admonition_types.forEach(type => {
+    md_parser.use(MarkdownItContainer, type, {
+        validate: (params) => params.trim().startsWith(type),
+        render: (tokens, idx) => {
+            const token = tokens[idx];
+            if (token.nesting === 1) {
+                // Opening tag
+                const title = token.info.trim().replace(type, '').trim() || labels_en[type];
+                const icon = icons[type] || '';
+                return `<div class="admonition admonition-${type}"><p class="admonition-title">${icon} ${title}</p>\n`;
+            } else {
+                // Closing tag
+                return '</div>\n';
+            }
+        }
+    });
+});
+
+// ── Code fence with copy button ──────────────────────────────────
 const default_render = md_parser.renderer.rules.fence || function (tokens, idx, options, env, self) {
     return self.renderToken(tokens, idx, options);
 };
@@ -90,7 +124,7 @@ watch(parsed_content, async () => {
     if (!content_ref.value) return;
 
     highlight_marked_text();
-    
+
     const extracted_headers = [];
     const dom_elements = content_ref.value.querySelectorAll('h2, h3');
 
