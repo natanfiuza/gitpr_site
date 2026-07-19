@@ -8,11 +8,20 @@ use Inertia\Inertia;
 
 class DocsController extends Controller
 {
+    /**
+     * Render a documentation page with Inertia.
+     *
+     * Loads the markdown file for the requested page and language (with English
+     * fallback), resolves the translated page title from the menu, and passes
+     * everything to the DocsLayout Inertia component.
+     *
+     * @param  Request  $request  The incoming HTTP request. Supports `?lang=` query param.
+     * @param  string   $page     The page slug (default: 'index'). Maps to public/content/{page}.md.
+     * @return \Inertia\Response
+     */
     public function show_document(Request $request, string $page = 'index')
     {
         $lang = $request->query('lang', 'en');
-
-       
 
         $base_path = public_path("content/{$page}");
         $file_path = $lang === 'en' ? "{$base_path}.md" : "{$base_path}.{$lang}.md";
@@ -66,5 +75,65 @@ class DocsController extends Controller
             'current_lang'    => $lang,
         ]);
 
+    }
+
+    /**
+     * Search across all documentation pages and return matching results as JSON.
+     *
+     * Iterates over all pages listed in the menu, loads each markdown file in
+     * the requested language (with English fallback), and checks whether the
+     * search term appears in the content. Matching pages are returned with a
+     * snippet of surrounding context.
+     *
+     * @param  Request  $request  The incoming HTTP request. Supports `?q=` (search term) and `?lang=` query params.
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search_content(Request $request)
+    {
+        $search_term = strtolower($request->query('q', ''));
+        $lang        = $request->query('lang', 'en');
+
+        if (empty($search_term)) {
+            return response()->json([]);
+        }
+
+        $menu_path = public_path('content/menu.json');
+        if (! File::exists($menu_path)) {
+            return response()->json([]);
+        }
+
+        $all_menus = json_decode(File::get($menu_path), true);
+        $menu_data = $all_menus[$lang] ?? ($all_menus['en'] ?? []);
+
+        $results = [];
+
+        foreach ($menu_data as $item) {
+            $page      = $item['path'];
+            $base_path = public_path("content/{$page}");
+            $file_path = $lang === 'en' ? "{$base_path}.md" : "{$base_path}.{$lang}.md";
+
+            if (! File::exists($file_path) && $lang !== 'en') {
+                $file_path = "{$base_path}.md"; // Fallback
+            }
+
+            if (File::exists($file_path)) {
+                $content       = File::get($file_path);
+                $clean_content = trim(preg_replace('/\s+/', ' ', preg_replace('/[#*`>-]/', '', $content)));
+
+                if (str_contains(strtolower($clean_content), $search_term)) {
+                    $pos     = stripos($clean_content, $search_term);
+                    $start   = max(0, $pos - 40);
+                    $snippet = substr($clean_content, $start, 100);
+
+                    $results[] = [
+                        'title'   => $item['title'],
+                        'path'    => $page,
+                        'snippet' => '...' . trim($snippet) . '...',
+                    ];
+                }
+            }
+        }
+
+        return response()->json($results);
     }
 }

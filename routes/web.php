@@ -6,8 +6,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/{page?}', [DocsController::class, 'show_document'])->where('page', '.*');
 
+Route::get('/api/search', [\App\Http\Controllers\DocsController::class, 'search_content'])->name('api.search');
+Route::get('/{page?}', [DocsController::class, 'show_document'])->where('page', '.*');
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome', [
