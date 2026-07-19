@@ -15,7 +15,7 @@
 - **UI/Terminal:** TUI interactiva (Textual) para chat y edición de issues
 - **Cifrado:** Cifrado simétrico Fernet para protección local de claves API
 - **Configuración:** dotenv, PyYAML (para el linter estático)
-- **Proveedores IA:** SDK Google GenAI (gemini-2.5-flash) + DeepSeek + Ollama
+- **Proveedores IA:** SDK Google GenAI (gemini-pro-latest) + DeepSeek + Ollama
 
 ---
 

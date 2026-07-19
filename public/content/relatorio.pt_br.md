@@ -15,7 +15,7 @@ O **GitPR** é uma ferramenta CLI para automação de fluxo de trabalho Git com 
 - **UI/Terminal:** TUI interativa (Textual) para chat e edição de issues
 - **Criptografia:** Criptografia simétrica Fernet para proteção local de chaves de API
 - **Configuração:** dotenv, PyYAML (para o linter estático)
-- **Provedores IA:** SDK Google GenAI (gemini-2.5-flash) + DeepSeek + Ollama
+- **Provedores IA:** SDK Google GenAI (gemini-pro-latest) + DeepSeek + Ollama
 
 ---
 

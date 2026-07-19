@@ -1,7 +1,7 @@
 <template>
     <div class="relative inline-block text-left">
         <select v-model="selected_lang" @change="change_language"
-            class="bg-gitpr_dark border border-gitpr_dark_border text-gitpr_text text-sm rounded focus:ring-gitpr_primary focus:border-gitpr_primary block w-40 p-2 cursor-pointer">
+            class="bg-white border-slate-200 text-slate-900 dark:bg-gitpr_dark border dark:border-gitpr_dark_border dark:text-gitpr_text text-sm rounded focus:ring-gitpr_primary focus:border-gitpr_primary block w-40 p-2 cursor-pointer transition-colors duration-300">
             <option value="en">🇺🇸 English</option>
             <option value="pt_br">🇧🇷 Português (BR)</option>
             <option value="pt_pt">🇵🇹 Português (PT)</option>

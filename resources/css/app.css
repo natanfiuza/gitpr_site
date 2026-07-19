@@ -41,3 +41,12 @@
 .admonition code {
     @apply bg-gitpr_dark_border text-gitpr_cyan_light px-1.5 py-0.5 rounded text-xs;
 }
+
+/* ── Collaborators Grid ────────────────────────────────────────── */
+.collaborators-grid {
+    @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 my-6;
+}
+
+.collaborators-grid a {
+    text-decoration: none;
+}

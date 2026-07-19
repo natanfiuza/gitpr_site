@@ -94,12 +94,28 @@ gitpr/
 
 ## Publishing to PyPI
 
-For maintainers:
+[PyPI](https://pypi.org/project/gitpr-cli/) (Python Package Index) is the official package repository for Python — like npm for JavaScript or Packagist for PHP. Publishing to PyPI allows Linux and macOS users to install GitPR with a single command:
 
 ```bash
-pipenv run python -m build
-pipenv run twine upload dist/*
+pip install gitpr-cli
 ```
+
+### How Publishing Works
+
+Only the project maintainer (**Natan Fiuza**) holds the credentials required to publish new versions. This is intentional — it ensures that only verified, reviewed code reaches end users through the official channel.
+
+The two-step process:
+
+| Command | What it does |
+| --- | --- |
+| `pipenv run python -m build` | Packages the source code into distributable `.tar.gz` and `.whl` files in the `dist/` folder |
+| `pipenv run twine upload dist/*` | Uploads those packages to PyPI using the maintainer's authenticated token |
+
+### For Contributors
+
+You don't need PyPI access to contribute! Fork the repo, make your changes, and submit a Pull Request. Once merged, the maintainer will include your contribution in the next PyPI release.
+
+> 📦 **PyPI project page:** [pypi.org/project/gitpr-cli](https://pypi.org/project/gitpr-cli/)
 
 ---
 
@@ -113,7 +129,19 @@ See the [LICENSE](https://github.com/natafiuza/gitpr/blob/main/LICENSE) file for
 
 ## Acknowledgments
 
+### Creator & Maintainer
+
 Project conceived and developed by **Natan Fiuza** — [contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br)
+
+### Contributors
+
+Thanks to everyone who has contributed to GitPR CLI:
+
+::: collaborators
+https://github.com/natanfiuza
+:::
+
+> 💡 **Want to appear here?** [Contribute to the project →](#how-to-contribute)
 
 ---
 

@@ -13,13 +13,13 @@ El proveedor por defecto y recomendado. Rápido, económico y con soporte nativo
 ```bash
 # Definir por defecto en ~/.gitpr/.env
 GITPR_PROVIDER=gemini
-GEMINI_API_MODEL=gemini-2.5-flash
+GEMINI_API_MODEL=gemini-pro-latest
 
 # O usar una vez
 gitpr --provider gemini
 ```
 
-**Modelo por defecto:** `gemini-2.5-flash`
+**Modelo por defecto:** `gemini-pro-latest`
 
 **Obtén tu clave API:** [Google AI Studio](https://aistudio.google.com/apikey)
 
@@ -32,13 +32,13 @@ Alternativa potente con excelente capacidad de análisis de código. Usa el SDK 
 ```bash
 # Definir por defecto en ~/.gitpr/.env
 GITPR_PROVIDER=deepseek
-DEEPSEEK_API_MODEL=deepseek-chat
+DEEPSEEK_API_MODEL=deepseek-v4-pro
 
 # O usar una vez
 gitpr --provider deepseek
 ```
 
-**Modelo por defecto:** `deepseek-chat`
+**Modelo por defecto:** `deepseek-v4-pro`
 
 **Obtén tu clave API:** [DeepSeek Platform](https://platform.deepseek.com/api_keys)
 
