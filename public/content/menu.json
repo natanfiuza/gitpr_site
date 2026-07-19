@@ -1,0 +1,14 @@
+[
+    {
+        "title": "Início",
+        "path": "index"
+    },
+    {
+        "title": "Bibliotecas",
+        "path": "biblioteca"
+    },
+    {
+        "title": "Relatório",
+        "path": "relatorio"
+    }
+]
