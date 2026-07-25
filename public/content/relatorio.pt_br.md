@@ -1,4 +1,4 @@
-# **🚀 Relatório de Status do Projeto: GitPR CLI — v0.0.27 (2026-07-19)**
+# **🚀 Relatório de Status do Projeto: GitPR CLI — v0.0.28 (2026-07-24)**
 
 ---
 
@@ -6,7 +6,9 @@
 
 O **GitPR** é uma ferramenta de CLI (Command Line Interface) avançada para automação de processos Git utilizando Inteligência Artificial (Google Gemini / DeepSeek / Ollama). O objetivo principal é atuar como um assistente inteligente local que faz Code Reviews, gera Pull Requests, mensagens de commit semânticas, audita dívida técnica e injeta boas práticas no fluxo de trabalho do desenvolvedor (Shift Left).
 
-- **Versão atual:** 0.0.27
+**Novidade desta versão:** Integração com **MCP (Model Context Protocol)** — o GitPR agora funciona como um servidor MCP, expondo todas as suas capacidades de IA como ferramentas diretamente dentro de editores como VS Code, Cursor e Claude Desktop, sem precisar de terminal.
+
+- **Versão atual:** 0.0.28
 - **Publicação:** PyPI (`pip install gitpr-cli`) + GitHub Releases (binário standalone)
 - **Website:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
 - **Repositório:** [github.com/natanfiuza/gitpr](https://github.com/natanfiuza/gitpr)
@@ -23,7 +25,8 @@ O **GitPR** é uma ferramenta de CLI (Command Line Interface) avançada para aut
 * **Criptografia:** cryptography.fernet para proteção local de chaves de API.
 * **Configuração:** dotenv, pyyaml (para o linter estático).
 * **IA Providers:** Integração via SDK oficial do Google GenAI (gemini-2.5-flash), OpenAI SDK (DeepSeek), e OpenAI SDK (Ollama local).
-* **Testes:** Pytest + unittest.mock (7 arquivos de teste, 130+ cenários).
+* **MCP:** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 (SDK oficial Anthropic para Model Context Protocol) — **NOVIDADE v0.0.28**.
+* **Testes:** Pytest + unittest.mock (8 arquivos de teste, 160+ cenários).
 * **Empacotamento:** PyInstaller (binário standalone) + setuptools/build (PyPI).
 * **CI/CD:** GitHub Actions (`pr-review.yml`) + `action.yml` para execução em pipelines.
 
@@ -43,10 +46,11 @@ O **GitPR** é uma ferramenta de CLI (Command Line Interface) avançada para aut
 ### **2. Interface CLI e Setup (`src/main.py` e `src/config.py`)**
 
 * **Setup Inicial:** Detecta primeira execução, cria a pasta `~/.gitpr/`, e solicita interativamente as chaves de API, preferências e idioma, salvando num `.env`.
-* **Routing de Comandos:** Gerencia todas as flags (`--commit`, `--review`, `--fullreview`, `--linter`, `--skill`, `--issue`, `--blame`, `--chat`, `--lang`, `--provider`, `--pre-save`).
+* **Routing de Comandos:** Gerencia todas as flags (`--commit`, `--review`, `--fullreview`, `--linter`, `--skill`, `--issue`, `--blame`, `--chat`, `--mcp`, `--lang`, `--provider`, `--pre-save`).
 * **Ajuda Contextual:** `-h --flag` exibe documentação específica da funcionalidade com link direto (language-aware) para o GitHub.
 * **--lang:** Força idioma da interface para a execução atual sem persistir a alteração.
 * **--provider:** Força provedor de IA (`gemini`, `deepseek`, `ollama`) para a execução atual.
+* **--mcp:** Inicia o servidor MCP no transporte stdio para integração com editores — **NOVIDADE v0.0.28**.
 
 ### **3. Motor de Análise Estática / Linter (`src/linter_engine.py`)**
 
@@ -84,7 +88,8 @@ O **GitPR** é uma ferramenta de CLI (Command Line Interface) avançada para aut
 * **5 Idiomas:** en_us (padrão/fallback), pt_br, pt_pt, es_es, fr_fr.
 * **Fallback em Inglês:** Se uma tradução estiver faltando, exibe o texto em inglês diretamente.
 * **Arquivos Versionados:** `__lang_version__` controla atualização dos pacotes de idioma (`langs/*.json`).
-* **Cobertura:** Todas as mensagens de interface, help do Click, alertas do linter, mensagens do sistema, Git Hooks, spinner e chat traduzidos.
+* **Cobertura:** Todas as mensagens de interface, help do Click, alertas do linter, mensagens do sistema, Git Hooks, spinner, chat **e MCP** traduzidos.
+* **364 chaves por idioma** — **NOVIDADE v0.0.28** (+42 chaves MCP).
 
 ### **8. Spinner Animado (`src/spinner.py`)**
 
@@ -146,6 +151,22 @@ O **GitPR** é uma ferramenta de CLI (Command Line Interface) avançada para aut
 * **Action Definition:** `action.yml` para uso como GitHub Action em pipelines externos.
 * **Git Hooks Locais:** `pre-commit` (linter) e `prepare-commit-msg` (geração de mensagem por IA) instaláveis via `--installhooks`.
 
+### **16. Servidor MCP — Integração com Editores e IDEs (`src/mcp_server.py`)** 🆕
+
+* **10 Ferramentas MCP:** `get_git_context`, `analyze_diff`, `get_full_diff`, `generate_commit_message`, `review_code`, `full_review`, `generate_pr_description`, `run_linter`, `analyze_blame`, `generate_issue`.
+* **7 Recursos MCP:** Templates de skill (`skill://pr`, `skill://commit`, etc.) + config do linter (`linter://config`).
+* **Transporte stdio:** Comunicação via JSON-RPC 2.0 — padrão para ferramentas CLI locais.
+* **Isolamento de Output:** Sistema de monkey-patching que redireciona todo o output do terminal (banners, spinners, cores) para stderr, garantindo que o canal stdout fique limpo para o protocolo MCP.
+* **Comando `gitpr-mcp`:** Entry point dedicado registrado no `pyproject.toml`.
+* **Flag `--mcp`:** Alias via CLI principal (`gitpr --mcp`).
+
+### **17. Instalador MCP (`gitpr-mcp --install`)** 🆕
+
+* **6 Editores Suportados:** VS Code (`.vscode/mcp.json`), Cursor (`.cursor/mcp.json`), Claude Code (`.mcp.json`), Claude Desktop (global), Zed (global).
+* **Modo Auto:** Detecta automaticamente quais editores estão configurados e instala para todos.
+* **Merge Inteligente:** Adiciona o servidor GitPR sem remover servidores existentes — idempotente e seguro.
+* **Criação de Diretórios:** Cria automaticamente `.vscode/`, `.cursor/` ou o diretório global se não existirem.
+
 ---
 
 ## **📊 Testes e Qualidade**
@@ -158,16 +179,19 @@ O **GitPR** é uma ferramenta de CLI (Command Line Interface) avançada para aut
 | `tests/test_pre_save.py` | 10+ | Flag --pre-save e payload JSON |
 | `tests/test_smart_excludes.py` | 14+ | Filtro pathspec inteligente |
 | `tests/test_thinking_words.py` | 10+ | Carregamento e parsing de thinking words |
+| `tests/test_mcp_server.py` 🆕 | 33 | Ferramentas MCP, recursos, patching de output, safe-call wrapper |
 
 ---
 
 ## **🌐 Internacionalização e Documentação**
 
-* **130+ arquivos** traduzidos/versionados.
-* **Documentação completa em 5 idiomas:** 19 tópicos × 5 idiomas = 95+ páginas de documentação.
-* **Planos de desenvolvimento:** 6 planos documentados em `docs/plans/`.
-* **Relatórios Claude Code:** 10+ reports de tarefas em `docs/claude-code/reports/develop_natan/`.
+* **364 chaves de tradução** por idioma (5 idiomas = 1.820 traduções).
+* **Documentação completa em 5 idiomas:** 20 tópicos × 5 idiomas = 100+ páginas de documentação.
+* **Nova documentação MCP:** `docs/mcp-integration.md` + 4 traduções (PT-BR, PT-PT, ES, FR).
+* **Planos de desenvolvimento:** 7 planos documentados em `docs/plans/`.
+* **Relatórios Claude Code:** 11+ reports de tarefas em `docs/claude-code/reports/develop_natan/`.
 * **Site oficial:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
+* **READMEs sincronizados:** Links relativos convertidos para absolutos (compatível com PyPI).
 
 ---
 
@@ -176,40 +200,42 @@ O **GitPR** é uma ferramenta de CLI (Command Line Interface) avançada para aut
 1. **PyPI:** `python -m build` → `twine upload dist/*` → `pip install gitpr-cli`
 2. **GitHub Releases:** PyInstaller → `.exe` standalone → upload via workflow
 3. **GitHub Actions:** PR Review automatizado com `action.yml`
+4. **MCP:** `gitpr-mcp` registrado como entry point no `pyproject.toml` → instalado automaticamente com `pip install` 🆕
 
 ---
 
-## **📈 Evolução desde o Relatório Anterior (v0.0.1)**
+## **📈 Evolução desde o Relatório Anterior (v0.0.2)**
 
-| Área | v0.0.1 (anterior) | v0.0.2 (atual) |
+| Área | v0.0.2 (anterior) | v0.0.3 (atual) |
 |---|---|---|
-| **Provedores IA** | Gemini + DeepSeek | Gemini + DeepSeek + **Ollama (local)** |
-| **Idiomas** | 2 (en, pt_br) | **5 (en, pt_br, pt_pt, es_es, fr_fr)** |
-| **Interface** | CLI + TUI Issues | CLI + TUI Issues + **Chat TUI Interativo** |
-| **Templates** | EN + PT-BR | **5 idiomas** |
-| **Documentação** | Parcial | **95+ páginas em 5 idiomas** |
-| **Testes** | 1 arquivo | **7 arquivos (130+ cenários)** |
-| **CI/CD** | — | **GitHub Actions + action.yml** |
-| **Smart Excludes** | Local | **Remoto com versionamento** |
-| **Thinking Words** | Estático | **Multilíngue com versionamento** |
-| **Pre-Save** | — | **Flag de debug para payload** |
-| **Chat Memory** | — | **Persistência por branch** |
-| **Map-Reduce Docs** | — | **Documentação em 5 idiomas** |
-| **Website** | — | **gitpr.natanfiuza.dev.br** |
+| **Provedores IA** | Gemini + DeepSeek + Ollama | Gemini + DeepSeek + Ollama |
+| **Idiomas** | 5 (en, pt_br, pt_pt, es_es, fr_fr) | 5 (en, pt_br, pt_pt, es_es, fr_fr) |
+| **Interface** | CLI + TUI Issues + Chat TUI | CLI + TUI Issues + Chat TUI + **MCP Server** |
+| **MCP (Model Context Protocol)** | — (planejado) | **Servidor MCP completo com 10 tools + 7 resources** |
+| **MCP Installer** | — | **`gitpr-mcp --install` para 6 editores** |
+| **Integração com Editores** | — (apenas terminal) | **VS Code, Cursor, Claude Code, Claude Desktop, Zed** |
+| **Documentação MCP** | — | **5 idiomas (EN, PT-BR, PT-PT, ES, FR)** |
+| **Chaves i18n** | 322 chaves/idioma | **364 chaves/idioma (+42 MCP)** |
+| **Testes** | 7 arquivos (130+ cenários) | **8 arquivos (160+ cenários)** |
+| **Dependências** | 8 pacotes | **9 pacotes (+mcp>=1.0.0)** |
+| **README PyPI** | Links relativos (quebrados) | **Links absolutos (funcionais no PyPI)** |
+| **Versão** | 0.0.27 | **0.0.28** |
 
 ---
 
 ## **🚧 Próximos Passos**
 
-* **Testes de integração:** Cobertura end-to-end dos fluxos principais.
-* **MCP (Model Context Protocol):** Potencial integração com editores e IDEs.
+* **Testes de integração:** Cobertura end-to-end dos fluxos principais, incluindo testes de servidor MCP.
+* **MCP Prompts:** Adicionar prompts MCP (templates de mensagem) para fluxos comuns como "revisar PR".
+* **MCP Annotations:** Tool annotations (`readOnlyHint`, `destructiveHint`) para melhor integração com IDEs.
 * **Mais provedores:** Claude API, OpenAI direto, provedores locais adicionais.
 * **Métricas e analytics:** Dashboard de uso para times.
 * **Plugin system:** Extensibilidade para regras de linter e prompts customizados.
+* **Migração MCP SDK v2:** Monitorar estabilização do SDK v2.x (modo stateless, tasks).
 
 ---
 
-**Relatório gerado em:** 2026-07-19
+**Relatório gerado em:** 2026-07-24
 **Branch:** `develop_natan`
 **Autor:** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))
 

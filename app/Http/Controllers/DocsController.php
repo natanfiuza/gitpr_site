@@ -48,6 +48,9 @@ class DocsController extends Controller
         // Look up the translated page title from the menu
         $page_title = $page; // fallback to filename
         foreach ($menu_data as $item) {
+            if (($item['type'] ?? '') === 'section') {
+                continue;
+            }
             if (($item['path'] ?? '') === $page) {
                 $page_title = $item['title'];
                 break;
@@ -124,6 +127,9 @@ class DocsController extends Controller
         $results = [];
 
         foreach ($menu_data as $item) {
+            if (($item['type'] ?? '') === 'section') {
+                continue;
+            }
             $page      = $item['path'];
             $base_path = public_path("content/{$page}");
             $file_path = $lang === 'en' ? "{$base_path}.md" : "{$base_path}.{$lang}.md";
