@@ -68,12 +68,18 @@
                 </div>
                 <nav>
                     <ul class="space-y-2">
-                        <li v-for="item in menu_items" :key="item.path">
-                            <Link :href="'/' + item.path"
-                                :class="['block py-1 transition-colors', current_page === item.path ? 'text-gitpr_cyan_light font-bold' : 'text-gitpr_primary hover:text-gitpr_cyan_light']">
+                        <template v-for="item in menu_items" :key="item.path ?? item.title">
+                            <li v-if="item.type === 'section'"
+                                class="text-xs font-bold uppercase tracking-wider text-gitpr_cyan_dark mt-6 mb-2 first:mt-0">
                                 {{ item.title }}
-                            </Link>
-                        </li>
+                            </li>
+                            <li v-else>
+                                <Link :href="'/' + item.path"
+                                    :class="['block py-1 transition-colors', current_page === item.path ? 'text-gitpr_cyan_light font-bold' : 'text-gitpr_primary hover:text-gitpr_cyan_light']">
+                                    {{ item.title }}
+                                </Link>
+                            </li>
+                        </template>
                     </ul>
                 </nav>
             </aside>
