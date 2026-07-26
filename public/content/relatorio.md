@@ -1,4 +1,4 @@
-# GitPR CLI — Project Status Report — v0.0.28 (2026-07-24)
+# GitPR CLI — Project Status Report — v0.0.29 (2026-07-25)
 
 ---
 
@@ -6,9 +6,9 @@
 
 **GitPR** is an advanced CLI tool for Git workflow automation powered by AI (Google Gemini / DeepSeek / Ollama). It acts as an intelligent local assistant that performs Code Reviews, generates Pull Request descriptions, creates semantic commit messages, audits technical debt, and injects best practices into the developer workflow (**Shift Left** approach).
 
-**New in this version:** **MCP (Model Context Protocol)** integration — GitPR now works as an MCP server, exposing all of its AI capabilities as tools directly inside editors like VS Code, Cursor, and Claude Desktop, without needing a terminal.
+**New in this version:** MCP Prompts with multilingual template system (35 files in 5 languages), MCP Tool Annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`) for better IDE integration, Thinking Words expanded to 201 entries with full phrases, and Spinner with adaptive speed for long phrases.
 
-- **Current version:** 0.0.28
+- **Current version:** 0.0.29
 - **Distribution:** PyPI (`pip install gitpr-cli`) + GitHub Releases (standalone binary)
 - **Website:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
 - **Repository:** [github.com/natanfiuza/gitpr](https://github.com/natanfiuza/gitpr)
@@ -25,8 +25,8 @@
 - **Cryptography:** Fernet symmetric encryption for local API key protection
 - **Configuration:** dotenv, PyYAML (for the static linter)
 - **AI Providers:** Google GenAI SDK (gemini-2.5-flash), OpenAI SDK (DeepSeek), OpenAI SDK (Ollama local)
-- **MCP:** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 (Official Anthropic SDK for Model Context Protocol) — **NEW in v0.0.28**
-- **Testing:** Pytest + unittest.mock (8 test files, 160+ scenarios)
+- **MCP:** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 (Official Anthropic SDK for Model Context Protocol) — **Tool Annotations and Prompts refactored in v0.0.29**
+- **Testing:** Pytest + unittest.mock (8 test files, 165+ scenarios)
 - **Packaging:** PyInstaller (standalone binary) + setuptools/build (PyPI)
 - **CI/CD:** GitHub Actions (`pr-review.yml`) + `action.yml` for pipeline execution
 
@@ -40,7 +40,7 @@ Structured LLM communication requesting strictly JSON responses. Map-Reduce arch
 
 ### 2. CLI Interface & Setup (`src/main.py`, `src/config.py`)
 
-First-run detection with interactive API key, provider, and language setup saved to `~/.gitpr/.env`. Command routing for all flags (`--commit`, `--review`, `--fullreview`, `--linter`, `--skill`, `--issue`, `--blame`, `--chat`, `--mcp`, `--lang`, `--provider`, `--pre-save`). Contextual help (`-h --flag`) with language-aware documentation links. `--lang` and `--provider` flags for per-execution overrides. `--mcp` flag starts the MCP server on stdio transport for editor integration — **NEW in v0.0.28**.
+First-run detection with interactive API key, provider, and language setup saved to `~/.gitpr/.env`. Command routing for all flags (`--commit`, `--review`, `--fullreview`, `--linter`, `--skill`, `--issue`, `--blame`, `--chat`, `--mcp`, `--lang`, `--provider`, `--pre-save`). Contextual help (`-h --flag`) with language-aware documentation links. `--lang` and `--provider` flags for per-execution overrides. `--mcp` flag starts the MCP server on stdio transport for editor integration — **10 annotated tools + 15 resources + 7 prompts** 🆕.
 
 ### 3. Static Analysis Engine (`src/linter_engine.py`)
 
@@ -60,11 +60,11 @@ Full TUI built with Textual — message history, multi-line input, status bar wi
 
 ### 7. Internationalization — i18n (`src/i18n.py`)
 
-Laravel-inspired `__()` helper with named placeholders (`{count}`, `{file}`, etc.). Auto-detection of OS language on first run. 5 languages: en_us (default/fallback), pt_br, pt_pt, es_es, fr_fr. Versioned language packs (`__lang_version__`). Full coverage: CLI output, Click help, linter alerts, system messages, Git Hooks, spinner, chat, **and MCP**. **364 keys per language** — **NEW in v0.0.28** (+42 MCP keys).
+Laravel-inspired `__()` helper with named placeholders (`{count}`, `{file}`, etc.). Auto-detection of OS language on first run. 5 languages: en_us (default/fallback), pt_br, pt_pt, es_es, fr_fr. Versioned language packs (`__lang_version__`). Full coverage: CLI output, Click help, linter alerts, system messages, Git Hooks, spinner, chat, MCP tools, MCP resources, MCP prompts, and MCP annotations. **364 keys per language** (+42 MCP keys in v0.0.29).
 
 ### 8. Animated Spinner (`src/spinner.py`)
 
-Braille characters + "thinking words" displayed during AI calls via background thread. Progressive word reveal with random characters, followed by dot cycle (`. .. ...`). Random 10-color palette per word. Multilingual thinking words loaded from language-specific templates (`gitpr.thinking-words.{lang}.md`) with versioning (`THINKING_WORDS_VERSION`).
+Braille characters + "thinking words" displayed during AI calls via background thread. Progressive word reveal with random characters, followed by dot cycle (`. .. ...`). Random 10-color palette per word. **Adaptive Speed 🆕:** Long phrases (36+ characters) revealed faster (1 frame/letter, 0.04s) to display the full text before switching words. Short words keep original speed. Multilingual thinking words loaded from language-specific templates (`gitpr.thinking-words.{lang}.md`) with versioning (`THINKING_WORDS_VERSION`). **201 entries per language 🆕:** Expanded list with creative phrases merged from `words_happy.md` (84 original words + 117 phrases).
 
 ### 9. AI Providers (`src/ai_providers.py`)
 
@@ -101,7 +101,15 @@ GitHub Actions workflow `pr-review.yml` for automated PR review. `action.yml` fo
 
 ### 16. MCP Server — Editor & IDE Integration (`src/mcp_server.py`) 🆕
 
-**10 MCP Tools:** `get_git_context`, `analyze_diff`, `get_full_diff`, `generate_commit_message`, `review_code`, `full_review`, `generate_pr_description`, `run_linter`, `analyze_blame`, `generate_issue`. **7 MCP Resources:** Skill templates (`skill://pr`, `skill://commit`, etc.) + linter config (`linter://config`). **stdio transport:** JSON-RPC 2.0 communication — standard for local CLI tools. **Output isolation:** Monkey-patching system that redirects all terminal output (banners, spinners, colors) to stderr, keeping the stdout channel clean for the MCP protocol. **`gitpr-mcp` command:** Dedicated entry point registered in `pyproject.toml`. **`--mcp` flag:** Alias via main CLI (`gitpr --mcp`).
+**10 MCP Tools with Annotations 🆕:** `get_git_context`, `analyze_diff`, `get_full_diff`, `generate_commit_message`, `review_code`, `full_review`, `generate_pr_description`, `run_linter`, `analyze_blame`, `generate_issue` — all with `ToolAnnotations` (`readOnlyHint`, `destructiveHint`, `idempotentHint`).
+- **3 read-only tools** (`readOnlyHint=True`, `idempotentHint=True`): `get_git_context`, `analyze_diff`, `run_linter`.
+- **7 tools with side effects** (`readOnlyHint=False`, `destructiveHint=False`): network calls (AI APIs, git fetch).
+**15 MCP Resources 🆕:** 7 skill templates (`skill://pr`, `skill://commit`, etc.) + linter config (`linter://config`) + 7 prompt templates (`prompt://review`, `prompt://commit`, etc.) + `prompt://list`.
+**7 MCP Prompts with Templates 🆕:** Content externalized in 35 template files (7 prompts × 5 languages) in the `templates/gitpr.prompt.*.md` directory with automatic language fallback.
+**stdio transport:** JSON-RPC 2.0 communication — standard for local CLI tools.
+**Output isolation:** Monkey-patching system that redirects all terminal output (banners, spinners, colors) to stderr, keeping the stdout channel clean for the MCP protocol.
+**`gitpr-mcp` command:** Dedicated entry point registered in `pyproject.toml`.
+**`--mcp` flag:** Alias via main CLI (`gitpr --mcp`).
 
 ### 17. MCP Installer (`gitpr-mcp --install`) 🆕
 
@@ -119,19 +127,22 @@ GitHub Actions workflow `pr-review.yml` for automated PR review. `action.yml` fo
 | `tests/test_pre_save.py` | 10+ | --pre-save flag and JSON payload |
 | `tests/test_smart_excludes.py` | 14+ | Smart pathspec filter |
 | `tests/test_thinking_words.py` | 10+ | Thinking words loading and parsing |
-| `tests/test_mcp_server.py` 🆕 | 33 | MCP tools, resources, output patching, safe-call wrapper |
+| `tests/test_mcp_prompts.py` 🆕 | 11 | Prompt functions, PROMPT_FILES, _read_prompt_file(), language fallback |
+| `tests/test_mcp_server.py` | 33 | MCP tools, resources, output patching, safe-call wrapper |
 
 ---
 
 ## i18n & Documentation
 
 - **364 translation keys** per language (5 languages = 1,820 translations)
-- **Full documentation in 5 languages:** 20 topics × 5 languages = 100+ documentation pages
-- **New MCP documentation:** `docs/mcp-integration.md` + 4 translations (PT-BR, PT-PT, ES, FR)
-- **Development plans:** 7 plans in `docs/plans/`
-- **Claude Code reports:** 11+ task reports in `docs/claude-code/reports/develop_natan/`
+- **Full documentation in 5 languages:** 22 topics × 5 languages = 110+ documentation pages
+- **New documentation 🆕:** `docs/mcp-prompts.md` (template system), `docs/mcp-annotations.md` (tool annotations) — each with 4 translations
+- **MCP Templates 🆕:** 35 prompt files (`gitpr.prompt.*.md`) in 5 languages in the `templates/` directory
+- **Thinking Words 🆕:** 201 entries per language (84 words + 117 phrases) in `templates/gitpr.thinking-words.{lang}.md`
+- **Development plans:** 8 plans in `docs/plans/`
+- **Claude Code reports:** 12+ task reports in `docs/claude-code/reports/develop_natan/`
 - **Official website:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
-- **Synchronized READMEs:** Relative links converted to absolute (PyPI compatible)
+- **Synchronized READMEs:** Relative links converted to absolute (PyPI compatible). Updated with MCP Prompts and MCP Tool Annotations in all 5 languages 🆕
 
 ---
 
@@ -140,42 +151,43 @@ GitHub Actions workflow `pr-review.yml` for automated PR review. `action.yml` fo
 1. **PyPI:** `python -m build` → `twine upload dist/*` → `pip install gitpr-cli`
 2. **GitHub Releases:** PyInstaller → `.exe` standalone → upload via workflow
 3. **GitHub Actions:** Automated PR Review with `action.yml`
-4. **MCP:** `gitpr-mcp` registered as entry point in `pyproject.toml` → auto-installed with `pip install` 🆕
+4. **MCP:** `gitpr-mcp` registered as entry point in `pyproject.toml` → auto-installed with `pip install`
 
 ---
 
-## Evolution Since Previous Report (v0.0.2)
+## Evolution Since Previous Report (v0.0.3)
 
-| Area | v0.0.2 (previous) | v0.0.3 (current) |
+| Area | v0.0.3 (previous) | v0.0.4 (current) |
 |---|---|---|
 | **AI Providers** | Gemini + DeepSeek + Ollama | Gemini + DeepSeek + Ollama |
 | **Languages** | 5 (en, pt_br, pt_pt, es_es, fr_fr) | 5 (en, pt_br, pt_pt, es_es, fr_fr) |
-| **Interface** | CLI + TUI Issues + Chat TUI | CLI + TUI Issues + Chat TUI + **MCP Server** |
-| **MCP (Model Context Protocol)** | — (planned) | **Full MCP server with 10 tools + 7 resources** |
-| **MCP Installer** | — | **`gitpr-mcp --install` for 6 editors** |
-| **Editor Integration** | — (terminal only) | **VS Code, Cursor, Claude Code, Claude Desktop, Zed** |
-| **MCP Documentation** | — | **5 languages (EN, PT-BR, PT-PT, ES, FR)** |
-| **i18n Keys** | 322 keys/language | **364 keys/language (+42 MCP)** |
-| **Tests** | 7 files (130+ scenarios) | **8 files (160+ scenarios)** |
-| **Dependencies** | 8 packages | **9 packages (+mcp>=1.0.0)** |
-| **PyPI README** | Relative links (broken) | **Absolute links (working on PyPI)** |
-| **Version** | 0.0.27 | **0.0.28** |
+| **Interface** | CLI + TUI Issues + Chat TUI + MCP Server | CLI + TUI Issues + Chat TUI + MCP Server |
+| **MCP Tools** | 10 tools (no annotations) | **10 tools with ToolAnnotations** |
+| **MCP Resources** | 7 (skills + linter) | **15 (skills + linter + prompts)** |
+| **MCP Prompts** | 7 prompts (hardcoded) | **7 prompts with templates (35 files in 5 languages)** |
+| **MCP Prompt Resources** | — | **8 `prompt://` resources** |
+| **MCP Docs** | `mcp-integration.md` | **+ `mcp-prompts.md` + `mcp-annotations.md` (5 languages each)** |
+| **Thinking Words** | ~15 words (fallback) | **201 entries/language (words + phrases)** |
+| **Spinner** | Fixed speed | **Adaptive speed (long phrases ~2.2s)** |
+| **Tests** | 8 files (160+ scenarios) | **8 files (165+ scenarios)** |
+| **Documentation** | 100+ pages | **110+ pages** |
+| **READMEs** | Links MCP Integration + Prompts | **+ MCP Tool Annotations (all 5 languages)** |
+| **Version** | 0.0.28 | **0.0.29** |
 
 ---
 
 ## Next Steps
 
-- **Integration tests:** End-to-end coverage of main flows, including MCP server tests
-- **MCP Prompts:** Add MCP prompts (message templates) for common flows like "review PR"
-- **MCP Annotations:** Tool annotations (`readOnlyHint`, `destructiveHint`) for better IDE integration
+- **MCP integration tests:** End-to-end coverage of the MCP server with a test client
 - **More providers:** Claude API, direct OpenAI, additional local providers
 - **Metrics & analytics:** Usage dashboard for teams
 - **Plugin system:** Extensibility for linter rules and custom prompts
 - **MCP SDK v2 Migration:** Monitor v2.x SDK stabilization (stateless mode, tasks)
+- **Automated GitHub Release:** Full CI/CD pipeline for build + release
 
 ---
 
-**Report generated:** 2026-07-24
+**Report generated:** 2026-07-25
 **Branch:** `develop_natan`
 **Author:** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))
 
