@@ -68,17 +68,31 @@
                 </div>
                 <nav>
                     <ul class="space-y-2">
-                        <template v-for="item in menu_items" :key="item.path ?? item.title">
-                            <li v-if="item.type === 'section'"
+                        <template v-for="group in menu_groups" :key="group.title ?? '__top__'">
+                            <!-- Section header (collapsible) -->
+                            <li v-if="group.title"
                                 class="text-xs font-bold uppercase tracking-wider text-gitpr_cyan_dark mt-6 mb-2 first:mt-0">
-                                {{ item.title }}
+                                <button
+                                    @click="toggle_section(group.title)"
+                                    class="flex items-center justify-between w-full text-left hover:text-gitpr_cyan_light transition-colors cursor-pointer"
+                                    :aria-expanded="is_section_expanded(group.title)">
+                                    <span>{{ group.title }}</span>
+                                    <svg
+                                        :class="['w-3 h-3 transition-transform duration-200', is_section_expanded(group.title) ? 'rotate-90' : 'rotate-0']"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
                             </li>
-                            <li v-else>
-                                <Link :href="'/' + item.path"
-                                    :class="['block py-1 transition-colors', current_page === item.path ? 'text-gitpr_cyan_light font-bold' : 'text-gitpr_primary hover:text-gitpr_cyan_light']">
-                                    {{ item.title }}
-                                </Link>
-                            </li>
+                            <!-- Section items -->
+                            <template v-if="!group.title || is_section_expanded(group.title)">
+                                <li v-for="item in group.items" :key="item.path">
+                                    <Link :href="'/' + item.path"
+                                        :class="['block py-1 transition-colors', current_page === item.path ? 'text-gitpr_cyan_light font-bold' : 'text-gitpr_primary hover:text-gitpr_cyan_light']">
+                                        {{ item.title }}
+                                    </Link>
+                                </li>
+                            </template>
                         </template>
                     </ul>
                 </nav>
@@ -139,7 +153,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted } from 'vue';
+import { ref, watch, nextTick, onMounted, computed } from 'vue';
 import { Link, Head, router } from '@inertiajs/vue3';
 import MarkdownViewer from '../Components/MarkdownViewer.vue';
 import LanguageSelector from '../Components/LanguageSelector.vue';
@@ -170,6 +184,52 @@ const props = defineProps({
 const is_mobile_menu_open = ref(false);
 const release_tag = ref('');
 const collaborators = ref([]);
+
+// ── Collapsible menu sections ────────────────────────────────────
+const expanded_sections = ref({});
+
+// Group flat menu_items by section markers
+const menu_groups = computed(() => {
+    const groups = [];
+    let current_section = null;
+
+    for (const item of props.menu_items) {
+        if (item.type === 'section') {
+            current_section = { title: item.title, items: [] };
+            groups.push(current_section);
+        } else if (current_section) {
+            current_section.items.push(item);
+        } else {
+            // Top-level items (before any section)
+            if (!groups.length || groups[groups.length - 1].title !== null) {
+                groups.push({ title: null, items: [] });
+            }
+            groups[groups.length - 1].items.push(item);
+        }
+    }
+
+    return groups;
+});
+
+const toggle_section = (title) => {
+    expanded_sections.value[title] = !expanded_sections.value[title];
+};
+
+const is_section_expanded = (title) => {
+    // Auto-expand when the current page is inside this section
+    // (on first load or after navigation)
+    if (expanded_sections.value[title] === undefined) {
+        const section = menu_groups.value.find(g => g.title === title);
+        if (section && section.items.some(item => item.path === props.current_page)) {
+            expanded_sections.value[title] = true;
+            return true;
+        }
+        // Default: collapsed for sections that don't contain current page
+        expanded_sections.value[title] = false;
+        return false;
+    }
+    return expanded_sections.value[title];
+};
 
 const page_toc = ref([]);
 const toc_scroll_ref = ref(null);
