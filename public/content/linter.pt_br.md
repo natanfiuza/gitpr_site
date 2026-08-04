@@ -2,6 +2,10 @@
 
 O linter do GitPR valida código contra regras personalizadas **sem consumir cotas de IA**. Ele analisa apenas as **linhas adicionadas** no seu `git diff`, tornando-o rápido, focado e pronto para CI/CD.
 
+::: tip ⚡ Utilitário do Linter
+Crie, teste e valide regras YAML graficamente no seu navegador: **[Abrir Construtor de Regras](/linter-utility?lang=pt_br)**
+:::
+
 ---
 
 ## Início Rápido
@@ -111,6 +115,18 @@ Isso cria hooks `pre-commit` e `prepare-commit-msg` que executam o linter antes 
 - **Personalizável** — regras que correspondem aos padrões do SEU time
 - **Consciente do Git** — verifica apenas o que você alterou, não toda a base de código
 - **Nativo para CI/CD** — comando único, sem serviços externos
+
+---
+
+## 🛠️ Utilitário Interativo do Linter
+
+::: tip ⚡ Construtor de Regras & Testador de Regex
+Precisa de ajuda para criar suas regras ou testar suas expressões regulares de forma visual em tempo real?
+
+<a href="/linter-utility?lang=pt_br" class="inline-block mt-3 px-5 py-2.5 bg-gitpr_primary text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors no-underline">
+  🚀 Abrir Utilitário Interativo do Linter →
+</a>
+:::
 
 ---
 

@@ -1,252 +1,212 @@
-# **🚀 Project Status Report: GitPR CLI — v0.0.30 (2026-07-26)**
+# **🚀 Project Status Report: GitPR CLI — v0.0.31 (2026-08-03)**
 
 ## **📌 Overview**
 
 **GitPR** is an advanced CLI (Command Line Interface) tool for automating Git processes using Artificial Intelligence (Google Gemini / DeepSeek / Ollama). Its main goal is to act as a local intelligent assistant that performs Code Reviews, generates Pull Requests, semantic commit messages, audits technical debt, and injects best practices into the developer workflow (Shift Left).
 
-**What's new in this version:** Offline local Metrics and Telemetry system with CSV/JSON export and interactive TUI dashboard, new Git Hooks for behavioral telemetry (post-checkout, pre-push, post-merge), Thinking Words expanded to 263 entries with "Sussing" and "Cerebrating" phrases, flickering fix in the spinner (`\033[K`), and translation of all comments/docblocks to English.
+**What's new in this version (v0.0.6):**
+- **Overhauled TUI Metrics Dashboard:** Isolated repository scope (`repo_filter`), unlimited asynchronous scanning of cache files (`~/.gitpr/cache/prompts/`), visual overlay with `ProgressBar`, unified token totalizer per project, processed cache file tracking (`./.gitpr/metrics/{repo}/processed_cache.json`), and fix for duplicate columns bug on F5 (Refresh).
+- **AI Call Duration Tracking (Wall-Clock Timing):** Injection of `duration_ms` in milliseconds via `time.perf_counter()` across all LLM responses, passed through cache and displayed on the metrics dashboard.
+- **Per-Project Local Export:** `gitpr --metrics --export` now generates CSV and JSON reports in the local project folder (`./.gitpr/metrics/export/`) filtered by the active repository.
+- **Automatic GitHub Token Revalidation (Auto-Reauth on 401):** PAT validation function (`GET /user`), pre-validation before issues TUI (`gitpr -is`), and graceful HTTP 401 recovery without draft loss.
+- **Spinner and Thinking Words Adjustments:** Changed phrase delimiter from comma to semicolon (`;`), enabling complex phrases with internal commas in `templates/gitpr.thinking-words.*.md` without breaking parsing.
+- **Quick Start in READMEs:** Installation documentation via `pip install gitpr-cli` and repository setup via `gitpr --install` across all 5 language READMEs.
+- **Project Development Guide `GEMINI.md`:** Complete architectural guide, code conventions, command pipeline, and mandatory reports standard in `docs/gemini/reports/`.
 
-- **Current version:** 0.0.30
+- **Current version:** 0.0.31
 - **Published on:** PyPI (`pip install gitpr-cli`) + GitHub Releases (standalone binary)
 - **Website:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
 - **Repository:** [github.com/natanfiuza/gitpr](https://github.com/natanfiuza/gitpr)
 - **License:** LGPL-2.1
 - **Supported languages:** en_us, pt_br, pt_pt, es_es, fr_fr (5 languages)
 
+---
+
 ## **🏗️ Architecture and Base Libraries**
 
 * **Language:** Python >= 3.10
 * **CLI Framework:** Click (for commands, flags, and terminal formatting).
 * **UI/Terminal:** Textual — TUI (Text User Interface) for interactive chat, issue editing, help screen, and metrics dashboard.
-* **Cryptography:** cryptography.fernet for local API key protection.
-* **Configuration:** dotenv, pyyaml (for the static linter).
-* **AI Providers:** Integration via Google GenAI official SDK (gemini-2.5-flash), OpenAI SDK (DeepSeek), and OpenAI SDK (local Ollama).
-* **MCP:** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 (Anthropic official SDK for Model Context Protocol) — **Tool Annotations, Prompts with templates, and prompt:// resources in v0.0.30**.
-* **Testing:** Pytest + unittest.mock (8 test files, 165+ scenarios).
+* **Cryptography:** `cryptography.fernet` for local API key and GitHub token protection.
+* **Configuration:** `python-dotenv`, `pyyaml` (for the static linter).
+* **AI Providers:** Integration via official Google GenAI SDK (`gemini-2.5-flash`), OpenAI SDK (`DeepSeek`), and OpenAI SDK (local `Ollama`).
+* **MCP:** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 (official Anthropic SDK for Model Context Protocol) — **Tool Annotations, Prompts with templates, and prompt:// resources**.
+* **Testing:** Pytest + `unittest.mock` (10 test files, 114 scenarios).
 * **Packaging:** PyInstaller (standalone binary) + setuptools/build (PyPI).
 * **CI/CD:** GitHub Actions (`pr-review.yml`) + `action.yml` for pipeline execution.
+
+---
 
 ## **🧩 Implemented Modules and File Architecture**
 
 ### **1. Core and Git Operations (`src/core.py`)**
 
 * **Structured Generation:** Communicates with the LLM requesting strictly JSON output.
-* **Map-Reduce (Giant Diffs):** When the diff exceeds ~90k tokens, automatically splits into per-file batches (`split_diff_into_chunks`), processes each chunk (Map), and unifies the summaries (Reduce) while maintaining the architecture's voice tone.
+* **Map-Reduce (Giant Diffs):** When diffs exceed ~90k tokens, automatically splits into per-file batches (`split_diff_into_chunks`), processes each chunk (Map), and unifies summaries (Reduce) while maintaining architectural tone.
 * **Token Estimation:** Lightweight heuristic `len() // 4` via `estimate_token_count()`.
 * **Native Git Optimization:** Flags `-U1`, `-w`, `-M`, `-B` in `get_git_diff` and `get_git_full_diff` commands to reduce unnecessary context.
-* **Pre-Save (`--pre-save`):** Hidden debug flag that saves the full payload (system instruction + prompt) in JSON before each AI call.
-* **Smart Excludes:** Remote intelligent pathspec filter (`gitpr.smart-excludes.json`) — downloaded from GitHub and auto-updated with versioning (`SMART_EXCLUDES_VERSION`), excluding irrelevant files (lock files, build artifacts, binary assets) to reduce tokens.
-* **Fire-and-forget Metrics 🆕:** Injection of `log_command_metric()` in all flows (single-chunk and map-reduce) with lazy imports to avoid circular imports.
+* **Pre-Save (`--pre-save`):** Hidden debug flag saving full payload (system instruction + prompt) in JSON before each AI call.
+* **Smart Excludes:** Intelligent remote pathspec filter (`gitpr.smart-excludes.json`) — downloaded from GitHub and auto-updated with versioning (`SMART_EXCLUDES_VERSION`), excluding irrelevant files (lock files, build artifacts, binary assets) to save tokens.
+* **Metrics with Time Tracking:** Injection of `log_command_metric()` across all flows with duration passing in milliseconds (`duration_ms`) and lazy imports to prevent circular dependency.
 
 ### **2. CLI Interface and Setup (`src/main.py` and `src/config.py`)**
 
-* **Initial Setup:** Detects first run, creates the `~/.gitpr/` folder, and interactively prompts for API keys, preferences, and language, saving them to a `.env` file.
-* **Command Routing:** Manages all flags (`--commit`, `--review`, `--fullreview`, `--linter`, `--skill`, `--issue`, `--blame`, `--chat`, `--mcp`, `--metrics`, `--export`, `--purge`, `--dashboard`, `--lang`, `--provider`, `--pre-save`).
-* **Contextual Help:** `-h --flag` displays feature-specific documentation with a direct (language-aware) link to GitHub.
-* **--lang:** Forces the interface language for the current execution without persisting the change.
-* **--provider:** Forces the AI provider (`gemini`, `deepseek`, `ollama`) for the current execution.
-* **--mcp:** Starts the MCP server on stdio transport for editor integration — **10 annotated tools + 15 resources + 7 prompts**.
-* **--metrics 🆕:** Local telemetry system with sub-options: `--export` (CSV+JSON), `--purge` (cleanup), `--dashboard` (interactive TUI), `--hook-event` (internal use by git hooks).
+* **Initial Setup:** Detects first run, creates `~/.gitpr/` folder, and interactively prompts for API keys, preferences, and language, saving to `.env`.
+* **Command Routing:** Manages all flags (`--commit`, `--review`, `--fullreview`, `--linter`, `--skill`, `--issue`, `--blame`, `--chat`, `--mcp`, `--install`, `--metrics`, `--export`, `--purge`, `--dashboard`, `--lang`, `--provider`, `--pre-save`).
+* **Contextual Help:** `-h --flag` displays feature-specific documentation with direct (language-aware) GitHub link.
+* **--lang:** Forces interface language for the current execution without persisting changes.
+* **--provider:** Forces AI provider (`gemini`, `deepseek`, `ollama`) for the current execution.
+* **--mcp:** Starts MCP server on stdio transport for editor integration — **10 annotated tools + 15 resources + 7 prompts**.
+* **--install:** Guided 4-step wizard downloading skill templates, installing Git Hooks, configuring MCP in editors, and validating API keys.
+* **--metrics:** Local telemetry system with repository scope: `--export` (saves in `./.gitpr/metrics/export/`), `--purge` (cleanup), `--dashboard` (interactive TUI with cache scanning).
 
 ### **3. Static Analysis / Linter Engine (`src/linter_engine.py`)**
 
-* **Offline Linter:** Statically analyzes added lines (`+`) in the git diff without spending AI quota.
-* **YAML Rules:** Reads the local `.gitpr.linter.yml` file (created via `--skill`). Supports validation regex, comment ignoring, and specific directory ignoring (using fnmatch).
+* **Offline Linter:** Statically analyzes added lines (`+`) in git diff without using AI quota.
+* **YAML Rules:** Reads local `.gitpr.linter.yml` file (created via `--skill`). Supports regex validation, comment skipping, and specific directory exclusion (using fnmatch).
 * **Multilingual Template:** Linter templates available in 5 languages.
 
-### **4. Security and Vault (`src/security.py`)**
+### **4. Security and Vault (`src/security.py`, `src/config.py`, `src/tui_issue.py`)**
 
-* **Cryptography:** Generates a master key `secret.key` in the `~/.gitpr/` folder.
-* **Functions:** `encrypt_data` and `decrypt_data` to ensure tokens and keys are not stored in plain text.
-* **GitHub PAT:** GitHub personal access token stored encrypted for issue creation via REST API.
+* **Cryptography:** Generates master key `secret.key` in `~/.gitpr/` folder.
+* **Token Protection:** `encrypt_data` and `decrypt_data` to secure AI API keys and GitHub PATs.
+* **GitHub Token Validation 🆕:** `validate_github_token()` function performs a lightweight call (`GET /user`) to validate PAT.
+* **Auto-Reauth Flow 🆕:** If token expires or is invalid during `gitpr -is`, app captures 401 HTTP response, prompts user for a new token, and relaunches TUI interface preserving draft content.
 
 ### **5. Auto-Updater (`src/updater.py`)**
 
-* **Hot-Swap:** Checks the GitHub Releases API for the latest version. If there's a mismatch, downloads the compiled binary, renames the current executable, and replaces it without disrupting ongoing execution (with rollback capability).
-* **Daily Cache:** Prevents repeated checks on the same day.
-* **Connection Check:** Socket `8.8.8.8:53` before any network operation.
-* **Asset Versioning:** `__lang_version__` (v0.0.8), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION` for template and translation update control.
+* **Hot-Swap:** Checks GitHub Releases API for latest version. On mismatch, downloads compiled binary, renames current executable, and replaces without breaking running execution (with rollback capability).
+* **Daily Cache:** Avoids repeated checks on the same day.
+* **Connection Check:** Socket `8.8.8.8:53` before network operations.
+* **Asset Versioning:** `__lang_version__` (v0.0.8), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION` controlling template and translation updates.
 
 ### **6. Interactive Chat Interface (`src/ui/chat_app.py`)**
 
-* **Full TUI:** Built with Textual — message history, multi-line input, status bar with visible bindings.
+* **Full TUI:** Built with Textual — message history, multi-line input, status bar with visible key bindings.
 * **Per-Branch Memory (`src/chat_memory.py`):** Conversation history persisted per branch, allowing continuity between sessions.
 * **Slash Commands:** `/explain`, `/tests`, `/optimize`, `/clear` — shortcuts for common pair programming actions.
-* **Auto-Patching (F5):** Extracts code blocks suggested by the AI and exports to a patch file for easy application.
-* **Diff Refresh (F2):** Reloads the current `git diff` without restarting the session.
-* **Session Export (F6):** Saves the full chat history for documentation.
-* **Multilingual Commands:** `chat_commands.{lang}.json` files with translations of slash commands.
+* **Auto-Patching (F5):** Extracts AI-suggested code blocks and exports to patch file for easy application.
+* **Diff Refresh (F2):** Reloads current `git diff` without restarting session.
+* **Session Export (F6):** Saves full chat history for documentation.
 
 ### **7. Internationalization — i18n (`src/i18n.py`)**
 
-* **Laravel-Inspired System:** `__()` function with support for named placeholders (`{count}`, `{file}`, etc.).
-* **Automatic Detection:** Detects OS language on first run and saves it to `GITPR_LANG`.
+* **Laravel-Inspired System:** `__()` function supporting named placeholders (`{count}`, `{file}`, etc.).
+* **Automatic Detection:** Detects OS language on first run and saves in `GITPR_LANG`.
 * **5 Languages:** en_us (default/fallback), pt_br, pt_pt, es_es, fr_fr.
-* **English Fallback:** If a translation is missing, displays the English text directly.
-* **Versioned Files:** `__lang_version__` (v0.0.8) controls updating language packages (`langs/*.json`).
-* **Coverage:** All interface messages, Click help, linter alerts, system messages, Git Hooks, spinner, chat, MCP tools, MCP resources, MCP prompts, MCP annotations, metrics, and TUI dashboard translated.
-* **447 keys per language 🆕** (+83 keys in this version: 16 CLI metrics + 20 TUI dashboard + 47 incremental).
+* **Versioned Files:** `__lang_version__` (v0.0.8) controls language package updates (`langs/*.json`).
+* **Complete Coverage:** CLI messages, Click help, linter alerts, Git Hooks, spinner, TUI chat, MCP, metrics, and TUI Dashboard translated.
 
 ### **8. Animated Spinner (`src/spinner.py`)**
 
-* **Braille + Thinking Words:** Background thread during AI calls displaying braille characters with "thinking" words.
-* **Progressive Reveal:** Words revealed letter by letter with random characters, followed by a dot cycle (`. .. ...`).
-* **Random Colors:** 10-color palette for each word.
-* **Adaptive Speed:** Long phrases (36+ characters) revealed faster (1 frame/letter, 0.04s) to display the full text before switching words. Short words maintain original speed.
-* **Flickering Fix 🆕:** Replaced `ljust(70)` with ANSI `\033[K` (clear to end of line) to eliminate residue from long phrases when switching to short words.
-* **Multilingual:** Thinking Words loaded from language-specific templates (`gitpr.thinking-words.{lang}.md`), with versioning (`THINKING_WORDS_VERSION`).
-* **263 entries per language 🆕:** Expanded with "Sussing" (31) and "Cerebrating" (31) phrases — 263 total words/phrases per language.
+* **Braille + Thinking Words:** Background thread during AI calls displaying braille characters alongside "thinking" words.
+* **Updated Delimiter 🆕:** Changed phrase separator to semicolon (`;`), preventing internal commas from incorrectly splitting phrases.
+* **Adaptive Speed & Flickering:** Character discovery animation adapted for long phrases, using ANSI `\033[K` to prevent visual artifacts in terminal.
+* **263 entries per language:** Synchronized across 5 languages in `templates/gitpr.thinking-words.{lang}.md` files.
 
 ### **9. AI Providers (`src/ai_providers.py`)**
 
-* **3 Supported Providers:**
-  * **Google Gemini:** `gemini-2.5-flash` (primary) / `gemini-2.5-flash-lite` (secondary)
-  * **DeepSeek:** `deepseek-chat` (primary and secondary)
-  * **Ollama:** Any local model compatible with the OpenAI API
-* **Multi-Model Architecture:** Automatic fallback between providers in case of failure.
-* **JSON Mode:** All providers configured for structured output (`response_mime_type` / `response_format`).
-* **Deterministic Parameters:** Temperature 0.0, top_p 0.1.
-* **Telemetry Injection:** Usage metadata (`_telemetry_meta`) silently injected into responses to feed the metrics system.
+* **3 Supported Providers:** Google Gemini (`gemini-2.5-flash`), DeepSeek (`deepseek-chat`), Ollama (local).
+* **Duration Measurement 🆕:** Injection of `duration_ms` (high-precision timing via `time.perf_counter()`) in `meta_raw` and `_telemetry_meta`.
+* **JSON Mode & Deterministic Parameters:** Structured outputs with `temperature=0.0` and `top_p=0.1`.
 
-### **10. Smart Cache (`src/cache.py`)**
+### **10. Intelligent Cache (`src/cache.py`)**
 
-* **MD5:** Exact hash of the code (diff) + instructions to identify identical calls.
-* **Per-Repository Cache:** JSON includes a `repo` field for multi-project filtering.
-* **Quota Savings:** Returns results in milliseconds from the local cache (`~/.gitpr/cache/prompts/`).
-* **Telemetry Metadata:** `meta_raw` field with token count saved alongside the cache.
+* **MD5 + Metadata:** Keying by MD5 hash of diff and prompt.
+* **Telemetry & Duration 🆕:** Persistence of `duration_ms` field and `meta_raw` in cache files under `~/.gitpr/cache/prompts/`.
+* **Dashboard Scanner 🆕:** `scan_cache_files_for_dashboard()` recursively reads all cache files to compute complete historical metrics.
 
 ### **11. Issue Engine and TUI (`src/issue_engine.py`, `src/tui_issue.py`, `src/ui/issue_app.py`)**
 
-* **3 Context Engines:**
-  * **New Code Issue (`gitpr -is`):** Reads the current `git diff`.
-  * **Epic/Release Issue (`gitpr -is -ht`):** Reads the full branch history (Git Log + PR Cache).
-  * **Technical Debt Issue (`gitpr -is -b file:lines`):** Timeline via `git blame`.
-* **Interactive TUI:** Issue editor with syntax highlighting, bindings to save locally (F2) or send via GitHub API (F3).
-* **Help Screen (F1):** Modal with shortcuts and instructions.
+* **3 Context Engines:** Current Diff, Branch History (`-ht`), and Blame Archeology (`-b`).
+* **Interactive TUI:** Draft editing, F2 (save local), F3 (publish to GitHub via REST API), and F1 (help).
+* **401 Handling 🆕:** Re-authentication prompt without closing application or losing draft data.
 
-### **12. Code Archeologist (`src/blame_engine.py`)**
+### **12. Code Archaeologist (`src/blame_engine.py`)**
 
-* **Git Blame + AI:** Traces the origin of business rules with a maximum depth of 4 parent commits.
-* **Classification:** Secondary model classifies commits as `ORIGIN` or `REFACTORING`.
-* **Executive Summary:** Advanced model generates a consolidated final analysis.
-* **Output:** Color-coded terminal (green=origin, yellow=refactoring) + Markdown report.
+* **Git Blame + AI:** Tracks evolution and historical authorship of code snippets with commit classification (`ORIGIN` vs `REFACTORING`).
 
-### **13. Skills and Templates System**
+### **13. MCP Server and Installer (`src/mcp_server.py`)**
 
-* **Local Templates:** `.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md` as customizable *System Instructions*.
-* **Remote Templates:** Downloaded from GitHub via `--skill` (never overwrites existing local files).
-* **Multilingual:** Templates available in 5 languages with intelligent fallback (`get_skill_context()`).
-* **MCP Prompt Templates 🆕:** 35 files (`gitpr.prompt.*.md`) in 5 languages in the `templates/` directory.
+* **10 Annotated MCP Tools:** Annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`) configured for IDEs such as Cursor, VS Code, and Claude Code.
+* **15 Resources + 7 Templatized Prompts:** 35 template files in `templates/gitpr.prompt.*.md`.
+* **Automated Installer:** Configuration for supported editors (VS Code, Cursor, Claude Code, Claude Desktop, Zed) with intelligent JSON merge.
 
-### **14. Map-Reduce Optimization for Giant Diffs**
+### **14. Overhauled TUI Metrics Dashboard (`src/ui/metrics_app.py`)** 🆕
 
-* **Automatic Activation:** When the diff exceeds ~90k estimated tokens.
-* **Safe Split:** Breaks at the regex delimiter `(^diff --git a/)` to avoid corrupting syntax.
-* **Rate Limiting:** `time.sleep(1)` between Map batches.
-* **Documentation:** Dedicated page in 5 languages (`docs/map-reduce-diff.{lang}.md`) linked in the console during processing.
-* **Console Progress:** Displays batch count and link to documentation.
+* **Repository Scope (Repo-Scope):** Label `📁 Repository: owner/repo` and strict filtering of events and cache data per project.
+* **Async Scanning with Overlay:** Background worker thread loading cache data while displaying Textual's `ProgressBar` widget.
+* **Data Consolidation:** `load_cache_token_summary()` adds cache call tokens to dashboard totalizer.
+* **Cache State Control:** Registration file in `./.gitpr/metrics/{repo}/processed_cache.json`.
+* **F5 Column Fix:** One-time column initialization (`_setup_columns()`), preventing visual duplication on refreshes.
+* **Local Export:** Saving CSV/JSON to `./.gitpr/metrics/export/`.
 
-### **15. CI/CD Integration**
+---
 
-* **GitHub Actions:** `pr-review.yml` workflow for automatic PR review.
-* **Action Definition:** `action.yml` for use as a GitHub Action in external pipelines.
-* **Local Git Hooks:** `pre-commit` (linter), `prepare-commit-msg` (AI message generation), `post-checkout`, `pre-push`, `post-merge` (behavioral telemetry 🆕) installable via `--installhooks`.
-
-### **16. MCP Server — Editor and IDE Integration (`src/mcp_server.py`)**
-
-* **10 MCP Tools with Annotations:** `get_git_context`, `analyze_diff`, `get_full_diff`, `generate_commit_message`, `review_code`, `full_review`, `generate_pr_description`, `run_linter`, `analyze_blame`, `generate_issue` — all with `ToolAnnotations` (`readOnlyHint`, `destructiveHint`, `idempotentHint`).
-  * **3 read-only tools** (`readOnlyHint=True`, `idempotentHint=True`): `get_git_context`, `analyze_diff`, `run_linter`.
-  * **7 tools with side effects** (`readOnlyHint=False`, `destructiveHint=False`): network calls (AI APIs, git fetch).
-* **15 MCP Resources:** 7 skill templates (`skill://pr`, `skill://commit`, etc.) + linter config (`linter://config`) + 7 prompt templates (`prompt://review`, `prompt://commit`, etc.) + `prompt://list`.
-* **7 MCP Prompts with Templates:** Content externalized in 35 template files (7 prompts × 5 languages) in the `templates/gitpr.prompt.*.md` directory with automatic language fallback.
-* **stdio Transport:** Communication via JSON-RPC 2.0 — standard for local CLI tools.
-* **Output Isolation:** Monkey-patching system that redirects all terminal output (banners, spinners, colors) to stderr, keeping the stdout channel clean for the MCP protocol.
-* **`gitpr-mcp` Command:** Dedicated entry point registered in `pyproject.toml`.
-* **`--mcp` Flag:** Alias via the main CLI (`gitpr --mcp`).
-
-### **17. MCP Installer (`gitpr-mcp --install`)**
-
-* **6 Supported Editors:** VS Code (`.vscode/mcp.json`), Cursor (`.cursor/mcp.json`), Claude Code (`.mcp.json`), Claude Desktop (global), Zed (global).
-* **Auto Mode:** Automatically detects which editors are configured and installs for all.
-* **Intelligent Merge:** Adds the GitPR server without removing existing servers — idempotent and safe.
-* **Directory Creation:** Automatically creates `.vscode/`, `.cursor/` or the global directory if they don't exist.
-
-### **18. Local Metrics and Telemetry (`src/metrics.py`, `src/ui/metrics_app.py`)** 🆕
-
-* **Fire-and-forget Collection:** Each CLI command generates an asynchronous JSON event in `~/.gitpr/metrics/{owner}/{branch}/` with timestamp, command, status, provider, tokens, duration, repo, and branch.
-* **Enriched Payload:** Additional fields such as `cache_hit`, `map_reduce_triggered`, `linter_errors`, `linter_warnings` for command-specific context.
-* **CSV/JSON Export:** `gitpr --metrics --export` consolidates all unexported events with `click.progressbar()`, generating `gitpr_metrics_YYYY-MM-DD.csv` and `.json`.
-* **Safe Cleanup:** `gitpr --metrics --purge` removes files after user confirmation.
-* **TUI Dashboard:** `gitpr --metrics --dashboard` opens an interactive Textual interface with DataTable (last 100 events), aggregated summary bar (total, errors, tokens, top commands/providers), and F5 (refresh) / Esc (exit) bindings.
-* **Telemetry Git Hooks:** `post-checkout` (branch switch), `pre-push` (deliveries), `post-merge` (integration) — automatically installed via `--installhooks`.
-* **100% local and anonymous:** No data leaves the machine. Events contain usage metadata, never file content or diffs.
-
-## **📊 Tests and Quality**
+## **📊 Testing and Quality**
 
 | Test File | Scenarios | Focus |
-|------------------|----------|------|
-| `tests/test_core.py` | 25+ | Core flows, git diff, PR generation |
-| `tests/test_chat_backend.py` | 30+ | Chat memory, persistence, commands |
-| `tests/test_skill_command.py` | 10+ | Template download and validation |
-| `tests/test_pre_save.py` | 10+ | --pre-save flag and JSON payload |
-| `tests/test_smart_excludes.py` | 14+ | Smart pathspec filter |
-| `tests/test_thinking_words.py` | 10+ | Thinking words loading and parsing |
-| `tests/test_mcp_prompts.py` | 11 | Prompt functions, PROMPT_FILES, _read_prompt_file(), language fallback |
-| `tests/test_mcp_server.py` | 33 | MCP tools, resources, output patching, safe-call wrapper |
+|-----------|-----------|-------|
+| `tests/test_core.py` | 25+ | Main flows, git diff, PR generation, timing |
+| `tests/test_chat_backend.py` | 30+ | Chat memory, persistence, slash commands |
+| `tests/test_skill_command.py` | 10+ | Download and validation of skill templates |
+| `tests/test_pre_save.py` | 10+ | Flag --pre-save and JSON payload |
+| `tests/test_smart_excludes.py` | 14+ | Intelligent pathspec filter |
+| `tests/test_thinking_words.py` | 10+ | Loading and parsing with `;` separator |
+| `tests/test_mcp_prompts.py` | 11 | MCP prompt templates and language fallback |
+| `tests/test_mcp_server.py` | 33 | MCP tools, resources, annotations, and patching |
+| `tests/test_metrics.py` | 36+ | Collection, local export, repo scope, cache token summary, duration_ms |
+| `tests/test_install_wizard.py` | 5+ | Interactive installation wizard |
+
+**Total:** 114 automated test scenarios passing with 100% success.
+
+---
 
 ## **🌐 Internationalization and Documentation**
 
-* **447 translation keys** per language (5 languages = 2,235 translations) 🆕.
-* **Full documentation in 5 languages:** 23 topics × 5 languages = 115+ documentation pages.
-* **New documentation 🆕:** `docs/metricas-telemetria.md` in 5 languages (EN, PT-BR, PT-PT, ES, FR).
-* **Existing documentation expanded:** `docs/mcp-prompts.md` and `docs/mcp-annotations.md` updated with template system and `prompt://` resources.
-* **MCP Templates:** 35 prompt files (`gitpr.prompt.*.md`) in 5 languages in the `templates/` directory.
-* **Thinking Words:** 263 entries per language in `templates/gitpr.thinking-words.{lang}.md`.
-* **Clean Code 🆕:** All Portuguese comments and docstrings translated to English in `src/metrics.py`, `src/main.py`, and `src/ai_providers.py`.
-* **Development Plans:** 8 plans documented in `docs/plans/`.
-* **Claude Code Reports:** 13+ task reports in `docs/claude-code/reports/develop_natan/`.
-* **Official Site:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
-* **Synced READMEs:** Updated with MCP Prompts, MCP Tool Annotations, and Metrics & Telemetry in all 5 languages 🆕.
+* **Quick Start Section in READMEs 🆕:** Updated `README.md`, `README.pt_br.md`, `README.pt_pt.md`, `README.es_es.md`, and `README.fr_fr.md` with `pip install gitpr-cli` and `gitpr --install` instructions.
+* **New `GEMINI.md` Guide 🆕:** Development guide covering code standards, commands, project structure, and mandatory reports.
+* **447 translation keys** per language (2,235 total translations).
+* **5-Language Documentation:** 23 topics in `docs/` translated to EN, PT-BR, PT-PT, ES, FR.
+* **Task Reports:** `docs/claude-code/reports/` and `docs/gemini/reports/`.
+
+---
 
 ## **🔄 Distribution Pipeline**
 
 1. **PyPI:** `python -m build` → `twine upload dist/*` → `pip install gitpr-cli`
-2. **GitHub Releases:** PyInstaller → `.exe` standalone → upload via workflow
-3. **GitHub Actions:** Automated PR Review with `action.yml`
-4. **MCP:** `gitpr-mcp` registered as entry point in `pyproject.toml` → automatically installed with `pip install`
-
-## **📈 Evolution Since Previous Report (v0.0.4)**
-
-| Area | v0.0.4 (previous) | v0.0.5 (current) |
-|------|-------------------|-----------------|
-| **AI Providers** | Gemini + DeepSeek + Ollama | Gemini + DeepSeek + Ollama |
-| **Languages** | 5 (en, pt_br, pt_pt, es_es, fr_fr) | 5 (en, pt_br, pt_pt, es_es, fr_fr) |
-| **Interface** | CLI + TUI Issues + Chat TUI + MCP Server | CLI + TUI Issues + Chat TUI + MCP Server + **TUI Metrics Dashboard** |
-| **MCP Tools** | 10 tools with ToolAnnotations | 10 tools with ToolAnnotations |
-| **MCP Resources** | 15 (skills + linter + prompts) | 15 (skills + linter + prompts) |
-| **MCP Prompts** | 7 prompts with templates (35 files) | 7 prompts with templates (35 files) |
-| **Telemetry** | — (only map-reduce event) | **Complete system: collection, export, purge, TUI dashboard** |
-| **Git Hooks** | 2 (pre-commit, prepare-commit-msg) | **5 (pre-commit, prepare-commit-msg, post-checkout, pre-push, post-merge)** |
-| **CLI Flags** | 16 flags | **21 flags (+ --metrics, --export, --purge, --dashboard, --hook-event)** |
-| **Thinking Words** | 201 entries/language | **263 entries/language (+62 Sussing + Cerebrating phrases)** |
-| **Spinner** | Adaptive speed | Adaptive speed + **flickering fix (\033[K)** |
-| **i18n Keys** | 364 keys/language | **447 keys/language (+83)** |
-| **Documentation** | 110+ pages (22 topics) | **115+ pages (23 topics)** |
-| **Code** | Mixed PT/EN comments | **All comments in English** |
-| **Version** | 0.0.29 | **0.0.30** |
-| **Lang Version** | v0.0.7 | **v0.0.8** |
-
-## **🚧 Next Steps**
-
-* **MCP integration tests:** End-to-end coverage of the MCP server with a test client.
-* **More providers:** Claude API, direct OpenAI, additional local providers.
-* **Plugin system:** Extensibility for custom linter rules and prompts.
-* **MCP SDK v2 Migration:** Monitor stabilization of SDK v2.x (stateless mode, tasks).
-* **Automated GitHub Release:** Full CI/CD pipeline for build + release.
-* **Team metrics dashboard:** Optional HTTP server for browser-based dashboards from exported CSVs.
+2. **GitHub Releases:** PyInstaller → standalone `.exe` → automated upload
+3. **GitHub Actions:** Workflow `pr-review.yml` + `action.yml`
+4. **MCP Server:** Entry point `gitpr-mcp` via `pyproject.toml`
 
 ---
 
-**Report generated on:** 2026-07-26
-**Branch:** `develop_natan`
-**Author:** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))
+## **📈 Evolution since Previous Report (v0.0.5)**
+
+| Area | v0.0.5 (previous) | v0.0.6 (current) |
+|------|-------------------|------------------|
+| **AI Providers** | Gemini + DeepSeek + Ollama | Gemini + DeepSeek + Ollama |
+| **Languages** | 5 (en, pt_br, pt_pt, es_es, fr_fr) | 5 (en, pt_br, pt_pt, es_es, fr_fr) |
+| **TUI Dashboard** | Global, limited to 100 events | **Repo-scoped, unlimited cache scanning + ProgressBar + F5 fix** |
+| **Metrics & Duration** | Simple tokens and counters | **Wall-clock duration (`duration_ms`) + Local export (`./.gitpr/metrics/export/`)** |
+| **GitHub PAT Auth** | Secure storage without pre-validation | **Pre-validation via `GET /user` + Graceful Auto-Reauth on HTTP 401** |
+| **Thinking Words** | Comma separator `,` | **Semicolon separator `;` (supports complex phrases) synced in 5 languages** |
+| **README Documentation** | Binary download focus | **Quick Start with `pip install gitpr-cli` and `gitpr --install` in 5 languages** |
+| **Development Guides**| CLAUDE.md | **CLAUDE.md + GEMINI.md** |
+| **Test Suite** | 100+ scenarios | **114 test scenarios (100% passing)** |
+| **PyPI Version** | 0.0.30 | **0.0.31** |
+
+---
+
+## **🚧 Next Steps**
+
+* **End-to-End Integration Tests for MCP:** Validation of tool calls and prompts via simulated stdio client.
+* **Anthropic Claude Provider:** Direct support for Claude API (`claude-3-5-sonnet`).
+* **ASCII/Textual Charts in Dashboard:** Add timing histograms and token trend graphs to metrics TUI.
+* **GitHub Actions Release Pipeline:** Complete automation for PyInstaller builds and asset uploads to GitHub Releases.
+
+---
+
+**Report generated on:** 2026-08-03  
+**Branch:** `develop_natan`  
+**Author:** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))  

@@ -1,6 +1,10 @@
 # Local Linter — Static Analysis
 
-GitPR's linter validates code against custom rules **without consuming AI quotas**. It analyzes only the **added lines** in your `git diff`, making it fast, focused, and CI/CD-friendly.
+GitPR's linter validates code against custom rules **without consuming AI quotas**. It analyzes only the **added lines** in your `git diff`, making it fast, focused, and CI/CD ready.
+
+::: tip ⚡ Linter Utility
+Create, test, and validate YAML rules graphically in your browser: **[Open Rule Builder](/linter-utility?lang=en)**
+:::
 
 ---
 
@@ -111,6 +115,18 @@ This creates `pre-commit` and `prepare-commit-msg` hooks that run the linter bef
 - **Customizable** — rules match YOUR team's standards
 - **Git-aware** — only checks what you changed, not the entire codebase
 - **CI/CD native** — single command, no external services
+
+---
+
+## 🛠️ Interactive Linter Utility
+
+::: tip ⚡ Rule Builder & Regex Tester
+Need help creating your rules or testing your regular expressions visually in real-time?
+
+<a href="/linter-utility?lang=en" class="inline-block mt-3 px-5 py-2.5 bg-gitpr_primary text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors no-underline">
+  🚀 Open Interactive Linter Utility →
+</a>
+:::
 
 ---
 
