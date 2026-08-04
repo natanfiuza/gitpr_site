@@ -16,12 +16,23 @@ GitPR CLI utilise **Google Gemini** et **DeepSeek** pour analyser votre `git dif
 
 ## ⚡ Démarrage Rapide
 
+### 1. Installation via PyPI
+
+Installez GitPR CLI avec `pip` :
+
 ```bash
-# Téléchargez depuis GitHub Releases et ajoutez à votre PATH, puis :
-gitpr
+pip install gitpr-cli
 ```
 
-Lors de la première exécution, un assistant vous guidera dans la configuration — entrez simplement votre clé API et vous êtes prêt.
+### 2. Initialisation dans un Dépôt
+
+Pour configurer GitPR dans un dossier d'un nouveau dépôt, exécutez :
+
+```bash
+gitpr --install
+```
+
+La configuration guidée télécharge les modèles de skills, installe les Git Hooks, configure le MCP pour vos éditeurs et vérifie la clé API de votre fournisseur d'IA.
 
 ---
 

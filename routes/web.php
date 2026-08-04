@@ -8,6 +8,11 @@ use Inertia\Inertia;
 
 
 Route::get('/api/search', [\App\Http\Controllers\DocsController::class, 'search_content'])->name('api.search');
+
+Route::get('/linter-utility', [\App\Http\Controllers\LinterUtilityController::class, 'index'])->name('linter.utility');
+Route::post('/linter-utility/generate', [\App\Http\Controllers\LinterUtilityController::class, 'generateYaml'])->name('linter.utility.generate');
+Route::post('/linter-utility/parse', [\App\Http\Controllers\LinterUtilityController::class, 'parseYaml'])->name('linter.utility.parse');
+
 Route::get('/{page?}', [DocsController::class, 'show_document'])->where('page', '.*');
 
 // Route::get('/', function () {

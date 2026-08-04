@@ -71,7 +71,7 @@
                         <template v-for="group in menu_groups" :key="group.title ?? '__top__'">
                             <!-- Section header (collapsible) -->
                             <li v-if="group.title"
-                                class="text-xs font-bold uppercase tracking-wider text-gitpr_cyan_dark mt-6 mb-2 first:mt-0">
+                                class="text-sm font-bold uppercase tracking-wider text-gitpr_cyan_dark mt-6 mb-2 first:mt-0">
                                 <button
                                     @click="toggle_section(group.title)"
                                     class="flex items-center justify-between w-full text-left hover:text-gitpr_cyan_light transition-colors cursor-pointer"

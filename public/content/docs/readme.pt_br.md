@@ -8,6 +8,29 @@ O GitPR CLI é uma ferramenta de automação via linha de comando que usa inteli
 
 🌐 **Site:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/) · 📂 **Repositório:** [github.com/natanfiuza/gitpr](https://github.com/natanfiuza/gitpr)
 
+----
+
+## ⚡ **Início Rápido**
+
+### **1. Instalação via PyPI**
+
+Instale o GitPR CLI usando o `pip`:
+
+```bash
+pip install gitpr-cli
+```
+
+### **2. Inicializando em um Repositório**
+
+Para configurar o GitPR em uma pasta de um novo repositório, execute:
+
+```bash
+gitpr --install
+```
+
+> **Configuração Guiada:** Configuração guiada que baixa templates de skills, instala Git Hooks, configura o MCP para seus editores e verifica a chave de API do seu provedor de IA.  
+> 📖 **Documentação Completa:** [https://gitpr.natanfiuza.dev.br/docs/install-wizard?lang=pt_br](https://gitpr.natanfiuza.dev.br/docs/install-wizard?lang=pt_br)
+
 ## **🛠️ Tecnologias e Bibliotecas Utilizadas**
 
 Este projeto foi desenvolvido em Python e utiliza as seguintes bibliotecas principais:
