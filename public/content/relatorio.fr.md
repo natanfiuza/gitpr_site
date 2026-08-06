@@ -1,19 +1,21 @@
-# **🚀 Rapport de Statut du Projet : GitPR CLI — v0.0.31 (2026-08-03)**
+# **🚀 Rapport de Statut du Projet : GitPR CLI — v0.0.32 (2026-08-06)**
 
 ## **📌 Aperçu Général**
 
 **GitPR** est un outil CLI (Command Line Interface) avancé pour l'automatisation des processus Git à l'aide de l'Intelligence Artificielle (Google Gemini / DeepSeek / Ollama). L'objectif principal est d'agir comme un assistant intelligent local qui effectue des Code Reviews, génère des Pull Requests, des messages de commit sémantiques, audite la dette technique et injecte des bonnes pratiques dans le flux de travail du développeur (Shift Left).
 
-**Nouveautés de cette version (v0.0.6) :**
-- **Tableau de Bord TUI de Métriques Refondu :** Portée isolée par dépôt (`repo_filter`), balayage asynchrone illimité des fichiers de cache (`~/.gitpr/cache/prompts/`), superposition visuelle avec `ProgressBar`, totalisateur unifié de tokens par projet, contrôle des fichiers de cache traités (`./.gitpr/metrics/{repo}/processed_cache.json`) et correction du bug de colonnes dupliquées sur le raccourci F5 (Refresh).
-- **Suivi de la Durée des Appels IA (Wall-Clock Timing) :** Injection de `duration_ms` en millisecondes via `time.perf_counter()` dans toutes les réponses LLM, transmise par le cache et affichée dans le tableau de bord des métriques.
-- **Exportation Locale par Projet :** `gitpr --metrics --export` génère désormais des rapports CSV et JSON dans le dossier du projet local (`./.gitpr/metrics/export/`) en filtrant par le dépôt actif.
-- **Revalidation Automatique du Token GitHub (Auto-Reauth sur 401) :** Fonction de validation de PAT (`GET /user`), pré-validation avant la TUI d'issues (`gitpr -is`) et récupération progressive en cas d'erreur HTTP 401 sans perte de brouillons.
-- **Ajustements du Spinner et des Thinking Words :** Remplacement du délimiteur de phrases de la virgule par le point-virgule (`;`), permettant des phrases complexes avec des virgules dans `templates/gitpr.thinking-words.*.md` sans rompre l'analyse.
-- **Démarrage Rapide dans les READMEs :** Documentation d'installation via `pip install gitpr-cli` et initialisation du dépôt via `gitpr --install` dans les READMEs des 5 langues.
-- **Guide du Projet `GEMINI.md` :** Guide architectural complet, conventions de code, pipeline de commandes et standard de rapports dans `docs/gemini/reports/`.
+**Nouveautés de cette version (v0.0.7) :**
+- **Expansion de la Couverture i18n (491 clés) :** Synchronisation complète des appels `__()` dans `core.py`, `main.py` et `linter_engine.py` avec le fichier de traduction `pt_br.json`. Script de vérification `tests/sync_i18n.py` pour détecter les clés orphelines dans tout fichier source. Ajout de 5 nouvelles traductions pour les chaînes Smart Excludes, la bannière CLI avec `--install` et la télémétrie locale.
+- **Smart Excludes pour la Documentation :** Filtre pathspec intelligent qui détecte et exclut les fichiers de documentation (`.md`, `.rst`, `.txt`) du diff, avec notification visuelle du nombre de fichiers exclus (`📄 {count} documentation file(s) excluded`) et lien vers la documentation.
+- **Synchronisation Automatique des Hooks Git :** Système de versionnage indépendant pour les scripts de hook (`__scripts_version__` v0.0.1) avec vérification et mise à jour automatique lors de l'exécution de `--installhooks`. Détecte la langue de l'environnement et télécharge la version correcte des templates.
+- **Métriques pour Linter, Blame et Git Hooks :** Télémétrie étendue avec `log_hook_event()` pour les événements de hook, `log_linter_metric()` pour les exécutions du linter standalone et `log_blame_metric()` pour l'archéologie de code.
+- **Cache i18n avec Indexation par Langue :** Le système de cache des réponses IA inclut désormais la langue courante dans le calcul de la clé, évitant les collisions entre les réponses générées dans des langues différentes.
+- **Versionnage Centralisé dans l'Updater :** La version de GitPR (`__version__`) et la version des dictionnaires de langue (`__lang_version__`) dérivent exclusivement de `src/updater.py`, éliminant la duplication avec `pyproject.toml`.
+- **Documentation des Patrons d'Architecture :** Memory index avec 14 patrons documentés extraits de 36 rapports de tâches, couvrant le cache, le spinner, MCP, les métriques, l'UI, le versionnage et d'autres sous-systèmes.
 
-- **Version actuelle :** 0.0.31
+- **Version actuelle :** 0.0.32
+- **Version des dictionnaires de langue :** v0.0.10
+- **Version des scripts de hook :** v0.0.1
 - **Publication :** PyPI (`pip install gitpr-cli`) + GitHub Releases (binaire standalone)
 - **Site web :** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
 - **Dépôt :** [github.com/natanfiuza/gitpr](https://github.com/natanfiuza/gitpr)
@@ -31,7 +33,7 @@
 * **Configuration :** `python-dotenv`, `pyyaml` (pour le linter statique).
 * **Fournisseurs IA :** Intégration via SDK officiel Google GenAI (`gemini-2.5-flash`), OpenAI SDK (`DeepSeek`), et OpenAI SDK (`Ollama` local).
 * **MCP :** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 (SDK officiel Anthropic pour Model Context Protocol) — **Tool Annotations, Prompts avec templates et ressources prompt://**.
-* **Tests :** Pytest + `unittest.mock` (10 fichiers de test, 114 scénarios).
+* **Tests :** Pytest + `unittest.mock` (12 fichiers de test, 131 scénarios).
 * **Empaquetage :** PyInstaller (binaire standalone) + setuptools/build (PyPI).
 * **CI/CD :** GitHub Actions (`pr-review.yml`) + `action.yml` pour exécution dans les pipelines.
 
@@ -46,7 +48,7 @@
 * **Estimation de Tokens :** Heuristique légère `len() // 4` via `estimate_token_count()`.
 * **Optimisation Native de Git :** Flags `-U1`, `-w`, `-M`, `-B` dans les commandes `get_git_diff` et `get_git_full_diff` pour réduire le contexte inutile.
 * **Pre-Save (`--pre-save`) :** Flag masqué de débogage qui sauvegarde le payload complet (system instruction + prompt) en JSON avant chaque appel à l'IA.
-* **Smart Excludes :** Filtre de pathspec intelligent (`gitpr.smart-excludes.json`) distant — téléchargé depuis GitHub et mis à jour automatiquement avec versionnage (`SMART_EXCLUDES_VERSION`), excluant les fichiers non pertinents (lock files, artefacts de build, assets binaires) pour réduire les tokens.
+* **Smart Excludes 🆕 :** Filtre de pathspec intelligent (`gitpr.smart-excludes.json`) distant — téléchargé depuis GitHub et mis à jour automatiquement avec versionnage (`SMART_EXCLUDES_VERSION`). **Nouvelle fonctionnalité :** exclusion des fichiers de documentation avec notification visuelle (`📄 {count} documentation file(s) excluded`) et lien `Learn more` vers la documentation.
 * **Métriques avec Suivi Temporel :** Injection de `log_command_metric()` dans tous les flux avec transmission de la durée en millisecondes (`duration_ms`) et importations différées pour éviter les dépendances circulaires.
 
 ### **2. Interface CLI et Configuration (`src/main.py` et `src/config.py`)**
@@ -65,20 +67,21 @@
 * **Linter Hors Ligne :** Analyse statiquement les lignes ajoutées (`+`) dans le git diff sans consommer de quota IA.
 * **Règles YAML :** Lit le fichier local `.gitpr.linter.yml` (créé via `--skill`). Supporte le regex de validation, l'ignorance des commentaires et l'exclusion de répertoires spécifiques (via fnmatch).
 * **Template Multilingue :** Templates du linter disponibles en 5 langues.
+* **Métriques de Linter 🆕 :** Événements d'exécution du linter enregistrés via `log_linter_metric()` avec comptage des erreurs et warnings.
 
 ### **4. Sécurité et Authentification (`src/security.py`, `src/config.py`, `src/tui_issue.py`)**
 
 * **Cryptographie :** Génère une clé maîtresse `secret.key` dans le dossier `~/.gitpr/`.
 * **Protection des Tokens :** `encrypt_data` et `decrypt_data` pour protéger les clés API IA et les PAT GitHub.
-* **Validation du Token GitHub 🆕 :** La fonction `validate_github_token()` effectue un appel léger (`GET /user`) pour valider le PAT.
-* **Flux d'Auto-Reauth 🆕 :** Si le token expire ou est invalide pendant le `gitpr -is`, l'application capture la réponse HTTP 401, demande un nouveau token à l'utilisateur et relance l'interface TUI en préservant le brouillon.
+* **Validation du Token GitHub :** La fonction `validate_github_token()` effectue un appel léger (`GET /user`) pour valider le PAT.
+* **Flux d'Auto-Reauth :** Si le token expire ou est invalide pendant le `gitpr -is`, l'application capture la réponse HTTP 401, demande un nouveau token à l'utilisateur et relance l'interface TUI en préservant le brouillon.
 
 ### **5. Auto-Updater (`src/updater.py`)**
 
 * **Hot-Swap :** Vérifie la version la plus récente sur l'API des Releases GitHub. En cas de divergence, télécharge le binaire compilé, renomme l'exécutable actuel et le remplace sans interrompre l'exécution en cours (avec possibilité de rollback).
 * **Cache quotidien :** Évite les vérifications répétées le même jour.
 * **Vérification de connexion :** Socket `8.8.8.8:53` avant toute opération réseau.
-* **Versionnage des assets :** `__lang_version__` (v0.0.8), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION` pour le contrôle de mise à jour des templates et traductions.
+* **Versionnage Centralisé 🆕 :** `__version__` (0.0.32), `__lang_version__` (v0.0.10), `__scripts_version__` (v0.0.1), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION` — tous dérivent exclusivement de `updater.py`, source unique de vérité pour le versionnage.
 
 ### **6. Interface de Chat Interactif (`src/ui/chat_app.py`)**
 
@@ -94,37 +97,40 @@
 * **Système Inspiré de Laravel :** Fonction `__()` avec support des espaces réservés nommés (`{count}`, `{file}`, etc.).
 * **Détection Automatique :** Détecte la langue du système d'exploitation à la première exécution et la sauvegarde dans `GITPR_LANG`.
 * **5 Langues :** en_us (par défaut/fallback), pt_br, pt_pt, es_es, fr_fr.
-* **Fichiers Versionnés :** `__lang_version__` (v0.0.8) contrôle la mise à jour des paquets de langue (`langs/*.json`).
-* **Couverture Totale :** Messages CLI, aide de Click, alertes du linter, Git Hooks, spinner, chat TUI, MCP, métriques et TUI Dashboard traduits.
+* **Fichiers Versionnés :** `__lang_version__` (v0.0.10) contrôle la mise à jour des paquets de langue (`langs/*.json`).
+* **Couverture Étendue 🆕 :** 491 clés de traduction en pt_BR (+44 depuis v0.0.6). Synchronisation complète entre les appels `__()` dans le code source et les dictionnaires de traduction. Script `tests/sync_i18n.py` pour la détection automatique des clés orphelines.
+* **Cache avec Indexation par Langue 🆕 :** Les réponses IA en cache incluent désormais la langue courante dans le calcul de la clé MD5, évitant les collisions entre langues différentes.
 
 ### **8. Spinner Animé (`src/spinner.py`)**
 
-* **Braille + Thinking Words :** Thread en arrière-plan pendant les appels IA affichant des caractères braille accompagnés de mots de "réflexion".
-* **Délimiteur Mis à Jour 🆕 :** Modification du séparateur de phrases de la virgule vers le point-virgule (`;`), évitant que les phrases avec virgules internes ne soient séparées incorrectement.
+* **Braille + Thinking Words :** Thread en arrière-plan pendant les appels IA affichant des caractères braille accompagnés de mots de « réflexion ».
+* **Délimiteur Mis à Jour :** Modification du séparateur de phrases vers le point-virgule (`;`), évitant que les phrases avec virgules internes ne soient divisées incorrectement.
 * **Vitesse Adaptative & Scintillement :** Animation de découverte des caractères adaptée aux phrases longues et utilisation du code ANSI `\033[K` pour éviter les artefacts visuels dans le terminal.
 * **263 entrées par langue :** Synchronisées entre les 5 langues dans les fichiers `templates/gitpr.thinking-words.{lang}.md`.
 
 ### **9. Fournisseurs IA (`src/ai_providers.py`)**
 
 * **3 Fournisseurs Supportés :** Google Gemini (`gemini-2.5-flash`), DeepSeek (`deepseek-chat`), Ollama (local).
-* **Mesure de Durée 🆕 :** Injection de `duration_ms` (chronométrage haute précision via `time.perf_counter()`) dans `meta_raw` et `_telemetry_meta`.
+* **Mesure de Durée :** Injection de `duration_ms` (chronométrage haute précision via `time.perf_counter()`) dans `meta_raw` et `_telemetry_meta`.
 * **Mode JSON & Paramètres Déterministes :** Sorties structurées avec `temperature=0.0` et `top_p=0.1`.
 
 ### **10. Cache Intelligent (`src/cache.py`)**
 
 * **MD5 + Metadata :** Clé par hachage MD5 du diff et du prompt.
-* **Télémétrie et Durée 🆕 :** Persistance du champ `duration_ms` et `meta_raw` dans les fichiers de cache sous `~/.gitpr/cache/prompts/`.
-* **Scanner pour Dashboard 🆕 :** `scan_cache_files_for_dashboard()` lit tous les fichiers de cache de manière récursive pour calculer des métriques historiques complètes.
+* **Indexation par Langue 🆕 :** Le champ `lang` a été ajouté à la clé de cache, permettant des réponses distinctes pour le même diff dans des langues différentes.
+* **Télémétrie et Durée :** Persistance du champ `duration_ms` et `meta_raw` dans les fichiers de cache sous `~/.gitpr/cache/prompts/`.
+* **Scanner pour Dashboard :** `scan_cache_files_for_dashboard()` lit tous les fichiers de cache de manière récursive pour calculer des métriques historiques complètes.
 
 ### **11. Moteur d'Issues et TUI (`src/issue_engine.py`, `src/tui_issue.py`, `src/ui/issue_app.py`)**
 
 * **3 Moteurs de Contexte :** Diff actuel, Historique de branche (`-ht`), et Archéologie par Blame (`-b`).
 * **TUI Interactive :** Édition de brouillons, raccourci F2 (sauvegarder localement), F3 (publier sur GitHub via API REST) et F1 (help).
-* **Gestion du 401 🆕 :** Demande de réauthentification sans fermeture de l'application ni perte de contenu.
+* **Gestion du 401 :** Demande de réauthentification sans fermeture de l'application ni perte de contenu.
 
 ### **12. Archéologue de Code (`src/blame_engine.py`)**
 
-* **Git Blame + IA :** Rastreint l'évolution et l'auteur historique des extraits de code avec classification des commits (`ORIGIN` vs `REFACTORING`).
+* **Git Blame + IA :** Retrace l'évolution et l'auteur historique des extraits de code avec classification des commits (`ORIGIN` vs `REFACTORING`).
+* **Métriques de Blame 🆕 :** Événements d'archéologie enregistrés via `log_blame_metric()` avec suivi de la profondeur et du nombre de commits analysés.
 
 ### **13. Serveur MCP et Installateur (`src/mcp_server.py`)**
 
@@ -132,7 +138,7 @@
 * **15 Ressources + 7 Prompts Templatisés :** 35 fichiers de template dans `templates/gitpr.prompt.*.md`.
 * **Installateur Automatique :** Configuration des éditeurs supportés (VS Code, Cursor, Claude Code, Claude Desktop, Zed) avec fusion JSON intelligente.
 
-### **14. Tableau de Bord de Métriques TUI Refondu (`src/ui/metrics_app.py`)** 🆕
+### **14. Tableau de Bord de Métriques TUI (`src/ui/metrics_app.py`)**
 
 * **Portée par Dépôt (Repo-Scope) :** Étiquette `📁 Repository: owner/repo` et filtrage strict des événements et données de cache par projet.
 * **Balayage Asynchrone avec Overlay :** Thread d'arrière-plan chargeant les données de cache tout en affichant le widget `ProgressBar` de Textual.
@@ -140,6 +146,19 @@
 * **Contrôle d'État du Cache :** Fichier de registre dans `./.gitpr/metrics/{repo}/processed_cache.json`.
 * **Fix de Colonnes sur F5 :** Initialisation unique des colonnes (`_setup_columns()`), évitant la duplication visuelle lors des rafraîchissements.
 * **Exportation Locale :** Enregistrement CSV/JSON dans `./.gitpr/metrics/export/`.
+
+### **15. Système de Métriques et Télémétrie (`src/metrics.py`)**
+
+* **Portée par Dépôt :** Tous les événements de métriques sont indexés par `repo_name`, permettant l'isolation entre les projets.
+* **Nouveaux Événements 🆕 :** `log_hook_event()` pour les hooks Git (pre-commit, prepare-commit-msg), `log_linter_metric()` pour le linter standalone, `log_blame_metric()` pour l'archéologie de code.
+* **Exportation Locale :** `--metrics --export` génère des CSV et JSON dans `./.gitpr/metrics/export/` avec filtre par dépôt.
+* **Nettoyage :** `--metrics --purge` supprime tous les fichiers de métriques locaux avec confirmation interactive.
+
+### **16. Synchronisation des Hooks Git 🆕**
+
+* **Versionnage Indépendant :** `__scripts_version__` (v0.0.1) dans `updater.py` contrôle la version des scripts de hook séparément des dictionnaires de langue.
+* **Détection Automatique :** Lors de l'exécution de `--installhooks`, le système compare la version locale (stockée dans le `.env`) avec la version la plus récente et met à jour automatiquement si nécessaire.
+* **Sensible à la Langue :** Détecte la langue configurée et télécharge les templates de hook correspondants.
 
 ---
 
@@ -157,18 +176,22 @@
 | `tests/test_mcp_server.py` | 33 | Outils MCP, ressources, annotations et patchs |
 | `tests/test_metrics.py` | 36+ | Collecte, exportation locale, portée de dépôt, cache token summary, duration_ms |
 | `tests/test_install_wizard.py` | 5+ | Assistant d'installation interactif |
+| `tests/test_blame_metrics.py` 🆕 | 10+ | Métriques de blame : profondeur, commits, durée |
+| `tests/test_linter_metrics.py` 🆕 | 8+ | Métriques de linter : erreurs, warnings, durée |
+| `tests/sync_i18n.py` 🆕 | — | Script de vérification de la couverture i18n (clés orphelines) |
 
-**Total :** 114 scénarios de test automatisés passant avec 100% de succès.
+**Total :** 131 scénarios de test automatisés passant avec 100% de succès.
 
 ---
 
 ## **🌐 Internationalisation et Documentation**
 
-* **Section Démarrage Rapide dans les READMEs 🆕 :** Mise à jour des fichiers `README.md`, `README.pt_br.md`, `README.pt_pt.md`, `README.es_es.md` et `README.fr_fr.md` avec les instructions `pip install gitpr-cli` et `gitpr --install`.
-* **Nouveau Guide `GEMINI.md` 🆕 :** Guide de développement avec standards de code, commandes, structure du projet et rapports obligatoires.
-* **447 clés de traduction** par langue (2 235 traductions au total).
+* **Couverture i18n Étendue 🆕 :** 491 clés de traduction en pt_BR (étaient 447 en v0.0.6, +44 nouvelles). Synchronisation complète validée pour `core.py`, `main.py` et `linter_engine.py`.
+* **Script de Synchronisation 🆕 :** `tests/sync_i18n.py` — script réutilisable pour détecter les clés `__()` dans tout fichier source qui n'ont pas de traduction dans le dictionnaire de langue.
+* **Nouveaux Tests de Métriques 🆕 :** `test_blame_metrics.py` (140 lignes) et `test_linter_metrics.py` (116 lignes) couvrant la télémétrie des nouveaux modules.
 * **Documentation en 5 langues :** 23 sujets dans `docs/` traduits en EN, PT-BR, PT-PT, ES, FR.
-* **Rapports de tâches :** `docs/claude-code/reports/` et `docs/gemini/reports/`.
+* **Memory Index :** `.claude/memory/MEMORY.md` avec 14 patrons d'architecture extraits de 36 rapports.
+* **Rapports de tâches :** `docs/claude-code/reports/` et `docs/reports/`.
 
 ---
 
@@ -181,32 +204,37 @@
 
 ---
 
-## **📈 Évolution depuis le Rapport Précédent (v0.0.5)**
+## **📈 Évolution depuis le Rapport Précédent (v0.0.6)**
 
-| Domaine | v0.0.5 (précédent) | v0.0.6 (actuel) |
+| Domaine | v0.0.6 (précédent) | v0.0.7 (actuel) |
 |---------|--------------------|-----------------|
+| **Version GitPR** | 0.0.30 | **0.0.32** |
+| **Version Langue** | v0.0.8 | **v0.0.10** |
+| **Version Scripts Hook** | — | **v0.0.1** |
 | **Fournisseurs IA** | Gemini + DeepSeek + Ollama | Gemini + DeepSeek + Ollama |
 | **Langues** | 5 (en, pt_br, pt_pt, es_es, fr_fr) | 5 (en, pt_br, pt_pt, es_es, fr_fr) |
-| **Tableau de Bord TUI** | Global, limité à 100 événements | **Repo-scoped, balayage du cache illimité + ProgressBar + F5 fix** |
-| **Métriques & Durée** | Tokens et compteurs simples | **Wall-clock duration (`duration_ms`) + Export local (`./.gitpr/metrics/export/`)** |
-| **GitHub PAT Auth** | Stockage sécurisé sans pré-validation | **Validation préalable via `GET /user` + Auto-Reauth gracieux sur 401** |
-| **Thinking Words** | Séparateur par virgule `,` | **Séparateur `;` (supporte les phrases complexes) synchro en 5 langues** |
-| **README Documentation** | Focus téléchargement de binaires | **Quick Start avec `pip install gitpr-cli` et `gitpr --install` en 5 langues** |
-| **Manuels de Développement**| CLAUDE.md | **CLAUDE.md + GEMINI.md** |
-| **Suite de Tests** | 100+ scénarios | **114 scénarios de test (100% passant)** |
-| **Version PyPI** | 0.0.30 | **0.0.31** |
+| **Traductions pt_BR** | 447 clés | **491 clés (+44)** |
+| **Tableau de Bord TUI** | Repo-scoped, cache illimité + ProgressBar + F5 fix | Repo-scoped, cache illimité + ProgressBar + F5 fix |
+| **Smart Excludes** | Filtre de pathspec distant | **+ Exclusion de la documentation avec notification visuelle** |
+| **Métriques & Télémétrie** | Wall-clock duration + Export local | **+ Métriques de Linter, Blame et Git Hooks** |
+| **Hooks Git** | Installation manuelle (`--installhooks`) | **+ Synchronisation automatique avec versionnage** |
+| **Cache i18n** | Clé par hachage MD5 du diff | **+ Indexation par langue** |
+| **Versionnage** | `__version__` dupliqué (updater + pyproject) | **Source unique dans updater.py** |
+| **Suite de Tests** | 114 scénarios (10 fichiers) | **131 scénarios (12 fichiers + sync_i18n)** |
+| **Documentation des Patrons** | CLAUDE.md + GEMINI.md | **+ Memory Index avec 14 patrons** |
 
 ---
 
 ## **🚧 Prochaines Étapes**
 
+* **Synchronisation i18n dans les autres langues :** Expansion des traductions vers es_es, fr_fr et pt_pt avec la même couverture que pt_br (491 clés).
 * **Tests d'intégration end-to-end pour MCP :** Validation des appels d'outils et prompts via un client stdio simulé.
-* **Fournisseur Anthropic Claude :** Support direct de l'API Claude (`claude-3-5-sonnet`).
+* **Fournisseur Anthropic Claude :** Support direct de l'API Claude (`claude-sonnet-5`).
 * **Graphiques ASCII/Textual dans le Tableau de Bord :** Ajouter des histogrammes de temps et des graphiques de tendance de tokens dans la TUI de métriques.
 * **Pipeline de Release dans GitHub Actions :** Automatisation complète du build PyInstaller et envoi des assets vers GitHub Releases.
 
 ---
 
-**Rapport généré le :** 2026-08-03  
+**Rapport généré le :** 2026-08-06  
 **Branche :** `develop_natan`  
-**Auteur :** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))  
+**Auteur :** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))
