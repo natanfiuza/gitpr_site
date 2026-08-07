@@ -4,26 +4,50 @@ Choose the method that best fits your workflow.
 
 ---
 
-## Windows: Using the Executable
+## ⚡ Quick Start
 
-1. Download `gitpr.exe` from the [GitHub Releases](https://github.com/natafiuza/gitpr/releases) page
-2. Move it to a directory in your `PATH` (e.g., your user folder or `C:\Windows\System32`)
-3. Run it:
+### 1. Installation via PyPI
+
+Install GitPR CLI using `pip`:
 
 ```bash
-gitpr
+pip install gitpr-cli
 ```
 
-On first run, the setup wizard will guide you:
+### 2. Initializing in a Repository
+
+To set up GitPR in a folder of a new repository, run:
+
+```bash
+gitpr --install
+```
+
+> **Guided Setup:** Interactive configuration that downloads skill templates, installs Git Hooks, configures MCP for your editors, and verifies the API key for your AI provider.  
+> 📖 **Full Documentation:** [Install Wizard Guide](https://gitpr.natanfiuza.dev.br/docs/install-wizard?lang=en_us)
+
+---
+
+## Windows: Using the Executable
+
+1. Download `gitpr.exe` from the [GitHub Releases](https://github.com/natanfiuza/gitpr/releases) page
+2. Move it to a directory in your `PATH` (e.g., your user folder or `C:\Windows\System32`)
+3. Run the guided setup:
+
+```bash
+gitpr --install
+```
+
+The wizard will guide you through:
 
 ```
 🚀 Intelligent PR Automation with AI
 
-🔧 First run detected! Let's configure GitPR CLI.
+🔧 Interactive Setup Wizard
 
-🔑 Enter your GEMINI_API_KEY:
-
-📄 Default output filename pattern [{branch}_{datetime}_PR_DESC.md]:
+📥 Downloading skill templates...
+🪝 Installing Git Hooks (pre-commit, prepare-commit-msg)...
+🔌 Configuring MCP for detected editors...
+🔑 Verifying your AI provider API key...
 ```
 
 Your configuration is securely saved to `~/.gitpr/.env`.
@@ -38,13 +62,13 @@ Install directly from [PyPI](https://pypi.org/project/gitpr-cli/):
 pip install gitpr-cli
 ```
 
-Then run:
+Then initialize in your repository:
 
 ```bash
-gitpr
+gitpr --install
 ```
 
-On first run, the setup wizard will guide you through API key configuration.
+The guided setup will walk you through skill templates, Git Hooks, MCP configuration, and API key verification.
 
 ---
 
@@ -60,8 +84,8 @@ cd gitpr
 # 3. Install dependencies
 pipenv install google-genai openai python-dotenv click cryptography
 
-# 4. Run
-pipenv run python src/main.py
+# 4. Run the guided setup
+pipenv run python src/main.py --install
 ```
 
 ---
