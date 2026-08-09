@@ -1,10 +1,10 @@
-# Documentação Técnica: Geração de Pull Request (Modo Padrão)
+# Technical Documentation: Pull Request Generation (Default Mode)
 
-Quando executado **sem flags**, o GitPR gera automaticamente uma descrição completa de Pull Request em Markdown, pronta para ser colada no GitHub, GitLab ou Bitbucket.
+When executed **without flags**, GitPR automatically generates a complete Pull Request description in Markdown, ready to paste into GitHub, GitLab, or Bitbucket.
 
 ---
 
-## 1. Uso
+## 1. Usage
 
 ```bash
 gitpr
@@ -12,78 +12,78 @@ gitpr
 
 ---
 
-## 2. Fluxo de Execução
+## 2. Execution Flow
 
 ```
-git fetch → diff contra origin/main → IA → .md
+git fetch → diff against origin/main → AI → .md
 ```
 
-1. **`git fetch`** — Sincroniza com o repositório remoto
-2. **Diff** — Compara todas as alterações da branch atual contra `origin/main`
-3. **IA** — Gera a mensagem de commit (Conventional Commits) e a descrição do PR
-4. **Output** — Salva um arquivo `.md` na raiz do projeto
+1. **`git fetch`** — Syncs with the remote repository
+2. **Diff** — Compares all changes from the current branch against `origin/main`
+3. **AI** — Generates the commit message (Conventional Commits) and the PR description
+4. **Output** — Saves a `.md` file in the project root
 
 ---
 
 ## 3. Output
 
-O arquivo gerado (`{branch}_{datetime}_PR_DESC.md`) contém:
+The generated file (`{branch}_{datetime}_PR_DESC.md`) contains:
 
 ```markdown
-# 🚀 Sugestão de Pull Request
+# 🚀 Pull Request Suggestion
 
-**Commit Message Recomendada:**
-feat: descricao curta da alteracao
+**Recommended Commit Message:**
+feat: short description of the change
 
 ---
 
-## Descrição
+## Description
 ...
-## Alterações
+## Changes
 ...
-## Impacto
+## Impact
 ...
 ```
 
 ---
 
-## 4. Customização
+## 4. Customization
 
-### 4.1 Template de PR
+### 4.1 PR Template
 
-O comportamento da IA pode ser customizado através do arquivo `.gitpr.pr.md`:
+AI behavior can be customized via the `.gitpr.pr.md` file:
 
 ```bash
-gitpr -s          # Baixa o template
-# Edite .gitpr.pr.md com as secções obrigatórias da sua equipa
-gitpr             # A IA seguirá o seu template
+gitpr -s          # Downloads the template
+# Edit .gitpr.pr.md with your team's required sections
+gitpr             # The AI will follow your template
 ```
 
-### 4.2 Nome do Arquivo de Saída
+### 4.2 Output File Name
 
-Configure a variável de ambiente `OUTPUT_FILE_NAME` no ficheiro `~/.gitpr/.env`:
+Configure the `OUTPUT_FILE_NAME` environment variable in the `~/.gitpr/.env` file:
 
 ```ini
 OUTPUT_FILE_NAME=PR_{branch}_{datetime}.md
 ```
 
-Variáveis disponíveis: `{branch}` (nome da branch atual) e `{datetime}` (timestamp `YYYYMMDDHHMMSS`).
+Available variables: `{branch}` (current branch name) and `{datetime}` (timestamp `YYYYMMDDHHMMSS`).
 
 ---
 
-## 5. Seleção de Provedor de IA
+## 5. AI Provider Selection
 
 ```bash
-gitpr -p gemini       # Força Google Gemini
-gitpr -p deepseek     # Força DeepSeek
+gitpr -p gemini       # Forces Google Gemini
+gitpr -p deepseek     # Forces DeepSeek
 ```
 
-Se nenhum provider for especificado, o GitPR usa o padrão definido na variável `DEFAULT_AI_PROVIDER` do `~/.gitpr/.env`.
+If no provider is specified, GitPR uses the default defined in the `DEFAULT_AI_PROVIDER` variable in `~/.gitpr/.env`.
 
 ---
 
-## 6. Cache de Respostas
+## 6. Response Cache
 
-O GitPR gera um hash MD5 do diff + instruções da IA. Se executar `gitpr` novamente **sem alterar o código**, a resposta é devolvida do cache local em milissegundos, sem consumir cotas da API.
+GitPR generates an MD5 hash of the diff + AI instructions. If you run `gitpr` again **without changing the code**, the response is returned from the local cache in milliseconds, without consuming API quotas.
 
-> **Nota:** Consulte também a [documentação principal (README.md)](../README.md) para visão geral de todas as funcionalidades.
+> **Note:** See also the [main documentation (README.md)](../README.md) for an overview of all features.
