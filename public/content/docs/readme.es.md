@@ -20,16 +20,16 @@ Instala GitPR CLI usando `pip`:
 pip install gitpr-cli
 ```
 
-### **2. Inicialización en un Repositorio**
+### **2. Inicialización en un Nuevo Repositorio**
 
-Para configurar GitPR en una carpeta de un nuevo repositorio, ejecuta:
+Para inicializar GitPR en la carpeta de un nuevo repositorio, ejecuta:
 
 ```bash
 gitpr --install
 ```
 
-> **Configuración Guiada:** Configuración guiada que descarga plantillas de skills, instala Git Hooks, configura MCP para tus editores y verifica la clave API de tu proveedor de IA.  
-> 📖 **Documentación Completa:** [https://gitpr.natanfiuza.dev.br/docs/install-wizard?lang=es_es](https://gitpr.natanfiuza.dev.br/docs/install-wizard?lang=es_es)
+> **Configuración Guiada:** Configuración guiada que descarga plantillas de skill, instala Git Hooks, configura MCP para tus editores y verifica la clave de API de tu proveedor de IA.  
+> 📖 **Documentación completa:** [https://gitpr.natanfiuza.dev.br/docs/install-wizard?lang=es_es](https://gitpr.natanfiuza.dev.br/docs/install-wizard?lang=es_es)
 
 ## **🛠️ Tecnologías y Librerías Utilizadas**
 
@@ -150,6 +150,7 @@ Puedes pasar las siguientes *flags* para acciones específicas:
   * **Issue de Código Nuevo (`gitpr -is`):** Lee el `git diff` actual. **Por qué usar:** Ideal para documentar rápidamente la tarea que acabas de programar, antes de hacer commit.
   * **Issue de Épico/Release (`gitpr -is -ht`):** Lee el historial completo de la rama actual (Git Log + Caché de PR). **Por qué usar:** Ideal para generar documentación consolidada de un release completo o de una *feature* grande que llevó varios días/commits completar.
   * **Issue de Deuda Técnica/Arqueológica (`gitpr -is -b archivo:líneas`):** Lee la línea de tiempo de una regla de negocio específica. **Por qué usar:** Ideal para documentar deuda técnica, explicando cómo un bloque de código legacy evolucionó y por qué necesita ser refactorizado.
+* **Publicador de PR (predeterminado):** Ejecutar `gitpr` genera la descripción del PR con IA, guarda el archivo `.md` en `.gitpr/reports/pr_desc/` y abre una interfaz interactiva en el terminal (TUI) para revisar, editar y publicar el Pull Request directamente en GitHub vía REST API. Antes de la generación, detecta archivos sin commitear (*unstaged*) y ofrece un modal para gestionarlos. Usa `--no-publish` para guardar solo el archivo del PR localmente sin abrir el publicador, o `--no-edit` para hacer auto-commit de los cambios pendientes (con validación de lint), auto-push y publicar inmediatamente — con manejo de actualizaciones de PR existentes y auto-merge opcional. Usa `--base <branch>` para cambiar la rama de destino. 📖 [Documentación completa](https://github.com/natanfiuza/gitpr/blob/main/docs/pull-request-publication.es_es.md)
 * `-h` o `--help`: Muestra la ayuda general con todas las opciones. Úsalo junto con otra flag para **ayuda contextual** (ej.: `gitpr -h --issue`, `gitpr -h --linter`) con un enlace directo a la documentación detallada de cada funcionalidad.
 * `-u` o `--update`: Verifica e instala la versión más reciente de GitPR (Auto-Updater).
 
@@ -218,6 +219,32 @@ Para forzar un idioma específico, define `GITPR_LANG=es_es` o `GITPR_LANG=en` e
 
 > 📖 **Guía completa del desarrollador:** [docs/i18n_explanation.md](https://github.com/natanfiuza/gitpr/blob/main/docs/i18n_explanation.md) — arquitectura, patrones de uso, precauciones con import circular y cómo añadir nuevos idiomas.
 
+## 🔄 Versionado y Sincronización Automática de Scripts de Hooks
+
+GitPR incluye un sistema automático de versionado para scripts de Git hooks (`pre-commit`, `prepare-commit-msg`, `pre-push`, `post-checkout`, `post-merge`). Cada vez que ejecutas `gitpr`, el sistema verifica silenciosamente si tus hooks instalados coinciden con la última versión y los actualiza automáticamente si es necesario — todo respetando tu preferencia de idioma.
+
+**Cómo funciona:**
+1. Lee `SCRIPTS_VERSION` y `SCRIPTS_LANG` desde `~/.gitpr/.env`
+2. Compara con la última versión (`__scripts_version__`) incluida en tu release de GitPR
+3. Si las versiones o el idioma difieren → descarga y actualiza los hooks automáticamente
+4. Si todo coincide → omite completamente (lectura única del `.env`, cero E/S de red)
+
+**Ejemplo:**
+```bash
+# Primera ejecución — sin hooks instalados aún
+$ gitpr --installhooks
+📥 Descargando pre-commit...
+📥 Descargando prepare-commit-msg...
+✅ ¡Scripts sincronizados con éxito!
+
+# Ejecuciones siguientes — verificaciones silenciosas
+$ gitpr  # (sin salida = hooks están actualizados)
+```
+
+El sistema soporta **5 idiomas**: Inglés (predeterminado), Portugués (Brasil), Portugués (Portugal), Francés y Español. Los scripts son thin shims — la lógica real reside en el CLI, por lo que incluso hooks ligeramente desactualizados siguen funcionando correctamente.
+
+📚 [Documentación Completa](https://gitpr.natanfiuza.dev.br/docs/hooks-versioning?lang=es_es)
+
 ## 🔌 Integración MCP (Model Context Protocol)
 
 GitPR puede ejecutarse como un **servidor MCP**, exponiendo sus capacidades con IA como herramientas que el asistente de IA de tu editor puede invocar directamente — sin necesidad de terminal. Esto permite un flujo de trabajo totalmente integrado donde puedes generar mensajes de commit, revisar código, ejecutar linters, rastrear orígenes de código y crear issues sin salir de tu IDE.
@@ -278,6 +305,39 @@ Una vez configurado, usa lenguaje natural en el chat de IA de tu editor:
 
 > 💬 **MCP Prompts** — GitPR también expone 7 plantillas de mensaje predefinidas (prompts) para flujos comunes como "Revisar PR", "Generar Mensaje de Commit" y "Crear Issue desde el Diff". Consulta la [guía de MCP Prompts](https://github.com/natanfiuza/gitpr/blob/main/docs/mcp-prompts.md) para la lista completa.
 
+## 🎯 Smart Excludes (Optimización de Tokens)
+
+GitPR elimina automáticamente los archivos que no son código de tu `git diff` antes de enviarlos a la IA — reduciendo el consumo de tokens y los costes de API sin necesidad de configuración.
+
+**Dos capas de exclusiones:**
+- **Lockfiles y archivos generados:** `package-lock.json`, `*.min.js`, `*.map`, `*.pyc`, `*.svg` y más de 30 otros patrones definidos en [`gitpr.smart-excludes.json`](https://github.com/natanfiuza/gitpr/blob/main/templates/gitpr.smart-excludes.json)
+- **Documentación en prosa:** `*.md`, `*.txt`, `*.rst`, `*.adoc`, `*.tex` y más de 20 otras extensiones definidas en [`gitpr.docs-smart-excludes.json`](https://github.com/natanfiuza/gitpr/blob/main/templates/gitpr.docs-smart-excludes.json)
+
+**Seguimiento de documentación:** Aunque el contenido de la documentación se excluye del diff, GitPR sigue informando a la IA sobre _qué_ archivos de documentación se modificaron, inyectando sus rutas como metadatos en las instrucciones del sistema. La IA tiene contexto completo sobre las actualizaciones de documentación sin consumir tokens con su contenido.
+
+**Beneficios:**
+- ✅ Hasta un **98% de reducción de tokens** en ramas con mucha documentación
+- ✅ **Respuestas más rápidas de la IA** — menos texto que procesar por llamada
+- ✅ **Análisis de mayor calidad** — la IA se centra en los cambios de código, no en el markup
+- ✅ **Configuración cero** — funciona automáticamente en cada ejecución, gestionado remotamente
+
+> 📖 **Documentación completa:** [docs/smart-excludes.md](https://github.com/natanfiuza/gitpr/blob/main/docs/smart-excludes.md) — disponible en 5 idiomas (EN, PT-BR, PT-PT, FR, ES).
+
+## 📁 Estructura de Directorios de Salida
+
+Por defecto, GitPR guarda todos los archivos generados en el directorio `.gitpr/reports/`, organizados por tipo de artefacto:
+
+| Artefacto | Ubicación Predeterminada |
+| --------- | ------------------------- |
+| Descripción de PR | `.gitpr/reports/pr_desc/` |
+| Code Review | `.gitpr/reports/review/` |
+| Full Review | `.gitpr/reports/full_review/` |
+| File Review | `.gitpr/reports/file_review/` |
+| Informe de Blame | `.gitpr/reports/blame/` |
+| Borrador de Issue | `.gitpr/reports/issue/` |
+
+Los directorios se crean automáticamente en el primer uso. **Retrocompatible:** si tu `.env` ya contiene rutas personalizadas con separadores de directorio (ej.: `OUTPUT_FILE_NAME=/home/usuario/prs/mi_pr.md`), se respetan tal cual — GitPR solo redirige nombres de archivo simples a `.gitpr/reports/`.
+
 ## 📚 Documentación Técnica y Guías Avanzadas
 
 Para mantener este README conciso, detallamos las implementaciones más avanzadas enfocadas en **DevOps** e **Integración Continua** en documentos separados.
@@ -293,12 +353,14 @@ Si deseas implementar GitPR como una barrera de calidad automatizada en tu equip
 ### DevOps & CI/CD
 
 * [**Git Hooks Locales (Shift-Left)**](https://github.com/natanfiuza/gitpr/blob/main/docs/git-hooks-locais.md) — Cómo usar `gitpr --installhooks` para crear barreras de calidad en la máquina del desarrollador y usar IA para generar mensajes de commit automáticamente.
+* [**Versionado y Sincronización de Scripts de Hooks**](https://github.com/natanfiuza/gitpr/blob/main/docs/hooks-versioning.md) — Cómo el sistema de versionado automático y sincronización con soporte i18n mantiene tus Git hooks siempre actualizados.
 * [**Linter Estático Personalizable**](https://github.com/natanfiuza/gitpr/blob/main/docs/linter-regras-customizadas.md) — Cómo crear reglas de validación en `.gitpr.linter.yml` para CI/CD y hooks de pre-commit.
 * [**Integración CI/CD (GitHub Actions)**](https://github.com/natanfiuza/gitpr/blob/main/docs/github-ci-linter.md) — Cómo ejecutar GitPR en el pipeline para bloquear "Merge" de PRs con violaciones.
 
 ### Funcionalidades Principales
 
 * [**Pull Request (Modo Predeterminado)**](https://github.com/natanfiuza/gitpr/blob/main/docs/pr-descricao-padrao.md) — Flujo completo para generar descripciones de PR sin flags.
+* [**Publicador de Pull Request (TUI)**](https://github.com/natanfiuza/gitpr/blob/main/docs/pull-request-publication.es_es.md) — Cómo revisar y publicar Pull Requests directamente en GitHub desde el terminal.
 * [**Code Review con IA**](https://github.com/natanfiuza/gitpr/blob/main/docs/code-review-ia.md) — Guía de los modos de review (`--review`, `--fullreview`) y auditoría de archivos (`--input`).
 * [**Mensajes de Commit con IA**](https://github.com/natanfiuza/gitpr/blob/main/docs/commit-message-ia.md) — Cómo generar mensajes en el estándar Conventional Commits e integrar con Git Hooks.
 * [**Generación de Issues e Interfaz TUI**](https://github.com/natanfiuza/gitpr/blob/main/docs/issue-tui-help.md) — Cómo usar la interfaz gráfica de terminal (TUI) y los 3 motores de contexto para gestionar Issues estructuradas.
