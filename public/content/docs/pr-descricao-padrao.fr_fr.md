@@ -86,4 +86,4 @@ Si aucun fournisseur n'est spécifié, GitPR utilise celui par défaut défini d
 
 GitPR génère un hash MD5 du diff + instructions de l'IA. Si vous exécutez à nouveau `gitpr` **sans modifier le code**, la réponse est renvoyée depuis le cache local en millisecondes, sans consommer de quotas API.
 
-> **Note :** Consultez également la [documentation principale (README.md)](docs/readme) pour un aperçu de toutes les fonctionnalités.
+> **Note :** Consultez également la [documentation principale (README.md)](docs/readme?lang=fr_fr) pour un aperçu de toutes les fonctionnalités.

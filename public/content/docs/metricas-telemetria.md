@@ -112,9 +112,9 @@ the event silently without output.
 
 ## 📚 Related Documentation
 
-- [MCP Integration](docs/mcp-integration) — MCP server setup
-- [MCP Prompts](docs/mcp-prompts) — Pre-built message templates
-- [MCP Tool Annotations](docs/mcp-annotations) — IDE integration hints
+- [MCP Integration](docs/mcp-integration?lang=en_us) — MCP server setup
+- [MCP Prompts](docs/mcp-prompts?lang=en_us) — Pre-built message templates
+- [MCP Tool Annotations](docs/mcp-annotations?lang=en_us) — IDE integration hints
 
 ---
 **Pro tip:** Combine metrics exports with your team's CI pipeline by running

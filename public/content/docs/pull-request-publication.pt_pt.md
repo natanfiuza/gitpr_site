@@ -482,4 +482,4 @@ OUTPUT_FILE_NAME=/home/user/prs/my_custom_pr.md
 | `.gitpr/reports/review/` | Diretório de saída predefinido para ficheiros de code review |
 | `.gitpr/reports/full_review/` | Diretório de saída predefinido para ficheiros de revisão completa |
 
-> **Nota:** Consulte também a [documentação principal (README.md)](docs/readme) para uma visão geral de todas as funcionalidades do GitPR e o [guia de Descrição de PR](docs/pr-descricao-padrao) para o fluxo predefinido de geração de PR.
+> **Nota:** Consulte também a [documentação principal (README.md)](docs/readme?lang=pt_pt) para uma visão geral de todas as funcionalidades do GitPR e o [guia de Descrição de PR](docs/pr-descricao-padrao?lang=pt_pt) para o fluxo predefinido de geração de PR.

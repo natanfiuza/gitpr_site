@@ -102,4 +102,4 @@ gitpr -r -i arquivo.py -p deepseek  # Auditoría con DeepSeek
 | `OUTPUT_FILE_NAME_FULLREVIEW` | `-f` | `{branch}_{datetime}_PR_FULLREVIEW.txt` |
 | `OUTPUT_FILE_NAME_FILEREVIEW` | `-i` | `{branch}_{datetime}_FILE_REVIEW.txt` |
 
-> **Nota:** Consulta también la [documentación del Linter](docs/linter-regras-customizadas) para crear reglas de validación estática.
+> **Nota:** Consulta también la [documentación del Linter](docs/linter-regras-customizadas?lang=es_es) para crear reglas de validación estática.
