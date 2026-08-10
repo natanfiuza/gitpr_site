@@ -28,4 +28,24 @@ git add .
 
 Después de ejecutar `git add`, basta con ejecutar el comando de **GitPR** de nuevo. ¡La IA ahora verá tus novedades y generará el análisis perfectamente! 🚀
 
+## 🔎 Comprobación rápida: ¿Qué archivos no están preparados (staged)?
 
+Puedes comprobar rápidamente qué archivos no están preparados (staged) usando la bandera `--status` — **sin IA, sin red, al instante**:
+
+```bash
+gitpr --status
+```
+
+Esto muestra todos los cambios no confirmados en 3 categorías: nuevos (untracked), modificados y eliminados. Consulta la [documentación de Git Status](git-status.md) para más detalles.
+
+## 🛑 Omitir la comprobación de cambios no preparados
+
+Si quieres omitir la verificación de cambios no preparados (unstaged) que se ejecuta antes de los comandos de IA, usa:
+
+```bash
+gitpr -c --no-unstaged-check
+```
+
+O establece `GITPR_SKIP_UNSTAGED_CHECK=true` en tu archivo `~/.gitpr/.env` para omitirla permanentemente.
+
+> 📖 **Documentación completa:** [docs/git-status.md](git-status.md) — cubre `--status`, `--no-unstaged-check`, las herramientas MCP y la verificación de cambios no preparados que ahora se ejecuta en todos los comandos (`-c`, `-r`, `-f`, `-is`).

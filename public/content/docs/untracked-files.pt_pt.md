@@ -28,4 +28,24 @@ git add .
 
 Depois de executar o `git add`, basta executar o comando do **GitPR** novamente. A IA agora verá as suas novidades e gerará a análise perfeitamente! 🚀
 
+## 🔎 Verificação Rápida: Quais ficheiros não estão em *staged*?
 
+Pode verificar rapidamente quais os ficheiros que não estão em *staged* usando a flag `--status` — **sem IA, sem rede, instantâneo**:
+
+```bash
+gitpr --status
+```
+
+Isto mostra todas as alterações não cometidas em 3 categorias: novas (untracked), modificadas e eliminadas. Consulte a [documentação do Git Status](git-status.md) para mais detalhes.
+
+## 🛑 Omitir a verificação de *unstaged*
+
+Se quiser omitir a verificação de *unstaged* que é executada antes dos comandos da IA, use:
+
+```bash
+gitpr -c --no-unstaged-check
+```
+
+Ou defina `GITPR_SKIP_UNSTAGED_CHECK=true` no seu ficheiro `~/.gitpr/.env` para a omitir permanentemente.
+
+> 📖 **Documentação completa:** [docs/git-status.md](git-status.md) — cobre o `--status`, o `--no-unstaged-check`, as ferramentas MCP e a verificação de *unstaged* que agora é executada em todos os comandos (`-c`, `-r`, `-f`, `-is`).
