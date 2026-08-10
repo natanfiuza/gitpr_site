@@ -87,8 +87,8 @@ L'annotation de chaque outil est choisie en fonction de son comportement réel :
 
 ## 📚 Documentation Connexe
 
-- [Intégration MCP](mcp-integration.md) — Comment configurer MCP pour votre éditeur
-- [MCP Prompts](mcp-prompts.md) — Modèles de message prédéfinis pour les flux courants
+- [Intégration MCP](docs/mcp-integration) — Comment configurer MCP pour votre éditeur
+- [MCP Prompts](docs/mcp-prompts) — Modèles de message prédéfinis pour les flux courants
 
 ---
 **Conseil de pro :** Les annotations d'outils sont des conseils, pas des garanties.

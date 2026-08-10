@@ -86,4 +86,4 @@ If no provider is specified, GitPR uses the default defined in the `DEFAULT_AI_P
 
 GitPR generates an MD5 hash of the diff + AI instructions. If you run `gitpr` again **without changing the code**, the response is returned from the local cache in milliseconds, without consuming API quotas.
 
-> **Note:** See also the [main documentation (README.md)](../README.md) for an overview of all features.
+> **Note:** See also the [main documentation (README.md)](docs/readme) for an overview of all features.

@@ -87,8 +87,8 @@ A anotação de cada ferramenta é escolhida com base no seu comportamento real:
 
 ## 📚 Documentação Relacionada
 
-- [Integração MCP](mcp-integration.md) — Como configurar o MCP para o seu editor
-- [MCP Prompts](mcp-prompts.md) — Modelos de mensagem pré-definidos para fluxos comuns
+- [Integração MCP](docs/mcp-integration) — Como configurar o MCP para o seu editor
+- [MCP Prompts](docs/mcp-prompts) — Modelos de mensagem pré-definidos para fluxos comuns
 
 ---
 **Dica profissional:** Anotações de ferramenta são dicas, não garantias. Configure

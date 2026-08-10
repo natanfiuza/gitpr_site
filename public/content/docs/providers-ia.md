@@ -77,4 +77,4 @@ Both providers are configured for deterministic output:
 | **Retry** | 3 attempts, 2s interval |
 | **Cache** | MD5 (identical responses do not consume quota) |
 
-> **Note:** See also the [main documentation (README.md)](../README.md) for initial API key setup instructions.
+> **Note:** See also the [main documentation (README.md)](docs/readme) for initial API key setup instructions.

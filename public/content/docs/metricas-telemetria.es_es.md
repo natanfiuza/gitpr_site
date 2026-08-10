@@ -114,9 +114,9 @@ registra el evento silenciosamente sin salida.
 
 ## 📚 Documentación Relacionada
 
-- [Integración MCP](mcp-integration.md) — Configuración del servidor MCP
-- [MCP Prompts](mcp-prompts.md) — Plantillas de mensaje predefinidas
-- [MCP Tool Annotations](mcp-annotations.md) — Sugerencias de integración con IDEs
+- [Integración MCP](docs/mcp-integration) — Configuración del servidor MCP
+- [MCP Prompts](docs/mcp-prompts) — Plantillas de mensaje predefinidas
+- [MCP Tool Annotations](docs/mcp-annotations) — Sugerencias de integración con IDEs
 
 ---
 **Consejo profesional:** Combina las exportaciones de métricas con el pipeline
