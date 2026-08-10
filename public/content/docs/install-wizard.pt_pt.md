@@ -50,7 +50,7 @@ Descarrega ficheiros template de contexto de IA para a pasta `.gitpr/skill/` do 
 
 Estes ficheiros **nunca são sobrescritos** se já existirem. Edita-os livremente para personalizar o comportamento da IA para as convenções da tua equipa.
 
-📚 Ver também: [Sistema de Skills e Templates](skill-template.md)
+📚 Ver também: [Sistema de Skills e Templates](docs/skill-template)
 
 ### Etapa 2 — Git Hooks
 
@@ -61,7 +61,7 @@ Instala dois hooks Git locais em `.git/hooks/`:
 
 Isto permite a prática **Shift-Left** — detetar problemas na máquina do programador antes de chegarem ao CI/CD ou à revisão de código.
 
-📚 Ver também: [Git Hooks Locais](git-hooks-locais.md)
+📚 Ver também: [Git Hooks Locais](docs/git-hooks-locais)
 
 ### Etapa 3 — Configuração MCP
 
@@ -79,7 +79,7 @@ Uma vez configurado, podes usar linguagem natural no chat de IA do teu editor pa
 
 Os ficheiros de configuração existentes são **fundidos** — outros servidores MCP nunca são sobrescritos.
 
-📚 Ver também: [Integração MCP](mcp-integration.md)
+📚 Ver também: [Integração MCP](docs/mcp-integration)
 
 ### Etapa 4 — Configuração da Chave de API
 
@@ -90,7 +90,7 @@ Verifica se a chave de API do teu fornecedor de IA já está configurada:
 
 Podes saltar esta etapa e configurá-la mais tarde executando `gitpr` (que aciona o assistente de primeira execução) ou editando `~/.gitpr/.env` diretamente.
 
-📚 Ver também: [Fornecedores de IA](providers-ia.md)
+📚 Ver também: [Fornecedores de IA](docs/providers-ia)
 
 ## 🔄 Executar Etapas Individuais Mais Tarde
 

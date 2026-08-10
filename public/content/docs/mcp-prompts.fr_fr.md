@@ -91,10 +91,10 @@ du modèle :
 
 ## 📚 Documentation Connexe
 
-- [Intégration MCP](mcp-integration.md) — Comment configurer MCP pour votre éditeur
-- [Revue de Code avec IA](code-review-ia.md) — Guide des modes de revue de code
-- [Messages de Commit avec IA](commit-message-ia.md) — Guide des Conventional Commits
-- [Mode Description de PR](pr-descricao-padrao.md) — Flux de génération de PR
+- [Intégration MCP](docs/mcp-integration) — Comment configurer MCP pour votre éditeur
+- [Revue de Code avec IA](docs/code-review-ia) — Guide des modes de revue de code
+- [Messages de Commit avec IA](docs/commit-message-ia) — Guide des Conventional Commits
+- [Mode Description de PR](docs/pr-descricao-padrao) — Flux de génération de PR
 
 ---
 **Conseil de pro :** Combinez les prompts avec les skills (fichiers `.gitpr.*.md`)

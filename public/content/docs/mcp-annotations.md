@@ -82,8 +82,8 @@ Each tool's annotation is chosen based on its actual behavior:
 
 ## 📚 Related Documentation
 
-- [MCP Integration](mcp-integration.md) — How to set up MCP for your editor
-- [MCP Prompts](mcp-prompts.md) — Pre-built message templates for common flows
+- [MCP Integration](docs/mcp-integration) — How to set up MCP for your editor
+- [MCP Prompts](docs/mcp-prompts) — Pre-built message templates for common flows
 
 ---
 **Pro tip:** Tool annotations are hints, not guarantees. Configure API keys in

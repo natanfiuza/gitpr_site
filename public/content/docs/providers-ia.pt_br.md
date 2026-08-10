@@ -77,4 +77,4 @@ Ambos os provedores são configurados para output determinístico:
 | **Retry** | 3 tentativas, intervalo de 2s |
 | **Cache** | MD5 (respostas idênticas não consomem quota) |
 
-> **Nota:** Consulte também a [documentação principal (README.md)](../README.md) para instruções de configuração inicial das chaves de API.
+> **Nota:** Consulte também a [documentação principal (README.md)](docs/readme) para instruções de configuração inicial das chaves de API.

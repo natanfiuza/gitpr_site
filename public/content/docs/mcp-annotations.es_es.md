@@ -87,8 +87,8 @@ La anotación de cada herramienta se elige en función de su comportamiento real
 
 ## 📚 Documentación Relacionada
 
-- [Integración MCP](mcp-integration.md) — Cómo configurar MCP para tu editor
-- [MCP Prompts](mcp-prompts.md) — Plantillas de mensaje predefinidas para flujos comunes
+- [Integración MCP](docs/mcp-integration) — Cómo configurar MCP para tu editor
+- [MCP Prompts](docs/mcp-prompts) — Plantillas de mensaje predefinidas para flujos comunes
 
 ---
 **Consejo profesional:** Las anotaciones de herramienta son sugerencias, no garantías.
