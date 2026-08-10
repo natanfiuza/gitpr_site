@@ -62,4 +62,4 @@ Antes de cualquier operación de red, GitPR verifica la conectividad mediante el
 
 La versión local se define en `src/updater.py` (`__version__`) y se incrementa en cada release.
 
-> **Nota:** Consulta también la [documentación principal (README.md)](docs/readme) para información sobre la instalación y configuración inicial.
+> **Nota:** Consulta también la [documentación principal (README.md)](docs/readme?lang=es_es) para información sobre la instalación y configuración inicial.

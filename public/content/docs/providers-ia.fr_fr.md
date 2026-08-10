@@ -77,4 +77,4 @@ Les deux fournisseurs sont configurés pour une sortie déterministe :
 | **Retry** | 3 tentatives, intervalle de 2s |
 | **Cache** | MD5 (les réponses identiques ne consomment pas de quota) |
 
-> **Note :** Consultez également la [documentation principale (README.md)](docs/readme) pour les instructions de configuration initiale des clés d'API.
+> **Note :** Consultez également la [documentation principale (README.md)](docs/readme?lang=fr_fr) pour les instructions de configuration initiale des clés d'API.

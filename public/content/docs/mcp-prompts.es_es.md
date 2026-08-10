@@ -90,10 +90,10 @@ plantilla:
 
 ## 📚 Documentación Relacionada
 
-- [Integración MCP](docs/mcp-integration) — Cómo configurar MCP para tu editor
-- [Code Review con IA](docs/code-review-ia) — Guía de modos de revisión de código
-- [Mensajes de Commit con IA](docs/commit-message-ia) — Guía de Conventional Commits
-- [Modo de Descripción de PR](docs/pr-descricao-padrao) — Flujo de generación de PR
+- [Integración MCP](docs/mcp-integration?lang=es_es) — Cómo configurar MCP para tu editor
+- [Code Review con IA](docs/code-review-ia?lang=es_es) — Guía de modos de revisión de código
+- [Mensajes de Commit con IA](docs/commit-message-ia?lang=es_es) — Guía de Conventional Commits
+- [Modo de Descripción de PR](docs/pr-descricao-padrao?lang=es_es) — Flujo de generación de PR
 
 ---
 **Consejo profesional:** Combina prompts con skills (archivos `.gitpr.*.md`) para

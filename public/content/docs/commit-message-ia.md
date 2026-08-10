@@ -75,4 +75,4 @@ gitpr -c -p deepseek     # Force DeepSeek
 
 GitPR generates an MD5 hash of your diff + instructions. If you run `gitpr -c` again **without changing the code**, the response is returned instantly from the local cache, saving API quotas.
 
-> **Note:** See also the [main documentation (README.md)](docs/readme) for an overview of all features.
+> **Note:** See also the [main documentation (README.md)](docs/readme?lang=en_us) for an overview of all features.

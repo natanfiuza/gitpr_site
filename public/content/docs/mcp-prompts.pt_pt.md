@@ -88,10 +88,10 @@ URI `prompt://`, para que os agentes de IA possam ler o conteúdo bruto do model
 
 ## 📚 Documentação Relacionada
 
-- [Integração MCP](docs/mcp-integration) — Como configurar o MCP para o seu editor
-- [Code Review com IA](docs/code-review-ia) — Guia dos modos de revisão de código
-- [Mensagens de Commit com IA](docs/commit-message-ia) — Guia de Conventional Commits
-- [Modo de Descrição de PR](docs/pr-descricao-padrao) — Fluxo de geração de PR
+- [Integração MCP](docs/mcp-integration?lang=pt_pt) — Como configurar o MCP para o seu editor
+- [Code Review com IA](docs/code-review-ia?lang=pt_pt) — Guia dos modos de revisão de código
+- [Mensagens de Commit com IA](docs/commit-message-ia?lang=pt_pt) — Guia de Conventional Commits
+- [Modo de Descrição de PR](docs/pr-descricao-padrao?lang=pt_pt) — Fluxo de geração de PR
 
 ---
 **Dica profissional:** Combine prompts com skills (ficheiros `.gitpr.*.md`) para

@@ -85,10 +85,10 @@ URI scheme, so AI agents can read the raw template content:
 
 ## 📚 Related Documentation
 
-- [MCP Integration](docs/mcp-integration) — How to set up MCP for your editor
-- [AI Code Review](docs/code-review-ia) — Guide to code review modes
-- [AI Commit Messages](docs/commit-message-ia) — Conventional Commits guide
-- [PR Description Mode](docs/pr-descricao-padrao) — PR generation flow
+- [MCP Integration](docs/mcp-integration?lang=en_us) — How to set up MCP for your editor
+- [AI Code Review](docs/code-review-ia?lang=en_us) — Guide to code review modes
+- [AI Commit Messages](docs/commit-message-ia?lang=en_us) — Conventional Commits guide
+- [PR Description Mode](docs/pr-descricao-padrao?lang=en_us) — PR generation flow
 
 ---
 **Pro tip:** Combine prompts with skills (`.gitpr.*.md` files) to customize

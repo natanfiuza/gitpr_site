@@ -50,7 +50,7 @@ Downloads AI context template files into your project's `.gitpr/skill/` folder:
 
 These files are **never overwritten** if they already exist. Edit them freely to customize AI behavior for your team's conventions.
 
-📚 See also: [Skills and Templates System](docs/skill-template)
+📚 See also: [Skills and Templates System](docs/skill-template?lang=en_us)
 
 ### Step 2 — Git Hooks
 
@@ -61,7 +61,7 @@ Installs two local Git hooks into `.git/hooks/`:
 
 This enables the **Shift-Left** practice — catching issues on the developer's machine before they reach CI/CD or code review.
 
-📚 See also: [Local Git Hooks](docs/git-hooks-locais)
+📚 See also: [Local Git Hooks](docs/git-hooks-locais?lang=en_us)
 
 ### Step 3 — MCP Configuration
 
@@ -79,7 +79,7 @@ Once configured, you can use natural language in your editor's AI chat to invoke
 
 Existing config files are **merged** — other MCP servers are never overwritten.
 
-📚 See also: [MCP Integration](docs/mcp-integration)
+📚 See also: [MCP Integration](docs/mcp-integration?lang=en_us)
 
 ### Step 4 — API Key Configuration
 
@@ -90,7 +90,7 @@ Checks whether your AI provider API key is already configured:
 
 You can skip this step and configure it later by running `gitpr` (which triggers the first-run wizard) or by editing `~/.gitpr/.env` directly.
 
-📚 See also: [AI Providers](docs/providers-ia)
+📚 See also: [AI Providers](docs/providers-ia?lang=en_us)
 
 ## 🔄 Running Individual Steps Later
 

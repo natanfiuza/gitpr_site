@@ -118,7 +118,7 @@ La première fois que vous utilisez `F3`, GitPR va :
 
 - Le token est stocké sous forme de hash chiffré — jamais en texte clair
 - La clé maîtresse de déchiffrement reste dans `~/.gitpr/secret.key`
-- Consultez le guide complet dans [github-pat-integration.md](docs/github-pat-integration)
+- Consultez le guide complet dans [github-pat-integration.md](docs/github-pat-integration?lang=fr_fr)
 
 ---
 
@@ -162,4 +162,4 @@ gitpr -is -b src/legacy/parser.py:200-350
 | `~/.gitpr/.env` | Configuration globale : clés d'API et token GitHub chiffré |
 | `~/.gitpr/secret.key` | Clé maîtresse Fernet pour le déchiffrement des identifiants |
 
-> **Note :** Consultez également la [documentation principale (README.md)](docs/readme) pour un aperçu de toutes les fonctionnalités de GitPR.
+> **Note :** Consultez également la [documentation principale (README.md)](docs/readme?lang=fr_fr) pour un aperçu de toutes les fonctionnalités de GitPR.

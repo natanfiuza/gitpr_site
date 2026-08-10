@@ -86,4 +86,4 @@ Se nenhum provider for especificado, o GitPR usa o padrão definido na variável
 
 O GitPR gera um hash MD5 do diff + instruções da IA. Se executar `gitpr` novamente **sem alterar o código**, a resposta é devolvida do cache local em milissegundos, sem consumir cotas da API.
 
-> **Nota:** Consulte também a [documentação principal (README.md)](docs/readme) para visão geral de todas as funcionalidades.
+> **Nota:** Consulte também a [documentação principal (README.md)](docs/readme?lang=pt_br) para visão geral de todas as funcionalidades.

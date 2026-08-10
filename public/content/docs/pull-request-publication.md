@@ -482,4 +482,4 @@ OUTPUT_FILE_NAME=/home/user/prs/my_custom_pr.md
 | `.gitpr/reports/review/` | Default output directory for code review files |
 | `.gitpr/reports/full_review/` | Default output directory for full review files |
 
-> **Note:** See also the [main documentation (README.md)](docs/readme) for an overview of all GitPR features and the [PR Description guide](docs/pr-descricao-padrao) for the default PR generation flow.
+> **Note:** See also the [main documentation (README.md)](docs/readme?lang=en_us) for an overview of all GitPR features and the [PR Description guide](docs/pr-descricao-padrao?lang=en_us) for the default PR generation flow.

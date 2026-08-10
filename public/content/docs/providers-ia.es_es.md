@@ -77,4 +77,4 @@ Ambos proveedores están configurados para una salida determinista:
 | **Retry** | 3 intentos, intervalo de 2s |
 | **Caché** | MD5 (respuestas idénticas no consumen cuota) |
 
-> **Nota:** Consulta también la [documentación principal (README.md)](docs/readme) para instrucciones sobre la configuración inicial de las claves de API.
+> **Nota:** Consulta también la [documentación principal (README.md)](docs/readme?lang=es_es) para instrucciones sobre la configuración inicial de las claves de API.
