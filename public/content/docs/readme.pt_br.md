@@ -61,7 +61,7 @@ Se você deseja gerar seu próprio binário a partir do código fonte, utilizamo
    ```bash
    pipenv run pyinstaller --noconfirm --onefile --icon=icon.ico --name gitpr run.py
    ```
-> **Nota técnica:** A flag `--onefile` garante que todo o Python, bibliotecas e dependências sejam comprimidos em um único binário. 🛠️
+> **Nota técnica:** A flag `--onefile` garante que todo o Python, bibliotecas e dependências sejam comprimidos em um único binário, enquanto `--paths src` ajuda o compilador a encontrar nossos arquivos `core.py` e `config.py`. 🛠️
 
 Após executar este comando, o PyInstaller criará algumas pastas (`build` e `dist`).
 Seu arquivo final pronto para uso estará dentro da pasta **`dist/`** com o nome `gitpr` (ou `gitpr.exe` no Windows).
@@ -137,26 +137,29 @@ Você pode passar as seguintes *flags* para ações específicas:
 * `-c` ou `--commit`: Executa um `git diff` local e exibe **apenas a mensagem de commit sugerida**.
 * `-r` ou `--review`: Realiza um **Code Review** detalhado das alterações locais.
 * `-f` ou `--fullreview`: Realiza um **Code Review Completo** analisando todas as alterações desde a branch remota.
-* `-i <arquivo>` ou `--input <arquivo>`: **Auditoria Completa de Arquivo.** Deve ser usado junto com `-r` ou `-f`; ignora o histórico git e faz um Code Review do arquivo inteiro. Excelente para atuar como consultor em refatoração de código legado.
+* `-i <file>` ou `--input <file>`: **Auditoria Completa de Arquivo.** Deve ser usado junto com `-r` ou `-f`; ignora o histórico git e faz um Code Review do arquivo inteiro. Excelente para atuar como consultor em refatoração de código legado.
 * `--provider <gemini|deepseek|ollama>`: Força o uso de uma IA específica apenas para esta execução, ignorando o padrão salvo no `.env`.
-* `--lang <codigo>`: Força o idioma da interface para esta execução (ex.: `en_us`, `pt_br`). Sobrescreve o `GITPR_LANG` do `.env` sem persistir a alteração.
+* `--lang <code>`: Força o idioma da interface para esta execução (ex.: `en_us`, `pt_br`). Sobrescreve o `GITPR_LANG` do `.env` sem persistir a alteração.
 * `-ch` ou `--chat`: Abre o **Chat Interativo de Pair Programming** — um terminal TUI onde a IA enxerga seu diff atual e mantém uma conversa contextual. Possui memória por branch, comandos slash (`/explain`, `/tests`, `/optimize`, `/clear`), auto-patching (F5), atualização de diff (F2) e exportação de sessão (F6).
 * `-l` ou `--linter`: Executa **apenas o linter estático local** (sem chamadas de IA). Ideal para uso em pipelines de CI/CD para bloquear código fora de conformidade.
-* `--mcp`: Inicia o GitPR como um **servidor MCP** (Model Context Protocol) no transporte stdio. Permite integração com VS Code, Cursor, Claude Desktop e outros editores compatíveis com MCP — expondo todas as capacidades de IA do GitPR como ferramentas diretamente dentro do seu IDE. Também disponível como comando standalone `gitpr-mcp`.
-* `--install`: **Assistente de Configuração Interativo.** Executa uma configuração guiada em 4 etapas: baixa skill templates, instala Git Hooks, configura MCP para editores detetados e verifica/solicita sua chave de API do provedor de IA. Cada etapa pede confirmação antes de prosseguir.
+* `--status`: Lista as alterações de arquivos não commitados categorizadas como **novos**, **modificados** e **deletados** — rápido, sem IA, sem rede. 📖 [Documentação completa](https://github.com/natanfiuza/gitpr/blob/main/docs/git-status.md)
+* `--no-unstaged-check`: Ignora a verificação de arquivos não commitados (unstaged) antes do processamento pela IA para uma única invocação. Equivalente a `GITPR_SKIP_UNSTAGED_CHECK=true` para uma execução. 📖 [Documentação completa](https://github.com/natanfiuza/gitpr/blob/main/docs/git-status.md)
+* `--mcp`: Inicia o GitPR como um **servidor MCP** (Model Context Protocol) no transporte stdio. Permite integração com VS Code, Cursor, Claude Desktop e outros editores compatíveis com MCP — expondo todas as capacidades de IA do GitPR como 10 ferramentas anotadas, 15 recursos e 7 prompts pré-construídos diretamente dentro do seu IDE. Também disponível como comando standalone `gitpr-mcp`.
+* `--plugins`: Lista todos os **plugins instalados globalmente** — pacotes de linter personalizados de `~/.gitpr/plugins/linter/` e templates de prompts MCP de `~/.gitpr/plugins/prompts/`. Esses plugins se aplicam a todos os seus projetos sem duplicação. 📖 [Documentação completa](https://github.com/natanfiuza/gitpr/blob/main/docs/plugins-system.md)
+* `--install`: **Assistente de Configuração Interativo.** Executa uma configuração guiada em 4 etapas: baixa skill templates, instala Git Hooks, configura MCP para editores detectados e verifica/solicita sua chave de API do provedor de IA. Cada etapa pede confirmação antes de prosseguir.
 * `-ih` ou `--installhooks`: Instala automaticamente **Git Hooks locais** (`pre-commit` e `prepare-commit-msg`) no seu repositório.
 * `-s` ou `--skill`: Cria os arquivos de template de contexto da IA (`.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md`) e o Linter (`.gitpr.linter.yml`) na raiz do projeto.
 * `-is` ou `--issue`: Gera automaticamente um rascunho de uma **Issue padronizada** e abre uma interface interativa (TUI) para edição ou envio direto via API REST. Esta funcionalidade possui **3 motores de contexto** dependendo da combinação de comandos:
   * **Issue de Código Novo (`gitpr -is`):** Lê o `git diff` atual. **Por que usar:** Ideal para documentar rapidamente a tarefa que você acabou de programar, antes de commitar.
   * **Issue de Épico/Release (`gitpr -is -ht`):** Lê o histórico completo da branch atual (Git Log + Cache de PR). **Por que usar:** Ideal para gerar documentação consolidada de uma release inteira ou de uma *feature* grande que levou vários dias/commits para ser concluída.
-  * **Issue de Dívida Técnica/Arqueológica (`gitpr -is -b arquivo:linhas`):** Lê a linha do tempo de uma regra de negócio específica. **Por que usar:** Ideal para documentar dívida técnica, explicando como um bloco de código legado evoluiu e por que ele precisa ser refatorado.
+  * **Issue de Dívida Técnica/Arqueológica (`gitpr -is -b file:lines`):** Lê a linha do tempo de uma regra de negócio específica. **Por que usar:** Ideal para documentar dívida técnica, explicando como um bloco de código legado evoluiu e por que ele precisa ser refatorado.
 * **Publicador de PR (padrão):** Executar `gitpr` gera a descrição do PR com IA, salva o arquivo `.md` em `.gitpr/reports/pr_desc/` e abre uma interface interativa no terminal (TUI) para revisar, editar e publicar o Pull Request diretamente no GitHub via REST API. Antes da geração, verifica se há arquivos não commitados (unstaged) e oferece um modal para gerenciá-los. Use `--no-publish` para salvar apenas o arquivo do PR localmente sem abrir o publicador, ou `--no-edit` para fazer auto-commit das alterações pendentes (com validação de lint), auto-push e publicar imediatamente — tratando atualizações de PRs existentes e auto-merge opcional. Use `--base <branch>` para alterar a branch de destino. 📖 [Documentação completa](https://gitpr.natanfiuza.dev.br/docs/pull-request-publication.md?lang=pt_br)
 * `-h` ou `--help`: Mostra a ajuda geral com todas as opções. Use junto com outra flag para **ajuda contextual** (ex.: `gitpr -h --issue`, `gitpr -h --linter`) com um link direto para a documentação detalhada de cada funcionalidade.
 * `-u` ou `--update`: Verifica e instala a versão mais recente do GitPR (Auto-Updater).
 
-> **⚙️ Nota Técnica (--hook):** O GitPR possui uma flag oculta `--hook <arquivo>` que é acionada exclusivamente pelo sistema de Git Hooks em segundo plano. Ela permite que a IA injete a mensagem sugerida diretamente no arquivo temporário do Git, sem poluir seu terminal.
+> **⚙️ Nota Técnica (--hook):** O GitPR possui uma flag oculta `--hook <file>` que é acionada exclusivamente pelo sistema de Git Hooks em segundo plano. Ela permite que a IA injete a mensagem sugerida diretamente no arquivo temporário do Git, sem poluir seu terminal.
 >
-> **⚙️ Nota Técnica (--pre-save):** O GitPR possui uma flag oculta de debug `--pre-save` que pode ser combinada com qualquer comando de IA (ex.: `gitpr -c --pre-save`). Antes de cada chamada à IA, ela salva o payload completo que será enviado ao modelo (system instruction + prompt + contadores de caracteres) em um arquivo `_{acao}-{datahora}.json` na pasta atual, e depois prossegue normalmente. Útil para inspecionar prompts muito grandes. Obs.: quando a resposta vem do cache local, nenhuma chamada é feita e nenhum arquivo é gerado.
+> **⚙️ Nota Técnica (--pre-save):** O GitPR possui uma flag oculta de debug `--pre-save` que pode ser combinada com qualquer comando de IA (ex.: `gitpr -c --pre-save`). Antes de cada chamada à IA, ela salva o payload completo que será enviado ao modelo (system instruction + prompt + contadores de caracteres) em um arquivo `_{action}-{datetime}.json` na pasta atual, e depois prossegue normalmente. Útil para inspecionar prompts muito grandes. Obs.: quando a resposta vem do cache local, nenhuma chamada é feita e nenhum arquivo é gerado.
 
 ### 📦 Diffs Gigantes (Map-Reduce)
 
@@ -174,11 +177,11 @@ Ao executar `gitpr --skill`, um template será gerado. Você pode configurar reg
 ```yaml
 rules:
   - name: "check-localhost"
-    extensions: ["js", "php"] # Extensões a serem validadas
-    regex: 'http(s)?://(localhost|127\.0\.0\.1)' # O que procurar
+    extensions: ["js", "php"] # Extensions to be validated
+    regex: 'http(s)?://(localhost|127\.0\.0\.1)' # What to look for
     message: "🚨 Localhost usage detected in file {file_name}"
-    ignore_comments: true # Ignora se a linha estiver comentada
-    ignore_paths: # Pastas ou arquivos ignorados (aceita *)
+    ignore_comments: true # Ignores if the line is commented
+    ignore_paths: # Folders or files ignored (accepts *)
       - "vendor/*"
       - "node_modules/*"
 ```
@@ -212,8 +215,8 @@ O GitPR detecta automaticamente o idioma do seu sistema e exibe as mensagens no 
 * **Detecção automática:** Na primeira execução, o GitPR detecta o idioma do SO e salva em `~/.gitpr/.env` (`GITPR_LANG`).
 * **Arquivos de tradução:** Os pacotes de idioma são baixados automaticamente do repositório oficial para `~/.gitpr/langs/`.
 * **Fallback em inglês:** Se uma tradução estiver faltando, o texto em inglês é exibido diretamente.
-* **API do desenvolvedor:** Use `from src.i18n import __` e envolva todas as strings de interface com `__("Seu texto aqui")`.
-* **Placeholders:** Suporta parâmetros nomeados — `__("Baixando {file}...", file="template.md")`.
+* **API do desenvolvedor:** Use `from src.i18n import __` e envolva todas as strings de interface com `__("Your text here")`.
+* **Placeholders:** Suporta parâmetros nomeados — `__("Downloading {file}...", file="template.md")`.
 
 Para forçar um idioma específico, defina `GITPR_LANG=pt_br` ou `GITPR_LANG=en` no `~/.gitpr/.env`.
 
@@ -231,14 +234,14 @@ O GitPR inclui um sistema automático de versionamento para scripts de Git hooks
 
 **Exemplo:**
 ```bash
-# Primeira execução — sem hooks instalados ainda
+# First run — no hooks installed yet
 $ gitpr --installhooks
-📥 Baixando pre-commit...
-📥 Baixando prepare-commit-msg...
-✅ Scripts sincronizados com sucesso!
+📥 Downloading pre-commit...
+📥 Downloading prepare-commit-msg...
+✅ Scripts synced successfully!
 
-# Execuções seguintes — verificações silenciosas
-$ gitpr  # (sem saída = hooks estão atualizados)
+# Subsequent runs — silent checks
+$ gitpr  # (no output = hooks are up to date)
 ```
 
 O sistema suporta **5 idiomas**: Inglês (padrão), Português (Brasil), Português (Portugal), Francês e Espanhol. Os scripts são thin shims — a lógica real reside no CLI, então mesmo hooks ligeiramente desatualizados continuam funcionando corretamente.
@@ -264,12 +267,12 @@ O GitPR pode ser executado como um **servidor MCP**, expondo suas capacidades co
 Use o instalador integrado para configurar seu editor automaticamente:
 
 ```bash
-gitpr-mcp --install vscode    # Cria .vscode/mcp.json
-gitpr-mcp --install cursor      # Cria .cursor/mcp.json
-gitpr-mcp --install claude-code # Cria .mcp.json
-gitpr-mcp --install claude      # Atualiza config do Claude Desktop
-gitpr-mcp --install zed         # Atualiza config do Zed
-gitpr-mcp --install auto      # Auto-detectar e instalar para todos
+gitpr-mcp --install vscode    # Creates .vscode/mcp.json
+gitpr-mcp --install cursor      # Creates .cursor/mcp.json
+gitpr-mcp --install claude-code # Creates .mcp.json
+gitpr-mcp --install claude      # Updates Claude Desktop config
+gitpr-mcp --install zed         # Updates Zed settings
+gitpr-mcp --install auto      # Auto-detect and install for all found
 ```
 
 O instalador cria o diretório de config se necessário, mescla com qualquer
@@ -320,6 +323,22 @@ O GitPR remove automaticamente arquivos que não são código do seu `git diff` 
 - ✅ **Respostas mais rápidas da IA** — menos texto para processar por chamada
 - ✅ **Análise de maior qualidade** — IA foca nas alterações de código, não em markup
 - ✅ **Configuração zero** — funciona automaticamente em cada execução, gerenciado remotamente
+
+**Configuração local por projeto:** Cada projeto pode definir exclusões extras em `.gitpr/conf/gitpr.smart-excludes.json`. O arquivo é pré-preenchido automaticamente na primeira execução e mesclado com a lista global em tempo de execução:
+
+```json
+{
+  "_comment": "Project-specific Smart Excludes.",
+  "excludes": [
+    "dist/",
+    "*.pyc",
+    "build/",
+    "node_modules/"
+  ]
+}
+```
+
+Adicione artefatos de build específicos do framework, pastas geradas ou qualquer padrão que se aplique apenas a este projeto. O arquivo é seguro para commit — sua equipe obtém as mesmas exclusões.
 
 > 📖 **Documentação completa:** [docs/smart-excludes.md](https://gitpr.natanfiuza.dev.br/docs/smart-excludes.md?lang=pt_br) — disponível em 5 idiomas (EN, PT-BR, PT-PT, FR, ES).
 
@@ -403,9 +422,9 @@ pipenv run twine upload dist/*
 Contribuições são muito bem-vindas! Para contribuir:
 
 1. Faça um fork do projeto.
-2. Crie uma branch para sua *feature* (git checkout -b feature/NovaFuncionalidade).
-3. Faça commit das suas alterações (git commit -m 'feat: adiciona nova funcionalidade'). Dica: Use o próprio GitPR para gerar esta mensagem! 😄
-4. Faça push para a branch (git push origin feature/NovaFuncionalidade).
+2. Crie uma branch para sua *feature* (git checkout -b feature/NewFeature).
+3. Faça commit das suas alterações (git commit -m 'feat: add new feature'). Dica: Use o próprio GitPR para gerar esta mensagem! 😄
+4. Faça push para a branch (git push origin feature/NewFeature).
 5. Abra um Pull Request.
 
 ## **✨ Agradecimentos e Autoria**

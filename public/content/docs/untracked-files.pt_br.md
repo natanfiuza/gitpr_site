@@ -28,4 +28,24 @@ git add .
 
 Após rodar o `git add`, basta rodar o comando do **GitPR** novamente. A IA agora enxergará as suas novidades e gerará a análise perfeitamente! 🚀
 
+## 🔎 Verificação Rápida: Quais arquivos não estão preparados?
 
+Você pode verificar rapidamente quais arquivos não estão preparados usando a flag `--status` — **sem IA, sem rede, instantâneo**:
+
+```bash
+gitpr --status
+```
+
+Isso mostra todas as alterações não commitadas em 3 categorias: novos (untracked), modificados e excluídos. Veja a [documentação do Git Status](git-status.md) para mais detalhes.
+
+## 🛑 Pular a verificação de arquivos não preparados
+
+Se você quiser pular a verificação de arquivos não preparados que roda antes dos comandos de IA, use:
+
+```bash
+gitpr -c --no-unstaged-check
+```
+
+Ou defina `GITPR_SKIP_UNSTAGED_CHECK=true` no seu arquivo `~/.gitpr/.env` para pulá-la permanentemente.
+
+> 📖 **Documentação completa:** [docs/git-status.md](git-status.md) — cobre `--status`, `--no-unstaged-check`, ferramentas MCP e a verificação de arquivos não preparados que agora roda em todos os comandos (`-c`, `-r`, `-f`, `-is`).

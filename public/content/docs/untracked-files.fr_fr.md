@@ -19,7 +19,7 @@ La solution est très simple. Il vous suffit d'indiquer à Git quels nouveaux fi
 
 ```bash
 # Pour ajouter un fichier spécifique :
-git add src/meu_novo_arquivo.py
+git add src/my_new_file.py
 
 # OU pour ajouter tous les nouveaux fichiers d'un coup :
 git add .
@@ -28,4 +28,24 @@ git add .
 
 Après avoir exécuté `git add`, il vous suffit de relancer la commande **GitPR**. L'IA verra désormais vos nouveautés et générera l'analyse parfaitement ! 🚀
 
+## 🔎 Vérification rapide : quels fichiers ne sont pas indexés ?
 
+Vous pouvez vérifier rapidement quels fichiers ne sont pas indexés à l'aide de l'option `--status` — **pas d'IA, pas de réseau, instantané** :
+
+```bash
+gitpr --status
+```
+
+Cela affiche toutes les modifications non commitées dans 3 catégories : nouveaux (non suivis), modifiés et supprimés. Consultez la [documentation Git Status](git-status.md) pour plus de détails.
+
+## 🛑 Ignorer la vérification des fichiers non indexés
+
+Si vous souhaitez ignorer la vérification des fichiers non indexés qui s'exécute avant les commandes IA, utilisez :
+
+```bash
+gitpr -c --no-unstaged-check
+```
+
+Ou définissez `GITPR_SKIP_UNSTAGED_CHECK=true` dans votre fichier `~/.gitpr/.env` pour l'ignorer définitivement.
+
+> 📖 **Documentation complète :** [docs/git-status.md](git-status.md) — couvre `--status`, `--no-unstaged-check`, les outils MCP et la vérification des fichiers non indexés qui s'exécute désormais sur toutes les commandes (`-c`, `-r`, `-f`, `-is`).

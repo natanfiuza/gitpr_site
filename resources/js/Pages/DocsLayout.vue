@@ -100,7 +100,7 @@
 
             <!-- Main Content -->
             <main class="flex-1 p-6 lg:p-10 overflow-auto">
-                <div class="max-w-4xl mx-auto">
+                <div class="max-w-4xl mx-auto xl:mr-64">
                     <h1
                         class="text-sm uppercase tracking-wider text-gitpr_primary mb-6 border-b border-slate-200 dark:border-gitpr_dark_border pb-2 transition-colors duration-300">
                         {{ page_title }}
@@ -111,7 +111,7 @@
 
                 <!-- TOC Sidebar (desktop only) -->
                 <aside
-                    class="hidden xl:flex xl:flex-col fixed top-20 right-10 w-56 max-h-[calc(100vh-6rem)] border-l border-slate-200 dark:border-gitpr_dark_border pl-4 transition-colors duration-300">
+                    class="hidden xl:flex xl:flex-col fixed top-20 right-10 w-56 max-h-[calc(100vh-6rem)] border-l border-slate-200 dark:border-gitpr_dark_border pl-4 bg-white dark:bg-gitpr_dark z-30 transition-colors duration-300">
                     <div ref="toc_scroll_ref" @scroll="on_toc_scroll" class="overflow-y-auto flex-1 pr-1 toc-scroll">
                         <h4 class="text-gitpr_cyan_light uppercase tracking-wide text-xs font-bold mb-4">{{ ui_strings.on_this_page }}</h4>
                         <ul class="space-y-2 text-sm">

@@ -61,7 +61,7 @@ Si deseas generar tu propio binario a partir del código fuente, utilizamos **Py
    ```bash
    pipenv run pyinstaller --noconfirm --onefile --icon=icon.ico --name gitpr run.py
    ```
-> **Nota técnica:** La flag `--onefile` garantiza que todo Python, librerías y dependencias se compriman en un único binario. 🛠️
+> **Nota técnica:** La flag `--onefile` garantiza que todo Python, librerías y dependencias se compriman en un único binario, mientras que `--paths src` ayuda al compilador a encontrar nuestros archivos `core.py` y `config.py`. 🛠️
 
 Después de ejecutar este comando, PyInstaller creará algunas carpetas (`build` y `dist`).
 Tu archivo final listo para usar estará dentro de la carpeta **`dist/`** con el nombre `gitpr` (o `gitpr.exe` en Windows).
@@ -142,7 +142,10 @@ Puedes pasar las siguientes *flags* para acciones específicas:
 * `--lang <código>`: Fuerza el idioma de la interfaz para esta ejecución (ej.: `en_us`, `es_es`). Sobrescribe el `GITPR_LANG` del `.env` sin persistir el cambio.
 * `-ch` o `--chat`: Abre el **Chat Interactivo de Pair Programming** — un terminal TUI donde la IA ve tu diff actual y mantiene una conversación contextual. Dispone de memoria por rama, comandos slash (`/explain`, `/tests`, `/optimize`, `/clear`), auto-patching (F5), actualización de diff (F2) y exportación de sesión (F6).
 * `-l` o `--linter`: Ejecuta **solo el linter estático local** (sin llamadas a IA). Ideal para usar en pipelines de CI/CD para bloquear código no conforme.
-* `--mcp`: Inicia GitPR como un **servidor MCP** (Model Context Protocol) en transporte stdio. Permite la integración con VS Code, Cursor, Claude Desktop y otros editores compatibles con MCP — exponiendo todas las capacidades de IA de GitPR como herramientas directamente dentro de tu IDE. También disponible como comando independiente `gitpr-mcp`.
+* `--status`: Enumera los cambios de archivos sin commitear categorizados como **nuevos**, **modificados** y **eliminados** — rápido, sin IA, sin red. 📖 [Documentación completa](https://github.com/natanfiuza/gitpr/blob/main/docs/git-status.md)
+* `--no-unstaged-check`: Omite la verificación de archivos sin commitear antes del procesamiento por IA para una única invocación. Equivalente a `GITPR_SKIP_UNSTAGED_CHECK=true` para una ejecución. 📖 [Documentación completa](https://github.com/natanfiuza/gitpr/blob/main/docs/git-status.md)
+* `--mcp`: Inicia GitPR como un **servidor MCP** (Model Context Protocol) en transporte stdio. Permite la integración con VS Code, Cursor, Claude Desktop y otros editores compatibles con MCP — exponiendo todas las capacidades de IA de GitPR como 10 herramientas anotadas, 15 recursos y 7 prompts predefinidos directamente dentro de tu IDE. También disponible como comando independiente `gitpr-mcp`.
+* `--plugins`: Enumera todos los **plugins instalados globalmente** — paquetes de linter personalizados desde `~/.gitpr/plugins/linter/` y plantillas de prompts MCP desde `~/.gitpr/plugins/prompts/`. Estos plugins se aplican a todos tus proyectos sin duplicación. 📖 [Documentación completa](https://gitpr.natanfiuza.dev.br/docs/plugins-system.md?lang=es_es)
 * `--install`: **Asistente de Configuración Interactivo.** Ejecuta una configuración guiada en 4 pasos: descarga skill templates, instala Git Hooks, configura MCP para los editores detectados y verifica/solicita tu clave de API del proveedor de IA. Cada paso pide confirmación antes de continuar.
 * `-ih` o `--installhooks`: Instala automáticamente **Git Hooks locales** (`pre-commit` y `prepare-commit-msg`) en tu repositorio.
 * `-s` o `--skill`: Crea los archivos de plantilla de contexto de IA (`.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md`) y el Linter (`.gitpr.linter.yml`) en la raíz del proyecto.
@@ -320,6 +323,22 @@ GitPR elimina automáticamente los archivos que no son código de tu `git diff` 
 - ✅ **Respuestas más rápidas de la IA** — menos texto que procesar por llamada
 - ✅ **Análisis de mayor calidad** — la IA se centra en los cambios de código, no en el markup
 - ✅ **Configuración cero** — funciona automáticamente en cada ejecución, gestionado remotamente
+
+**Configuración local al proyecto:** Cada proyecto puede definir exclusiones adicionales en `.gitpr/conf/gitpr.smart-excludes.json`. El archivo se genera automáticamente en la primera ejecución y se fusiona con la lista global en tiempo de ejecución:
+
+```json
+{
+  "_comment": "Project-specific Smart Excludes.",
+  "excludes": [
+    "dist/",
+    "*.pyc",
+    "build/",
+    "node_modules/"
+  ]
+}
+```
+
+Añade artefactos de build específicos de tu framework, carpetas generadas o cualquier patrón que solo aplique a este proyecto. El archivo es seguro para commitear — tu equipo obtiene las mismas exclusiones.
 
 > 📖 **Documentación completa:** [docs/smart-excludes.md](https://gitpr.natanfiuza.dev.br/docs/smart-excludes.md?lang=es_es) — disponible en 5 idiomas (EN, PT-BR, PT-PT, FR, ES).
 
