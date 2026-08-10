@@ -1,6 +1,6 @@
 <template>
     <div
-        class="h-screen bg-slate-50 text-slate-900 dark:bg-gitpr_dark dark:text-gitpr_text flex flex-col transition-colors duration-300">
+        class="min-h-screen bg-slate-50 text-slate-900 dark:bg-gitpr_dark dark:text-gitpr_text flex flex-col transition-colors duration-300">
 
         <Head>
             <title>{{ page_title }} - GitPR</title>
@@ -58,7 +58,7 @@
 
             <!-- Sidebar -->
             <aside
-                :class="['w-64 flex-shrink-0 overflow-y-auto border-r bg-white border-slate-200 dark:border-gitpr_dark_border p-6 fixed top-14 bottom-0 left-0 dark:bg-gitpr_dark z-50 transform transition-transform duration-300 md:relative md:top-0 md:translate-x-0', is_mobile_menu_open ? 'translate-x-0' : '-translate-x-full']">
+                :class="['w-64 md:flex-shrink-0 overflow-y-auto border-r bg-white border-slate-200 dark:border-gitpr_dark_border p-6 fixed top-14 bottom-0 left-0 dark:bg-gitpr_dark z-50 transform transition-transform duration-300 md:relative md:top-0 md:translate-x-0', is_mobile_menu_open ? 'translate-x-0' : '-translate-x-full']">
                 <button @click="is_mobile_menu_open = false"
                     class="md:hidden absolute top-6 right-6 text-gitpr_text hover:text-gitpr_cyan_light text-xl">
                     ✕
@@ -99,7 +99,7 @@
             </aside>
 
             <!-- Main Content -->
-            <main class="flex-1 p-6 lg:p-10 overflow-auto">
+            <main class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-10 overflow-auto">
                 <div class="max-w-4xl mx-auto xl:mr-64">
                     <h1
                         class="text-sm uppercase tracking-wider text-gitpr_primary mb-6 border-b border-slate-200 dark:border-gitpr_dark_border pb-2 transition-colors duration-300">
