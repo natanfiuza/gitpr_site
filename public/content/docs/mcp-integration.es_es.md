@@ -15,6 +15,7 @@ La forma más fácil de configurar MCP es con el instalador integrado:
 # Instalar para un editor específico
 gitpr-mcp --install vscode      # Crea .vscode/mcp.json
 gitpr-mcp --install cursor      # Crea .cursor/mcp.json
+gitpr-mcp --install claude-code # Crea .mcp.json
 gitpr-mcp --install claude      # Actualiza config de Claude Desktop
 gitpr-mcp --install zed         # Actualiza config de Zed
 
@@ -29,6 +30,36 @@ El instalador:
 * Fusiona con la config existente — nunca sobrescribe otros servidores
 * Muestra qué editores fueron configurados
 * Es idempotente — seguro ejecutar múltiples veces
+
+## Invocación Directa por CLI
+
+Puede invocar cualquier herramienta MCP directamente desde la terminal sin iniciar
+el servidor. Esto es útil para depuración, scripting y prueba de herramientas sin
+un cliente MCP.
+
+```bash
+# Herramientas sin parámetros
+gitpr-mcp --tool get_git_context
+gitpr-mcp --tool analyze_diff
+gitpr-mcp --tool run_linter
+
+# Herramientas con parámetros (JSON)
+gitpr-mcp --tool analyze_blame --tool-args '{"file_path":"src/main.py","start_line":"10","end_line":"20"}'
+gitpr-mcp --tool generate_commit_message --tool-args '{"provider":"gemini"}'
+gitpr-mcp --tool generate_issue --tool-args '{"context_type":"history"}'
+
+# Listar todas las herramientas disponibles y sus parámetros
+gitpr-mcp --tool
+```
+
+La salida JSON va a stdout; todos los mensajes de diagnóstico (spinners, banners,
+logs) van a stderr. La configuración de `.env` se carga automáticamente, por lo que
+las claves de API funcionan sin prompts interactivos.
+
+> **Nota:** En el Símbolo del sistema de Windows, use comillas dobles para
+> `--tool-args` y escape las comillas internas:
+> `"{\"file_path\":\"src/main.py\",\"start_line\":\"10\"}"`.
+> PowerShell y shells Unix aceptan comillas simples como se muestra arriba.
 
 ## Herramientas Disponibles
 
@@ -87,6 +118,21 @@ Cree `.cursor/mcp.json` en la raíz de su proyecto:
   "mcpServers": {
     "gitpr": {
       "type": "stdio",
+      "command": "gitpr-mcp",
+      "args": []
+    }
+  }
+}
+```
+
+### Claude Code
+
+Cree `.mcp.json` en la raíz de su proyecto:
+
+```json
+{
+  "mcpServers": {
+    "gitpr": {
       "command": "gitpr-mcp",
       "args": []
     }

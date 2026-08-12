@@ -63,8 +63,8 @@ La configuración guiada descarga plantillas de skills, instala Git Hooks, confi
 
 GitPR es **agnóstico de IA** — elige tu motor:
 
-- **Google Gemini** (por defecto: `gemini-pro-latest`)
-- **DeepSeek** (por defecto: `deepseek-v4-pro`)
+- **Google Gemini** (por defecto: `gemini-2.5-flash`)
+- **DeepSeek** (por defecto: `deepseek-chat`)
 - **Ollama** — ejecuta modelos locales sin internet
 
 Cambia en cualquier momento con `--provider <gemini|deepseek|ollama>`.
@@ -73,7 +73,7 @@ Cambia en cualquier momento con `--provider <gemini|deepseek|ollama>`.
 
 ## 🌐 Internacionalización
 
-GitPR detecta automáticamente el idioma de tu sistema. Actualmente soporta **ES** y **EN**, con traducciones descargadas automáticamente. Fuerza un idioma con `--lang es` o define `GITPR_LANG` en tu configuración.
+GitPR detecta automáticamente el idioma de tu sistema. Soporta **5 idiomas** (ES, EN, PT-BR, PT-PT, FR), con traducciones descargadas automáticamente. Fuerza un idioma con `--lang es` o define `GITPR_LANG` en tu configuración.
 
 ---
 
