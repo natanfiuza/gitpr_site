@@ -63,8 +63,8 @@ Guided configuration downloads skill templates, installs Git Hooks, configures M
 
 GitPR is **AI-agnostic** — choose your engine:
 
-- **Google Gemini** (default: `gemini-pro-latest`)
-- **DeepSeek** (default: `deepseek-v4-pro`)
+- **Google Gemini** (default: `gemini-2.5-flash`)
+- **DeepSeek** (default: `deepseek-chat`)
 - **Ollama** — run local models without internet
 
 Switch anytime with `--provider <gemini|deepseek|ollama>`.
@@ -73,7 +73,7 @@ Switch anytime with `--provider <gemini|deepseek|ollama>`.
 
 ## 🌐 Internationalization
 
-GitPR auto-detects your system language. Currently supports **PT-BR** and **EN**, with translations downloaded automatically. Force a language with `--lang pt_br` or set `GITPR_LANG` in your config.
+GitPR auto-detects your system language. Supports **5 languages** (EN, PT-BR, PT-PT, ES, FR), with translations downloaded automatically. Force a language with `--lang pt_br` or set `GITPR_LANG` in your config.
 
 ---
 

@@ -85,6 +85,26 @@ La anotación de cada herramienta se elige en función de su comportamiento real
 - **No solo lectura + no destructiva** para herramientas que realizan llamadas de red
 - Ninguna herramienta se marca como `destructiveHint=true` ya que GitPR nunca escribe archivos
 
+## 🔧 Invocación Directa por CLI
+
+La flag `--tool` permite invocar cualquier herramienta anotada directamente desde
+la terminal, evitando completamente el transporte MCP:
+
+```bash
+gitpr-mcp --tool get_git_context
+gitpr-mcp --tool run_linter
+```
+
+En modo CLI, las anotaciones (`readOnlyHint`, `destructiveHint`, `idempotentHint`)
+**no se aplican** — son sugerencias para clientes MCP (IDEs y agentes de IA) para
+mejorar la UX. El comportamiento de la función subyacente es idéntico en ambas
+vías, lo que hace que `--tool` sea útil para verificar que la semántica de las
+anotaciones coincida con el comportamiento real (ej.: `run_linter` es
+`readOnlyHint` y efectivamente no modifica nada).
+
+Consulta [Integración MCP — Invocación Directa por CLI](docs/mcp-integration?lang=es_es#direct-cli-invocation)
+para detalles completos de uso.
+
 ## 📚 Documentación Relacionada
 
 - [Integración MCP](docs/mcp-integration?lang=es_es) — Cómo configurar MCP para tu editor
