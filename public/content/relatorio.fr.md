@@ -1,25 +1,17 @@
-# **🚀 Rapport de Statut du Projet : GitPR CLI — v0.0.33 (2026-08-09)**
+# **🚀 Rapport de Statut du Projet : GitPR CLI — v0.0.10 (2026-08-11)**
 
 ## **📌 Aperçu Général**
 
 **GitPR** est un outil CLI (Command Line Interface) avancé pour l'automatisation des processus Git à l'aide de l'Intelligence Artificielle (Google Gemini / DeepSeek / Ollama). L'objectif principal est d'agir comme un assistant intelligent local qui effectue des Code Reviews, génère des Pull Requests, des messages de commit sémantiques, audite la dette technique et injecte des bonnes pratiques dans le flux de travail du développeur (Shift Left).
 
-**Nouveautés de cette version (v0.0.8) :**
-- **PR Publisher TUI (`gitpr` par défaut) :** Interface interactive en terminal pour examiner, éditer et publier des Pull Requests directement sur GitHub via l'API REST. Inclut l'édition du titre, du corps et de la branche de base avec les bindings F1 (Help), F2 (Enregistrer localement), F3 (Publier) et Esc (Quitter). Flux complet avec 6 écrans modaux pour le commit, le staging et la progression.
-- **Flux d'Auto-Commit Intelligent :** En utilisant `--no-edit` ou en publiant avec F3 avec des changements non commités, GitPR exécute le linter statique, génère un message de commit par IA (Conventional Commits), confirme avec l'utilisateur et exécute `git commit` avant de publier le PR.
-- **Gestion des Fichiers Non-Stagés :** Au démarrage, GitPR vérifie les fichiers non-stagés et propose un modal TUI (`StageFilesApp`) pour sélectionner, ignorer ou annuler avant la génération du PR.
-- **Traitement d'un PR Existant :** Lorsqu'un PR existe déjà pour la branche actuelle, la TUI propose de pousser vers le PR existant (en mettant à jour le corps via PATCH) ou d'en créer un nouveau.
-- **Flux de Merge :** Après la création ou la mise à jour du PR, GitPR peut optionnellement effectuer le merge. Contrôlé par la variable d'environnement `GITPR_AUTO_MERGE`.
-- **Auto-Upstream au Push :** Lorsque `git push` échoue par absence d'upstream, GitPR réessaie automatiquement avec `--set-upstream origin <branch>`.
-- **Détection de « Nothing to commit » :** Les échecs de commit dus à l'absence de changements stagés sont traités comme un succès — le flux continue vers la publication du PR.
-- **Centralisation de la Sortie :** Tous les fichiers générés utilisent désormais `.gitpr/reports/` organisés par type (`pr_desc/`, `review/`, `full_review/`, `file_review/`, `blame/`, `issue/`). Les chemins personnalisés dans le `.env` sont respectés pour la compatibilité.
-- **6 Nouvelles Variables d'Environnement :** `GITPR_AUTO_COMMIT`, `GITPR_SKIP_LINT`, `GITPR_AUTO_STAGE`, `GITPR_SKIP_UNSTAGED_CHECK`, `GITPR_SHOW_LOGS`, `GITPR_AUTO_MERGE` — contrôle granulaire du flux de publication.
-- **Module API GitHub (`src/github_api.py`) :** Fonctions partagées pour `create_pull_request()`, `update_pull_request()` et `merge_pull_request()` via l'API REST.
-- **Documentation Technique Multilingue :** `docs/pull-request-publication.md` en 5 langues (EN, PT-BR, PT-PT, ES, FR) avec couverture complète du flux de PR.
-- **CHANGELOG.md :** Historique complet des versions de v0.0.1 à v0.0.33 au format Keep a Changelog, alimenté à partir des rapports de statut dans `docs/reports/`.
+**Nouveautés de cette version (v0.0.10) :**
 
-- **Version actuelle :** 0.0.33
-- **Version des dictionnaires de langue :** v0.0.11
+- **Invocation Directe des Outils MCP via CLI (`gitpr-mcp --tool`) :** Les 12 outils MCP de GitPR peuvent désormais être invoqués directement depuis la ligne de commande avec `gitpr-mcp --tool <name> [--tool-args '<json>']`, sans démarrer le serveur stdio JSON-RPC. Le mode `--tool` (sans nom) liste tous les outils disponibles avec leurs signatures. Idéal pour le débogage, les scripts et l'utilisation manuelle.
+- **Gestion des Erreurs dans le Merge de PR :** Le PR Publisher (TUI Textual) affiche désormais un modal d'erreur visible lorsque le merge du PR échoue — notamment HTTP 405 indiquant des conflits. Auparavant, l'échec était silencieusement ignoré et le flux continuait comme si tout avait fonctionné.
+- **Nouveaux Documents MCP :** 3 nouveaux sujets de documentation MCP en 5 langues : `mcp-annotations.md` (annotations des outils), `mcp-integration.md` (guide d'intégration), `mcp-prompts.md` (guide des prompts templatisés).
+
+- **Version actuelle :** 0.0.35
+- **Version des dictionnaires de langue :** v0.0.13
 - **Version des scripts de hook :** v0.0.1
 - **Publication :** PyPI (`pip install gitpr-cli`) + GitHub Releases (binaire standalone)
 - **Site web :** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
@@ -33,15 +25,15 @@
 
 * **Langage :** Python >= 3.10
 * **Framework CLI :** Click (pour commandes, flags et formatage terminal).
-* **UI/Terminal :** Textual — TUI (Text User Interface) pour chat interactif, édition d'issues, écran d'aide, tableau de bord de métriques et **PR Publisher** 🆕.
+* **UI/Terminal :** Textual — TUI (Text User Interface) pour chat interactif, édition d'issues, écran d'aide, tableau de bord de métriques et PR Publisher.
 * **Cryptographie :** `cryptography.fernet` pour la protection locale des clés API et tokens GitHub.
 * **Configuration :** `python-dotenv`, `pyyaml` (pour le linter statique).
 * **Fournisseurs IA :** Intégration via SDK officiel Google GenAI (`gemini-2.5-flash`), OpenAI SDK (`DeepSeek`), et OpenAI SDK (`Ollama` local).
-* **API GitHub :** `requests` (API REST via PAT) — **utilisation étendue avec le nouveau module `github_api.py`** 🆕.
-* **MCP :** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 (SDK officiel Anthropic pour Model Context Protocol) — Tool Annotations, Prompts avec templates et ressources prompt://.
-* **Tests :** Pytest + `unittest.mock` (12 fichiers de test, 131 scénarios).
-* **Empaquetage :** PyInstaller (binaire standalone) + setuptools/build (PyPI).
-* **CI/CD :** GitHub Actions (`pr-review.yml`) + `action.yml` pour exécution dans les pipelines.
+* **API GitHub :** `requests` (API REST via PAT) — module `src/github_api.py` avec `create_pull_request()`, `update_pull_request()`, `merge_pull_request()`.
+* **MCP :** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 (SDK officiel Anthropic pour Model Context Protocol) — 12 outils annotés, 15 ressources, 7 prompts.
+* **Tests :** Pytest + `unittest.mock` (13 fichiers de test, 207 scénarios).
+* **Packaging :** PyInstaller (binaire standalone) + setuptools/build (PyPI).
+* **CI/CD :** GitHub Actions (`pr-review.yml`) + `action.yml` pour l'exécution dans les pipelines.
 
 ---
 
@@ -49,162 +41,173 @@
 
 ### **1. Noyau et Opérations Git (`src/core.py`)**
 
-* **Génération Structurée :** Communique avec la LLM en demandant un retour strictement en JSON.
-* **Map-Reduce (Diffs Géants) :** Lorsque le diff dépasse ~90k tokens, il se divise automatiquement en lots par fichier (`split_diff_into_chunks`), traite chaque partie (Map) et unifie les résumés (Reduce) en conservant le ton de l'architecture.
-* **Estimation de Tokens :** Heuristique légère `len() // 4` via `estimate_token_count()`.
-* **Optimisation Native de Git :** Flags `-U1`, `-w`, `-M`, `-B` dans les commandes `get_git_diff` et `get_git_full_diff` pour réduire le contexte inutile.
-* **Pre-Save (`--pre-save`) :** Flag masqué de débogage qui sauvegarde le payload complet (system instruction + prompt) en JSON avant chaque appel à l'IA.
-* **Smart Excludes :** Filtre de pathspec intelligent (`gitpr.smart-excludes.json`) distant — téléchargé depuis GitHub et mis à jour automatiquement avec versionnage (`SMART_EXCLUDES_VERSION`), excluant les fichiers non pertinents (fichiers de verrouillage, artefacts de build, assets binaires et documentation) pour réduire les tokens.
-* **Métriques avec Suivi Temporel :** Injection de `log_command_metric()` dans tous les flux avec transmission de la durée en millisecondes (`duration_ms`) et importations différées pour éviter les dépendances circulaires.
-* **Résolution Centralisée de la Sortie 🆕 :** Nouvelle fonction `resolve_output_path()` qui centralise la logique des répertoires de sortie — par défaut dans `.gitpr/reports/{type}/` avec repli sur les chemins personnalisés du `.env`.
+* **Génération Structurée :** Communique avec le LLM en exigeant une sortie strictement JSON.
+* **Map-Reduce (Diffs Géants) :** Lorsque le diff dépasse ~90k tokens, il le divise automatiquement en lots par fichier (`split_diff_into_chunks`), traite chaque partie (Map) et unifie les résumés (Reduce). Prend en charge les PR, les commits et les Issues.
+* **Tokenizer Local :** `tokenizer.json` pour une estimation précise des tokens avant l'envoi à l'IA.
+* **Estimation des Tokens :** Heuristique légère `len() // 4` via `estimate_token_count()` avec repli sur le tokenizer local.
+* **Optimisation Native Git :** Flags `-U1`, `-w`, `-M`, `-B` sur les commandes `get_git_diff` et `get_git_full_diff` pour réduire le contexte inutile.
+* **Pre-Save (`--pre-save`) :** Flag de débogage caché qui sauvegarde le payload complet (instruction système + prompt) au format JSON avant chaque appel à l'IA.
+* **Smart Excludes à Deux Couches :** Filtre pathspec intelligent avec une couche globale (`~/.gitpr/conf/`) + une couche locale au projet (`./.gitpr/conf/`). Fusion à l'exécution (union, dédupliquée). Amorçage automatique du fichier local au premier lancement. Support de 3 variables d'environnement (`GITPR_SKIP_SMART_EXCLUDES`, `GITPR_SMART_EXCLUDES_GLOBAL`, `GITPR_SMART_EXCLUDES_LOCAL`).
+* **Métriques avec Suivi Temporel :** Injection de `log_command_metric()` dans tous les flux avec transmission de la durée en millisecondes (`duration_ms`), avec imports différés.
+* **Résolution Centralisée de la Sortie :** Fonction `resolve_output_path()` qui centralise la logique des répertoires de sortie — par défaut dans `.gitpr/reports/{type}/` avec repli sur les chemins personnalisés du `.env`.
 
-### **2. Interface CLI et Configuration (`src/main.py` et `src/config.py`)**
+### **2. Système Global de Plugins (`src/plugins.py`)**
 
-* **Configuration Initiale :** Détecte la première exécution, crée le dossier `~/.gitpr/` et demande de manière interactive les clés API, préférences et langue, en les sauvegardant dans un `.env`.
-* **Routage des Commandes :** Gère l'ensemble des flags (`--commit`, `--review`, `--fullreview`, `--linter`, `--skill`, `--issue`, `--blame`, `--chat`, `--mcp`, `--install`, `--metrics`, `--export`, `--purge`, `--dashboard`, `--publish`, `--no-publish`, `--no-edit`, `--base`, `--lang`, `--provider`, `--pre-save`).
-* **Comportement par Défaut Modifié 🆕 :** Exécuter `gitpr` sans flags ouvre désormais la TUI du PR Publisher (auparavant : générait un fichier et quittait).
-* **Nouveaux Flags 🆕 :**
-  * `--publish` : Ouvre la TUI interactive pour examiner, éditer et publier le PR (comportement par défaut).
+* **Architecture de Plugins :** Système d'extensibilité qui charge les plugins depuis le répertoire `~/.gitpr/plugins/`, en les appliquant à **tous les projets**.
+* **Plugins Linter (`linter/`) :** Fichiers `.yml` avec des règles regex supplémentaires fusionnées avec le `.gitpr.linter.yml` local.
+* **Plugins de Prompts MCP (`prompts/`) :** Fichiers `.md` qui étendent le contexte système avec des instructions spécifiques.
+* **Fermetures Factory :** Fonctions `get_linter_plugins` et `get_prompt_plugins` avec fermetures pour isoler l'état entre les sessions.
+* **Commande `--plugins` :** Liste tous les plugins globaux installés avec leurs types et chemins.
+* **Documentation Multilingue :** `docs/plugins-system.md` en 5 langues (EN, PT-BR, PT-PT, ES, FR).
+
+### **3. Interface CLI et Configuration (`src/main.py` et `src/config.py`)**
+
+* **Configuration Initiale :** Détecte le premier lancement, crée le dossier `~/.gitpr/` et demande interactivement les clés API, les préférences et la langue.
+* **Routage des Commandes :** Gère tous les flags (`--commit`, `--review`, `--fullreview`, `--linter`, `--skill`, `--issue`, `--blame`, `--chat`, `--mcp`, `--install`, `--metrics`, `--export`, `--purge`, `--dashboard`, `--publish`, `--no-publish`, `--no-edit`, `--base`, `--lang`, `--provider`, `--pre-save`, `--plugins`).
+* **Comportement Par Défaut :** Exécuter `gitpr` sans flags ouvre la TUI du PR Publisher.
+* **Flags :**
+  * `--publish` : Ouvre la TUI interactive pour examiner, éditer et publier le PR.
   * `--no-publish` : Génère la description du PR et la sauvegarde localement sans ouvrir l'éditeur interactif.
-  * `--no-edit` : Ignore complètement la TUI — effectue un auto-commit (avec validation du linter), un auto-push et publie directement sur GitHub. Idéal pour CI/CD.
-  * `--base <branch>` : Remplace la branche de destination de la Pull Request.
-* **Nouvelles Variables d'Environnement 🆕 :** `GITPR_AUTO_COMMIT` (ignorer la confirmation de commit), `GITPR_SKIP_LINT` (ignorer la validation du linter), `GITPR_AUTO_STAGE` (stage automatique des fichiers), `GITPR_SKIP_UNSTAGED_CHECK` (ignorer la vérification des unstaged), `GITPR_SHOW_LOGS` (contrôler les logs de progression), `GITPR_AUTO_MERGE` (auto-merge après publication).
+  * `--no-edit` : Saute entièrement la TUI — auto-commit (avec validation du linter), auto-push et publication directe sur GitHub.
+  * `--base <branch>` : Remplace la branche cible de la Pull Request.
+  * `--plugins` : Liste les plugins globaux installés.
+  * `--version` 🆕 : Affiche la version actuelle de GitPR (via `@click.version_option`).
+* **Variables d'Environnement :** `GITPR_AUTO_COMMIT`, `GITPR_SKIP_LINT`, `GITPR_AUTO_STAGE`, `GITPR_SKIP_UNSTAGED_CHECK`, `GITPR_SHOW_LOGS`, `GITPR_AUTO_MERGE`, `GITPR_SKIP_SMART_EXCLUDES`, `GITPR_SMART_EXCLUDES_GLOBAL`, `GITPR_SMART_EXCLUDES_LOCAL`.
 * **Aide Contextuelle :** `-h --flag` affiche la documentation spécifique de la fonctionnalité avec un lien direct (sensible à la langue) vers GitHub.
 * **--lang :** Force la langue de l'interface pour l'exécution actuelle sans persister le changement.
 * **--provider :** Force le fournisseur IA (`gemini`, `deepseek`, `ollama`) pour l'exécution actuelle.
-* **--mcp :** Démarre le serveur MCP sur le transport stdio pour l'intégration avec les éditeurs — **10 outils annotés + 15 ressources + 7 prompts**.
+* **--mcp :** Démarre le serveur MCP sur transport stdio pour l'intégration avec les éditeurs — **12 outils annotés + 15 ressources + 7 prompts**.
 * **--install :** Assistant guidé en 4 étapes qui télécharge les templates de skills, installe les Git Hooks, configure le MCP dans les éditeurs et valide les clés API.
-* **--metrics :** Système de télémétrie locale avec portée par dépôt : `--export` (sauvegarde dans `./.gitpr/metrics/export/`), `--purge` (nettoyage), `--dashboard` (TUI interactive avec analyse du cache).
+* **--metrics :** Système de télémétrie locale avec portée par dépôt : `--export`, `--purge`, `--dashboard` (TUI interactive avec analyse du cache).
+* **--status :** Liste les fichiers non commités classés (nouveaux/modifiés/supprimés) — rapide, sans IA, sans réseau.
 
-### **3. PR Publisher TUI (`src/ui/pr_publish_app.py` et `src/ui/pr_publish_help.py`)** 🆕
+### **4. PR Publisher TUI (`src/ui/pr_publish_app.py` et `src/ui/pr_publish_help.py`)**
 
 * **Interface Interactive Complète :** TUI construite avec Textual pour examiner, éditer et publier des Pull Requests directement dans le terminal.
-* **6 Écrans Modaux :**
-  * `CommitConfirmScreen` : Confirmation avant le commit automatique.
-  * `FileStageScreen` : Sélection interactive des fichiers pour le staging.
-  * `CommitProgressScreen` : Barre de progression pendant le commit et le push avec logs en temps réel.
-  * `CommitMessageScreen` : Affichage et confirmation du message généré par IA.
-  * `LinterErrorScreen` : Affichage des erreurs du linter avec option d'abandonner ou de continuer.
-  * `ErrorScreen` : Affichage des erreurs générales avec défilement, plafonné à `max-height: 80%`.
-* **Bindings :** F1 (Help — modal avec raccourcis et instructions), F2 (Enregistrer le .md localement), F3 (Publier via l'API GitHub), Esc (Quitter).
-* **Flux d'Auto-Commit :** Lorsqu'il y a des changements non commités et que l'utilisateur utilise `--no-edit` ou F3, GitPR automatiquement :
-  1. Exécute le linter statique (sauf si `GITPR_SKIP_LINT=true`)
-  2. Génère un message de commit via IA (Conventional Commits)
-  3. Confirme avec l'utilisateur (sauf si `GITPR_AUTO_COMMIT=true`)
-  4. Exécute `git commit`
-  5. Poursuit vers le push et la publication du PR
-* **Vérification des Fichiers Unstaged :** Au démarrage, vérifie `git status --porcelain` et propose le modal `StageFilesApp` pour sélectionner, ignorer ou annuler.
-* **Traitement d'un PR Existant :** Détecte les PR ouverts pour la branche actuelle via l'API GitHub et propose de pousser vers le PR existant (mise à jour via PATCH) ou d'en créer un nouveau.
-* **Auto-Upstream :** Détecte l'échec de `git push` par absence d'upstream et réessaie automatiquement avec `--set-upstream origin <branch>`.
-* **Détection de « Nothing to commit » :** Traite `git commit` sans changements comme un succès — le flux continue sans erreur.
+* **6 Écrans Modaux :** `CommitConfirmScreen`, `FileStageScreen`, `CommitProgressScreen`, `CommitMessageScreen`, `LinterErrorScreen`, `ErrorScreen`.
+* **Modal Amélioré des Fichiers Non-Stagés :** Liste de fichiers avec hauteur fixe (`height: 6`) et défilement vertical interne.
+* **Bindings :** F1 (Help), F2 (Enregistrer le .md local), F3 (Publier via l'API GitHub), Esc (Quitter).
+* **Flux d'Auto-Commit :** Linter → message IA → confirmation → commit → push → publication du PR.
+* **Vérification des Fichiers Non-Stagés :** Au démarrage, vérifie `git status --porcelain` et propose un modal pour sélectionner, ignorer ou annuler.
+* **Gestion d'un PR Existant :** Détecte les PR ouverts pour la branche actuelle via l'API GitHub et propose de pousser ou d'en créer un nouveau.
+* **Auto-Upstream :** Détecte l'échec de `git push` dû à un upstream manquant et réessaie automatiquement avec `--set-upstream origin <branch>`.
+* **Détection de « Nothing to commit » :** Traite `git commit` sans changements comme un succès.
 * **Flux de Merge :** Après la création/mise à jour du PR, propose une option de merge. Contrôlé par `GITPR_AUTO_MERGE`.
-* **Correction de Stdout :** Wrapper `_with_real_stdout()` pour éviter `OSError: [Errno 9] Bad file descriptor` lorsque la TUI de Textual appelle `click.secho()`.
+* **Gestion des Erreurs de Merge 🆕 :** Refactorisation de `_do_merge` en 3 méthodes avec séparation des responsabilités : `_do_merge` (déclenché dans un thread), `_on_merge_success` (callback de succès), `_on_merge_failure` (callback d'échec avec modal d'erreur). HTTP 405 (conflits) affiche un message clair et propose l'ouverture dans le navigateur pour une résolution manuelle. Suivi de `final_action` (« merged »/« merge_failed ») pour un retour visuel post-TUI avec des couleurs correctes.
 
-### **4. Module API GitHub (`src/github_api.py`)** 🆕
+### **5. Module API GitHub (`src/github_api.py`)**
 
 * **Fonctions Partagées :** `create_pull_request()`, `update_pull_request()`, `merge_pull_request()` — encapsulant les appels REST à l'API GitHub v3.
-* **Authentification via PAT :** Token d'accès personnel validé avec `GET /user` avant les opérations.
-* **Réutilisation :** Fonctions utilisées à la fois par la TUI de PR et par la TUI d'issues, éliminant la duplication.
+* **Authentification PAT :** Token d'accès personnel validé avec `GET /user` avant les opérations.
+* **Réutilisation :** Fonctions utilisées à la fois par la TUI des PR et par la TUI des issues.
 
-### **5. Moteur d'Analyse Statique / Linter (`src/linter_engine.py`)**
+### **6. Moteur d'Analyse Statique / Linter (`src/linter_engine.py`)**
 
-* **Linter Hors Ligne :** Analyse statiquement les lignes ajoutées (`+`) dans le git diff sans consommer de quotas IA.
-* **Règles YAML :** Lit le fichier local `.gitpr.linter.yml` (créé via `--skill`). Prend en charge les regex de validation, l'ignorance des commentaires et l'ignorance de répertoires spécifiques (à l'aide de fnmatch).
-* **Template multilingue :** Les templates du linter sont disponibles en 5 langues.
-* **Intégration dans l'Auto-Commit 🆕 :** Le linter est exécuté automatiquement avant le commit dans le flux de publication de PR.
+* **Linter Hors Ligne :** Analyse statiquement les lignes ajoutées (`+`) dans le diff git sans dépenser de quota IA.
+* **Règles YAML :** Lit le fichier local `.gitpr.linter.yml` (créé via `--skill`). Prend en charge les regex de validation, l'ignorance des commentaires et l'ignorance de répertoires spécifiques.
+* **Plugins Linter :** Règles supplémentaires chargées depuis `~/.gitpr/plugins/linter/*.yml` et fusionnées avec les règles locales.
+* **Template Multilingue :** Templates de linter disponibles en 5 langues.
+* **Intégration à l'Auto-Commit :** S'exécute automatiquement avant le commit dans le flux de publication des PR.
 
-### **6. Sécurité et Authentification (`src/security.py`, `src/config.py`, `src/tui_issue.py`)**
+### **7. Sécurité et Authentification (`src/security.py`, `src/config.py`, `src/tui_issue.py`)**
 
 * **Cryptographie :** Génère une clé maîtresse `secret.key` dans le dossier `~/.gitpr/`.
 * **Protection des Tokens :** `encrypt_data` et `decrypt_data` pour protéger les clés API IA et le PAT GitHub.
-* **Validation du Token GitHub :** La fonction `validate_github_token()` effectue un appel léger (`GET /user`) pour valider le PAT.
-* **Flux d'Auto-Reauthentification :** Si le token expire ou devient invalide pendant `gitpr -is`, l'application capture la réponse HTTP 401, demande un nouveau token à l'utilisateur et relance l'interface TUI en préservant le brouillon.
+* **Validation du Token GitHub :** `validate_github_token()` avec un appel léger (`GET /user`).
+* **Flux de Ré-authentification Automatique :** Si le token expire pendant `gitpr -is`, capture le 401, demande un nouveau token et relance la TUI en préservant le brouillon.
 
-### **7. Auto-Updater (`src/updater.py`)**
+### **8. Auto-Updater (`src/updater.py`)**
 
-* **Hot-Swap :** Vérifie la version la plus récente sur l'API GitHub Releases. En cas de divergence, télécharge le binaire compilé, renomme l'exécutable actuel et le remplace sans interrompre l'exécution en cours (avec capacité de rollback).
-* **Cache quotidien :** Évite les vérifications répétées le même jour.
-* **Vérification de connexion :** Socket `8.8.8.8:53` avant toute opération réseau.
-* **Versionnage Centralisé :** `__version__` (0.0.33), `__lang_version__` (v0.0.11), `__scripts_version__` (v0.0.1), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION` — tous dérivés exclusivement de `updater.py`.
+* **Hot-Swap :** Vérifie la dernière version via l'API GitHub Releases, télécharge le binaire compilé et le remplace sans interrompre l'exécution en cours (avec rollback).
+* **Cache Quotidien :** Évite les vérifications répétées le même jour.
+* **Vérification de Connexion :** Socket `8.8.8.8:53` avant toute opération réseau.
+* **Versionnage Centralisé :** `__version__` (0.0.35), `__lang_version__` (v0.0.13), `__scripts_version__` (v0.0.1), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`.
 
-### **8. Interface de Chat Interactif (`src/ui/chat_app.py`)**
+### **9. Interface de Chat Interactive (`src/ui/chat_app.py`)**
 
-* **TUI Complète :** Construite avec Textual — historique de messages, entrée multi-lignes, barre de statut avec bindings visibles.
+* **TUI Complète :** Construite avec Textual — historique de messages, saisie multiligne, barre de statut avec bindings visibles.
 * **Mémoire par Branche (`src/chat_memory.py`) :** Historique de conversation persisté par branche, permettant la continuité entre les sessions.
-* **Commandes Slash :** `/explain`, `/tests`, `/optimize`, `/clear` — raccourcis pour les actions courantes de pair programming.
-* **Auto-Patching (F5) :** Extrait les blocs de code suggérés par l'IA et les exporte vers un fichier de patch pour une application facile.
-* **Mise à jour du Diff (F2) :** Recharge le `git diff` actuel sans redémarrer la session.
-* **Exportation de Session (F6) :** Sauvegarde l'historique complet du chat pour la documentation.
+* **Commandes Slash :** `/explain`, `/tests`, `/optimize`, `/clear` — raccourcis pour la programmation en binôme.
+* **Auto-Patching (F5) :** Extrait les blocs de code suggérés par l'IA et les exporte vers un fichier de patch.
+* **Rafraîchissement du Diff (F2) :** Recharge le `git diff` actuel sans redémarrer la session.
+* **Export de Session (F6) :** Sauvegarde l'historique complet du chat pour la documentation.
 
-### **9. Internationalisation — i18n (`src/i18n.py`)**
+### **10. Internationalisation — i18n (`src/i18n.py`)**
 
 * **Système Inspiré de Laravel :** Fonction `__()` avec prise en charge de placeholders nommés (`{count}`, `{file}`, etc.).
-* **Détection Automatique :** Détecte la langue du système d'exploitation à la première exécution et la sauvegarde dans `GITPR_LANG`.
+* **Détection Automatique :** Détecte la langue du système d'exploitation au premier lancement et la sauvegarde dans `GITPR_LANG`.
 * **5 Langues :** en_us (par défaut/repli), pt_br, pt_pt, es_es, fr_fr.
-* **Fichiers Versionnés :** `__lang_version__` (v0.0.11) contrôle la mise à jour des packs de langue (`langs/*.json`).
-* **Couverture Étendue 🆕 :** ~623 clés de traduction en pt_BR (+132 depuis v0.0.32). Nouvelles chaînes pour le PR Publisher TUI, les écrans modaux, le flux de commit et la documentation de publication de PR.
+* **Fichiers Versionnés :** `__lang_version__` (v0.0.13) contrôle la mise à jour des packs de langue (`langs/*.json`).
+* **Couverture :** 503 clés de traduction en pt_BR.
 * **Cache avec Indexation par Langue :** Les réponses IA mises en cache incluent la langue courante dans le hachage MD5.
 * **Script de Synchronisation :** `tests/sync_i18n.py` pour la détection automatique des clés orphelines.
 
-### **10. Spinner Animé (`src/spinner.py`)**
+### **11. Spinner Animé (`src/spinner.py`)**
 
 * **Braille + Thinking Words :** Thread en arrière-plan pendant les appels IA affichant des caractères braille avec des mots de « réflexion ».
 * **Délimiteur :** Séparateur de phrases par point-virgule (`;`), compatible avec les phrases complexes contenant des virgules.
 * **Vitesse Adaptative & Flickering :** Animation de découverte de caractères adaptée aux phrases longues et utilisation de l'ANSI `\033[K` pour éviter les artefacts visuels dans le terminal.
-* **263 entrées par langue :** Synchronisées entre les 5 langues dans les fichiers `templates/gitpr.thinking-words.{lang}.md`.
+* **263 entrées par langue :** Synchronisées entre les 5 langues.
 
-### **11. Fournisseurs IA (`src/ai_providers.py`)**
+### **12. Fournisseurs IA (`src/ai_providers.py`)**
 
 * **3 Fournisseurs Pris en Charge :** Google Gemini (`gemini-2.5-flash`), DeepSeek (`deepseek-chat`), Ollama (local).
 * **Mesure de Durée :** Injection de `duration_ms` (chronométrage de haute précision via `time.perf_counter()`) dans `meta_raw` et `_telemetry_meta`.
 * **Mode JSON & Paramètres Déterministes :** Sorties structurées avec `temperature=0.0` et `top_p=0.1`.
 
-### **12. Cache Intelligent (`src/cache.py`)**
+### **13. Cache Intelligent (`src/cache.py`)**
 
 * **MD5 + Métadonnées :** Clé basée sur le hachage MD5 du diff et du prompt.
-* **Indexation par Langue :** Le champ `lang` a été ajouté au calcul de la clé du cache, permettant des réponses distinctes pour le même diff dans des langues différentes.
-* **Télémétrie et Durée :** Persistance des champs `duration_ms` et `meta_raw` dans les fichiers de cache dans `~/.gitpr/cache/prompts/`.
-* **Lecture pour le Tableau de Bord :** `scan_cache_files_for_dashboard()` lit tous les fichiers de cache de manière récursive pour calculer des métriques historiques complètes.
+* **Indexation par Langue :** Le champ `lang` a été ajouté au calcul de la clé du cache.
+* **Télémétrie et Durée :** Persistance des champs `duration_ms` et `meta_raw` dans les fichiers de cache.
+* **Lecture pour le Tableau de Bord :** `scan_cache_files_for_dashboard()` lit tous les fichiers de cache de manière récursive.
 
-### **13. Moteur d'Issues et TUI (`src/issue_engine.py`, `src/tui_issue.py`, `src/ui/issue_app.py`)**
+### **14. Moteur d'Issues et TUI (`src/issue_engine.py`, `src/tui_issue.py`, `src/ui/issue_app.py`)**
 
-* **3 Moteurs de Contexte :** Diff actuel, Historique de la branche (`-ht`) et Archéologie par Blame (`-b`).
-* **TUI Interactive :** Édition de brouillons, raccourci F2 (enregistrer localement), F3 (publier sur GitHub via l'API REST) et F1 (aide).
-* **Traitement du 401 :** Signalisation de réauthentification sans fermeture de l'application avec perte de contenu.
+* **3 Moteurs de Contexte :** Diff actuel, historique de la branche (`-ht`) et archéologie par Blame (`-b`).
+* **Map-Reduce pour les Issues :** Lorsque le contexte dépasse ~90k tokens, il se divise automatiquement en lots et unifie les résultats.
+* **TUI Interactive :** Édition de brouillons, raccourci F2 (enregistrer localement), F3 (publier sur GitHub) et F1 (aide).
+* **Traitement du 401 :** Signalisation de réauthentification sans fermeture de l'application.
 
-### **14. Archéologue de Code (`src/blame_engine.py`)**
+### **15. Archéologue de Code (`src/blame_engine.py`)**
 
-* **Git Blame + IA :** Suit l'évolution et la paternité historique des extraits de code avec classification des commits (`ORIGIN` vs `REFACTORING`).
-* **Métriques de Blame :** Événements d'archéologie enregistrés via `log_blame_metric()` avec suivi de la profondeur et du nombre de commits analysés.
+* **Git Blame + IA :** Suit l'évolution historique et la paternité des extraits de code avec classification des commits (`ORIGIN` vs `REFACTORING`).
+* **Métriques Blame :** Événements enregistrés via `log_blame_metric()` avec suivi de la profondeur et du nombre de commits analysés.
 
-### **15. Serveur MCP et Installeur (`src/mcp_server.py`)**
+### **16. Serveur MCP et Invocation CLI Directe (`src/mcp_server.py`)** 🆕
 
-* **10 Outils MCP Annotés :** Annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`) configurées pour les IDE comme Cursor, VS Code et Claude Code.
+* **12 Outils MCP Annotés :** Outils pour `get_git_context`, `analyze_diff`, `list_unstaged_files`, `analyze_unstaged_diff`, `get_full_diff`, `generate_commit_message`, `review_code`, `full_review`, `generate_pr_description`, `run_linter`, `analyze_blame`, `generate_issue`.
 * **15 Ressources + 7 Prompts Templatisés :** 35 fichiers de template dans `templates/gitpr.prompt.*.md`.
+* **Invocation CLI Directe 🆕 :** La commande `gitpr-mcp --tool <name> [--tool-args '<json>']` invoque n'importe quel outil MCP directement sans démarrer le serveur stdio JSON-RPC.
+* **Pattern Registry 🆕 :** `_TOOL_FUNCS` mappe nom d'outil → callable ; `_get_tool_registry()` fusionne avec les métadonnées du catalogue.
+* **Isolation Réelle du Stdout 🆕 :** `_write_real_stdout()` écrit directement sur le `sys.__stdout__` original (sauvegardé avant le monkey-patching), garantissant un JSON pur sur stdout.
+* **Liste des Outils 🆕 :** `gitpr-mcp --tool` (sans nom) liste les 12 outils disponibles avec leurs signatures de paramètres.
+* **Chargement Automatique du .env 🆕 :** Les clés API sont automatiquement disponibles en mode CLI.
+* **Nouveaux Documents MCP 🆕 :** `docs/mcp-annotations.md`, `docs/mcp-integration.md`, `docs/mcp-prompts.md` en 5 langues chacun (15 nouveaux fichiers).
 * **Installeur Automatique :** Configuration des éditeurs pris en charge (VS Code, Cursor, Claude Code, Claude Desktop, Zed) avec fusion JSON intelligente.
 
-### **16. Tableau de Bord de Métriques TUI (`src/ui/metrics_app.py`)**
+### **17. Tableau de Bord de Métriques TUI (`src/ui/metrics_app.py`)**
 
 * **Portée par Dépôt (Repo-Scope) :** Étiquette `📁 Repository: owner/repo` et filtrage strict des événements et données de cache par projet.
-* **Analyse Asynchrone avec Overlay :** Thread worker en arrière-plan qui charge les données de cache tout en affichant le widget `ProgressBar` de Textual.
-* **Consolidation des Données :** `load_cache_token_summary()` additionne les tokens des appels mis en cache au totalisateur du tableau de bord.
+* **Analyse Asynchrone avec Overlay :** Thread worker en arrière-plan avec widget `ProgressBar`.
+* **Consolidation des Données :** `load_cache_token_summary()` additionne les tokens du cache au totalisateur.
 * **Contrôle de l'État du Cache :** Fichier de registre dans `./.gitpr/metrics/{repo}/processed_cache.json`.
-* **Correction des Colonnes au F5 :** Initialisation unique des colonnes (`_setup_columns()`), empêchant la duplication visuelle lors des mises à jour.
 * **Exportation Locale :** Sauvegarde CSV/JSON dans `./.gitpr/metrics/export/`.
 
-### **17. Système de Métriques et Télémétrie (`src/metrics.py`)**
+### **18. Système de Métriques et Télémétrie (`src/metrics.py`)**
 
-* **Portée par Dépôt :** Tous les événements de métriques sont indexés par `repo_name`, permettant l'isolation entre projets.
+* **Portée par Dépôt :** Tous les événements indexés par `repo_name`.
+* **Nouveaux Événements :** Événements pour le listage des fichiers non-stagés et l'export de télémétrie.
 * **Événements de Hook :** `log_hook_event()` pour les hooks Git (pre-commit, prepare-commit-msg, post-checkout, pre-push, post-merge).
-* **Événements de Linter et Blame :** `log_linter_metric()` pour le linter standalone, `log_blame_metric()` pour l'archéologie de code.
+* **Événements Linter et Blame :** `log_linter_metric()` et `log_blame_metric()`.
 * **Exportation Locale :** `--metrics --export` génère CSV et JSON dans `./.gitpr/metrics/export/` avec filtre par dépôt.
 * **Nettoyage :** `--metrics --purge` supprime tous les fichiers de métriques locaux avec confirmation interactive.
 
-### **18. Synchronisation des Hooks Git**
+### **19. Synchronisation des Git Hooks**
 
-* **Versionnage Indépendant :** `__scripts_version__` (v0.0.1) dans `updater.py` contrôle la version des scripts de hook séparément des dictionnaires de langue.
-* **Détection Automatique :** Lors de l'exécution de `--installhooks`, le système compare la version locale (stockée dans le `.env`) avec la version la plus récente et la met à jour automatiquement si nécessaire.
-* **Sensible à la Langue :** Détecte la langue configurée et télécharge les templates de hook correspondants.
+* **Versionnage Indépendant :** `__scripts_version__` (v0.0.1) contrôle la version des scripts de hook.
+* **Détection Automatique :** Compare la version locale avec la plus récente et met à jour automatiquement.
+* **Sensible à la Langue :** Télécharge les templates de hook correspondant à la langue configurée.
 
 ---
 
@@ -214,32 +217,35 @@
 |------------------|----------|------|
 | `tests/test_core.py` | 25+ | Flux principaux, git diff, génération de PR, timing |
 | `tests/test_chat_backend.py` | 30+ | Mémoire de chat, persistance, commandes slash |
-| `tests/test_skill_command.py` | 10+ | Téléchargement et validation des templates de skills |
-| `tests/test_pre_save.py` | 10+ | Flag --pre-save et payload JSON |
+| `tests/test_plugins.py` | 17 | Découverte de plugins, fusion des règles linter, prompts MCP |
+| `tests/test_mcp_server.py` | 75+ 🆕 | Outils MCP, ressources, annotations, patching, CLI directe |
+| `tests/test_metrics.py` | 36+ | Collecte, export local, portée repo, cache token summary, duration_ms |
 | `tests/test_smart_excludes.py` | 14+ | Filtre pathspec intelligent |
-| `tests/test_thinking_words.py` | 10+ | Chargement et parsing avec séparateur `;` |
 | `tests/test_mcp_prompts.py` | 11 | Templates de prompts MCP et repli de langue |
-| `tests/test_mcp_server.py` | 33 | Outils MCP, ressources, annotations et patching |
-| `tests/test_metrics.py` | 36+ | Collecte, exportation locale, portée repo, cache token summary, duration_ms |
-| `tests/test_install_wizard.py` | 5+ | Assistant d'installation interactif |
 | `tests/test_blame_metrics.py` | 10+ | Métriques de blame : profondeur, commits, durée |
 | `tests/test_linter_metrics.py` | 8+ | Métriques de linter : erreurs, avertissements, durée |
+| `tests/test_thinking_words.py` | 9+ | Chargement et parsing avec séparateur `;` |
+| `tests/test_skill_command.py` | 5+ | Téléchargement et validation des templates de skills |
+| `tests/test_install_wizard.py` | 5+ | Assistant d'installation interactif |
+| `tests/test_pre_save.py` | 3+ | Flag --pre-save et payload JSON |
 | `tests/sync_i18n.py` | — | Script de vérification de la couverture i18n (clés orphelines) |
 
-**Total :** 131 scénarios de test automatisés réussis avec 100% de succès.
+**Total :** 207 scénarios de tests automatisés réussis (13 fichiers de test). 1 échec connu dans `test_metrics.py::test_app_skips_export_and_config_files` (préexistant, sans lien avec les changements récents).
 
 ---
 
 ## **🌐 Internationalisation et Documentation**
 
-* **Couverture i18n Étendue 🆕 :** ~623 clés de traduction en pt_BR (étaient 491 dans v0.0.32, +132 nouvelles). Nouvelles chaînes couvrant le PR Publisher TUI, les écrans modaux de commit, le flux de staging et la documentation.
-* **Nouvelle Documentation Technique 🆕 :** `docs/pull-request-publication.md` en 5 langues (EN, PT-BR, PT-PT, ES, FR) avec couverture complète du flux de publication de PR, des variables d'environnement et du dépannage.
-* **CHANGELOG.md 🆕 :** Historique complet de toutes les versions (v0.0.1 → v0.0.33) au format Keep a Changelog avec les sections Added, Changed et Fixed.
-* **READMEs Mis à Jour 🆕 :** Les 5 READMEs mis à jour avec les fonctionnalités du PR Publisher, la structure de répertoires `.gitpr/reports/` et les liens vers la documentation.
-* **Documentation en 5 langues :** 24 sujets dans `docs/` traduits en EN, PT-BR, PT-PT, ES, FR (+1 nouveau sujet : pull-request-publication).
-* **Memory Index :** `.claude/memory/MEMORY.md` avec 14 patrons d'architecture extraits de 36 rapports.
-* **Rapports de tâches :** `docs/claude-code/reports/` et `docs/reports/` (8 rapports de statut).
-* **Plans de développement :** 8+ plans documentés dans `docs/plans/`.
+* **Couverture i18n :** 503 clés de traduction en pt_BR.
+* **Nouveaux Documents Techniques 🆕 :** 3 nouveaux sujets MCP en 5 langues chacun (15 fichiers) :
+  - `docs/mcp-annotations.md` — catalogue des annotations des 12 outils MCP
+  - `docs/mcp-integration.md` — guide d'intégration MCP pour les éditeurs (VS Code, Cursor, Claude Code, Claude Desktop, Zed)
+  - `docs/mcp-prompts.md` — référence des 7 prompts MCP templatisés
+* **Documentation Existante :** `docs/plugins-system.md`, `docs/smart-excludes.md`, `docs/untracked-files.md` et plus — le tout en 5 langues.
+* **Documentation en 5 langues :** 37 sujets uniques dans `docs/` (+3 nouveaux sujets MCP).
+* **Memory Index :** `.claude/memory/MEMORY.md` avec 20 patterns d'architecture (+2 nouveaux : mcp-tool-cli-invocacao-direta, merge-conflict-error-handling).
+* **Rapports de tâches :** `docs/claude-code/reports/` et `docs/reports/` (10 rapports de statut).
+* **Plans de développement :** 10+ plans documentés dans `docs/plans/`.
 
 ---
 
@@ -252,43 +258,40 @@
 
 ---
 
-## **📈 Évolution depuis le Rapport Précédent (v0.0.7)**
+## **📈 Évolution depuis le Rapport Précédent (v0.0.9)**
 
-| Domaine | v0.0.7 (précédent) | v0.0.8 (actuel) |
+| Domaine | v0.0.9 (précédent) | v0.0.10 (actuel) |
 |------|-------------------|----------------|
-| **Version GitPR** | 0.0.32 | **0.0.33** |
-| **Version Langue** | v0.0.10 | **v0.0.11** |
-| **Version Scripts Hook** | v0.0.1 | v0.0.1 |
+| **Version GitPR** | 0.0.34 | **0.0.35** |
+| **Version des Langues** | v0.0.12 | **v0.0.13** |
+| **Version des Scripts de Hook** | v0.0.1 | v0.0.1 |
 | **Fournisseurs IA** | Gemini + DeepSeek + Ollama | Gemini + DeepSeek + Ollama |
 | **Langues** | 5 (en, pt_br, pt_pt, es_es, fr_fr) | 5 (en, pt_br, pt_pt, es_es, fr_fr) |
-| **Interface** | CLI + TUI Issues + Chat TUI + Serveur MCP + Dashboard | CLI + TUI Issues + Chat TUI + Serveur MCP + Dashboard + **PR Publisher TUI** |
-| **Publication de PR** | Génération locale de .md uniquement | **TUI interactive complète + auto-commit + push + publication via API** |
-| **Comportement par Défaut** | `gitpr` génère un fichier local | **`gitpr` ouvre la TUI du PR Publisher** |
-| **Écrans TUI (total)** | 3 (issues, chat, metrics) | **5 apps TUI + 6 écrans modaux de commit** |
-| **API GitHub** | Issues via REST | **+ PR (create, update, merge) via module dédié** |
-| **Nouveaux Flags CLI** | 21 flags | **24 flags (+ `--publish`, `--no-publish`, `--no-edit`, `--base`)** |
-| **Variables d'Environnement** | 7 vars | **13 vars (+6 : AUTO_COMMIT, SKIP_LINT, AUTO_STAGE, SKIP_UNSTAGED, SHOW_LOGS, AUTO_MERGE)** |
-| **Traductions pt_BR** | 491 clés | **~623 clés (+132 PR Publisher et flux de commit)** |
-| **Modules Python** | 21 fichiers dans src/ | **25 fichiers (+ github_api.py, pr_publish_app.py, pr_publish_help.py)** |
-| **Documentation** | 23 sujets | **24 sujets (+ pull-request-publication.md en 5 langues)** |
-| **CHANGELOG** | — (uniquement GitHub Releases) | **Historique complet des 8 versions (v0.0.1 → v0.0.33)** |
-| **Suite de Tests** | 131 scénarios (12 fichiers) | 131 scénarios (12 fichiers) |
-| **Commits depuis v0.0.32** | — | **7 commits (PR Publisher + flux de merge)** |
+| **Interface** | CLI + TUI Issues + Chat TUI + MCP Server + Dashboard + PR Publisher TUI | CLI + TUI Issues + Chat TUI + MCP Server + Dashboard + PR Publisher TUI + **CLI MCP Directe** |
+| **Outils MCP** | 10 outils | **12 outils (+ list_unstaged_files, analyze_unstaged_diff)** |
+| **CLI MCP Directe** | — | **`gitpr-mcp --tool <name>` — invocation directe sans serveur** |
+| **Gestion du Merge de PR** | Le flux ignorait les erreurs de merge | **Modal d'erreur pour HTTP 405 (conflits) + retour visuel** |
+| **Flags CLI** | 25 flags | **26 flags (+ `--version`)** |
+| **Variables d'Environnement** | 16 vars | 16 vars |
+| **Documentation** | 34 sujets | **37 sujets (+3 : mcp-annotations, mcp-integration, mcp-prompts en 5 langues)** |
+| **Suite de Tests** | 171 scénarios (13 fichiers) | **207 scénarios (13 fichiers, +36 tests MCP)** |
+| **Commits depuis v0.0.34** | — | **2 commits (mcp-tool-cli + merge-error-handling)** |
+| **PR Fusionnés** | — | **2 PR (#107, #110)** |
 
 ---
 
 ## **🚧 Prochaines Étapes**
 
-* **Tests pour le PR Publisher :** Couverture des tests unitaires et d'intégration pour le flux de publication de PR (`pr_publish_app.py`, `github_api.py`).
+* **Tests pour le PR Publisher :** Couverture de tests unitaires et d'intégration pour le flux de publication des PR (`pr_publish_app.py`, `github_api.py`).
 * **Tests d'intégration de bout en bout pour MCP :** Validation des appels d'outils et des prompts via un client stdio simulé.
 * **Fournisseur Anthropic Claude :** Support direct de l'API Claude (`claude-sonnet-5`).
 * **Graphiques ASCII/Textual dans le Dashboard :** Ajouter des histogrammes de temps et des graphiques de tendance de tokens dans la TUI de métriques.
 * **Pipeline de Release dans GitHub Actions :** Automatisation complète du build PyInstaller et envoi des assets vers GitHub Releases.
 * **Plus de fournisseurs :** OpenAI direct, fournisseurs locaux supplémentaires.
-* **Système de plugins :** Extensibilité pour les règles de linter et les prompts personnalisés.
+* **Commande locale `--init` :** Amorçage de `.gitpr/conf/` avec des templates de configuration locale (smart-excludes, linter, etc.).
 
 ---
 
-**Rapport généré le :** 2026-08-09  
+**Rapport généré le :** 2026-08-11  
 **Branche :** `develop_natan`  
 **Auteur :** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))
