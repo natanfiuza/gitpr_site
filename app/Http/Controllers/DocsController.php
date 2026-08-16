@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Support\NewsletterTranslations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -21,6 +22,12 @@ class DocsController extends Controller
      */
     public function show_document(Request $request, string $page = 'index')
     {
+        // Newsletter content lives under public/content but must not be
+        // reachable as a docs page through the catch-all route.
+        if (str_starts_with($page, 'newsletter/')) {
+            abort(404, 'Documento não encontrado.');
+        }
+
         $lang = $request->query('lang', 'en');
 
         $base_path = public_path("content/{$page}");
@@ -64,6 +71,12 @@ class DocsController extends Controller
             'fr'    => ['on_this_page' => 'Sur cette page', 'menu' => 'Menu', 'contributors' => 'Contributeurs'],
             'es'    => ['on_this_page' => 'En esta página', 'menu' => 'Menú', 'contributors' => 'Contribuidores'],
         ];
+
+        // Newsletter strings (signup box in the docs layout) ride along.
+        $ui_strings[$lang] = array_merge(
+            $ui_strings[$lang] ?? $ui_strings['en'],
+            NewsletterTranslations::for($lang)
+        );
 
         // Extract collaborator GitHub usernames from contribuicao.md
         $collaborator_usernames = [];
