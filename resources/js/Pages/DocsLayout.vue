@@ -21,34 +21,8 @@
         </Head>
 
         <!-- Top Bar (fixed) -->
-        <header
-            class="flex-shrink-0 h-14 bg-white border-b border-slate-200 dark:bg-gitpr_dark dark:border-gitpr_dark_border flex items-center px-4 lg:px-6 z-50 transition-colors duration-300">
-            <!-- Brand -->
-            <Link href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <span
-                    class="font-bold text-xl text-slate-900 dark:text-gitpr_text transition-colors duration-300">GitPR</span>
-                <span class="text-xs text-gitpr_cyan_dark hidden sm:inline">[ CLI ]</span>
-            </Link>
-
-            <!-- Right: GitHub + Theme + Language + Mobile Toggle -->
-            <div class="flex items-center gap-3 ml-auto">
-                <a href="https://github.com/natanfiuza/gitpr" target="_blank" rel="noopener noreferrer"
-                    class="flex items-center gap-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-gitpr_text transition-colors group"
-                    title="GitHub Repository">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
-                    </svg>
-                    <span v-if="release_tag" class="text-xs font-mono bg-slate-200 dark:bg-gitpr_dark_border text-slate-600 dark:text-gitpr_cyan_light px-1.5 py-0.5 rounded group-hover:text-gitpr_primary transition-colors">{{ release_tag }}</span>
-                </a>
-                <SearchBar :current_lang="current_lang" class="hidden md:block" />
-                <ThemeToggle />
-                <LanguageSelector :current_lang="current_lang" />
-                <button @click="is_mobile_menu_open = !is_mobile_menu_open"
-                    class="md:hidden text-gitpr_cyan_light border border-gitpr_dark_border px-3 py-1 rounded text-sm">
-                    ☰
-                </button>
-            </div>
-        </header>
+        <SiteHeader :current_lang="current_lang" show_github show_version show_search show_mobile_toggle
+            @toggle-mobile="is_mobile_menu_open = !is_mobile_menu_open" />
 
         <!-- Body: Sidebar + Content -->
         <div class="flex-1 flex overflow-hidden">
@@ -64,6 +38,7 @@
                     ✕
                 </button>
                 <div class="mt-8 mb-6 md:hidden">
+                    <NewsletterBox :current_lang="current_lang" :ui_strings="ui_strings" class="mb-6" />
                     <SearchBar :current_lang="current_lang" />
                 </div>
                 <nav>
@@ -146,6 +121,11 @@
                         <span v-if="toc_at_bottom" class="transform rotate-180">▼</span>
                         <span v-else>▼</span>
                     </button>
+
+                    <!-- Newsletter signup -->
+                    <div class="mt-4 pt-4 border-t border-slate-200 dark:border-gitpr_dark_border">
+                        <NewsletterBox :current_lang="current_lang" :ui_strings="ui_strings" />
+                    </div>
                 </aside>
             </main>
         </div>
@@ -156,9 +136,9 @@
 import { ref, watch, nextTick, onMounted, computed } from 'vue';
 import { Link, Head, router } from '@inertiajs/vue3';
 import MarkdownViewer from '../Components/MarkdownViewer.vue';
-import LanguageSelector from '../Components/LanguageSelector.vue';
+import NewsletterBox from '../Components/NewsletterBox.vue';
 import SearchBar from '../Components/SearchBar.vue';
-import ThemeToggle from '../Components/ThemeToggle.vue';
+import SiteHeader from '../Components/SiteHeader.vue';
 
 const props = defineProps({
     content: String,
@@ -182,7 +162,6 @@ const props = defineProps({
 });
 
 const is_mobile_menu_open = ref(false);
-const release_tag = ref('');
 const collaborators = ref([]);
 
 // ── Collapsible menu sections ────────────────────────────────────
@@ -333,17 +312,6 @@ onMounted(async () => {
 
     if (saved_lang && saved_lang !== props.current_lang && !url_params.has('lang')) {
         router.get(window.location.pathname, { lang: saved_lang }, { preserveScroll: true, replace: true });
-    }
-
-    // Fetch latest GitHub release
-    try {
-        const resp = await fetch('https://api.github.com/repos/natanfiuza/gitpr/releases/latest');
-        if (resp.ok) {
-            const data = await resp.json();
-            release_tag.value = data.tag_name || '';
-        }
-    } catch (_) {
-        // Silently fail — the badge just won't show
     }
 });
 </script>

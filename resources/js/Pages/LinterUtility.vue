@@ -2,24 +2,7 @@
   <div class="min-h-screen bg-slate-50 text-slate-900 dark:bg-gitpr_dark dark:text-gitpr_text font-sans selection:bg-gitpr_primary selection:text-white flex flex-col">
     <Head :title="t.page_title" />
 
-    <header class="flex-shrink-0 h-14 bg-white border-b border-slate-200 dark:bg-gitpr_dark dark:border-gitpr_dark_border flex items-center px-4 lg:px-6 z-50 transition-colors duration-300">
-      <div class="w-full max-w-7xl mx-auto flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <Link href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <span class="font-bold text-xl text-slate-900 dark:text-gitpr_text transition-colors duration-300">GitPR</span>
-                <span class="text-xs text-gitpr_cyan_dark hidden sm:inline">[ CLI ]</span>
-            </Link>
-            <span class="ml-2 text-sm font-medium text-slate-500 dark:text-slate-400">| Linter Utility</span>
-        </div>
-        <div class="flex items-center gap-4">
-          <Link :href="'/index' + (current_lang !== 'en' ? '?lang=' + current_lang : '')" class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-gitpr_primary transition-colors">
-            {{ t.back_to_docs }}
-          </Link>
-          <ThemeToggle />
-          <LanguageSelector :current_lang="current_lang" />
-        </div>
-      </div>
-    </header>
+    <SiteHeader :current_lang="current_lang" subtitle="Linter Utility" :back_to_docs_label="t.back_to_docs" contained />
 
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex gap-8 w-full">
       
@@ -169,11 +152,10 @@
 
 <script setup>
 import { ref, computed, watch, shallowRef, markRaw } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { parseDocument, Document, isSeq, isMap } from 'yaml';
 import Modal from '@/Components/Modal.vue';
-import LanguageSelector from '@/Components/LanguageSelector.vue';
-import ThemeToggle from '@/Components/ThemeToggle.vue';
+import SiteHeader from '@/Components/SiteHeader.vue';
 
 const props = defineProps({
     templates: Array,
