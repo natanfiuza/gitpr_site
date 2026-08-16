@@ -101,15 +101,15 @@ the same results from the terminal using `--tool`:
 > **Note:** `--tool` invokes tools only — prompts (message templates) are not
 > executable. Use `gitpr-mcp --list` to see all resources and prompts, then run
 > the underlying tool with `--tool`. See
-> [MCP Integration — Direct CLI Invocation](docs/mcp-integration?lang=en_us#direct-cli-invocation)
+> [MCP Integration — Direct CLI Invocation](mcp-integration.md#direct-cli-invocation)
 > for details.
 
 ## 📚 Related Documentation
 
-- [MCP Integration](docs/mcp-integration?lang=en_us) — How to set up MCP for your editor
-- [AI Code Review](docs/code-review-ia?lang=en_us) — Guide to code review modes
-- [AI Commit Messages](docs/commit-message-ia?lang=en_us) — Conventional Commits guide
-- [PR Description Mode](docs/pr-descricao-padrao?lang=en_us) — PR generation flow
+- [MCP Integration](mcp-integration.md) — How to set up MCP for your editor
+- [AI Code Review](code-review-ia.md) — Guide to code review modes
+- [AI Commit Messages](commit-message-ia.md) — Conventional Commits guide
+- [PR Description Mode](pr-descricao-padrao.md) — PR generation flow
 
 ---
 **Pro tip:** Combine prompts with skills (`.gitpr.*.md` files) to customize

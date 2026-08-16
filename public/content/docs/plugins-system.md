@@ -199,6 +199,6 @@ Rules are **additive** — global plugins never replace local rules; they are ad
 
 ## 📚 See Also
 
-- [Custom Linter Rules](linter-regras-customizadas) — How to write `.gitpr.linter.yml` rules
-- [Skills and Templates](skill-template) — Project-local AI prompts and rules
-- [MCP Integration](mcp-integration) — Using GitPR with AI editors
+- [Custom Linter Rules](linter-regras-customizadas.md) — How to write `.gitpr.linter.yml` rules
+- [Skills and Templates](skill-template.md) — Project-local AI prompts and rules
+- [MCP Integration](https://gitpr.natanfiuza.dev.br/docs/mcp) — Using GitPR with AI editors

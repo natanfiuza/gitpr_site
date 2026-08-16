@@ -4,21 +4,21 @@ O sistema de plugins do GitPR permite-lhe estender as capacidades da ferramenta 
 
 ## 📂 Estrutura de Diretórios
 
-Os plugins são armazenados na sua pasta de configuração global do GitPR:
+Os plugins são armazenados na pasta global de configuração do GitPR:
 
 ```
 ~/.gitpr/plugins/
-├── linter/          # Global linter rule packs (.yml / .yaml)
+├── linter/          # Pacotes globais de regras de linter (.yml / .yaml)
 │   ├── security.yml
 │   ├── no-debug.yml
 │   └── php-psr.yml
-└── prompts/         # Custom AI prompt templates (.md)
+└── prompts/         # Modelos de prompts de IA personalizados (.md)
     ├── audit_security.md
     ├── generate_tests.md
     └── explain_to_business.md
 ```
 
-> **Dica:** Estes diretórios são criados automaticamente quando executa qualquer comando do GitPR. Pode também executar `gitpr --plugins` para verificar se existem e listar todos os plugins ativos.
+> **Dica:** Estes diretórios são criados automaticamente quando executa qualquer comando do GitPR. Também pode executar `gitpr --plugins` para verificar se existem e listar todos os plugins ativos.
 
 ---
 
@@ -26,26 +26,26 @@ Os plugins são armazenados na sua pasta de configuração global do GitPR:
 
 ### O que são
 
-Os plugins de linter são ficheiros YAML que contêm regras no mesmo formato do `.gitpr.linter.yml`, mas aplicadas **globalmente** — em todos os projetos da sua máquina.
+Plugins de linter são ficheiros YAML contendo regras no mesmo formato do `.gitpr.linter.yml`, mas aplicadas **globalmente** — em todos os projetos da sua máquina.
 
 ### Diferença entre Local e Global
 
 | Aspeto | Local (`.gitpr.linter.yml`) | Global (`~/.gitpr/plugins/linter/*.yml`) |
 |--------|---------------------------|----------------------------------------|
-| **Âmbito** | Específico do projeto | Todos os projetos da máquina |
-| **Versionamento** | Incluído no repositório do projeto | Pessoal — não versionado por projeto |
-| **Caso de utilização** | Convenções da equipa para um repositório | Padrões pessoais, verificações de segurança |
+| **Âmbito** | Específico do projeto | Todos os projetos na máquina |
+| **Versionamento** | Commitado com o projeto | Pessoal — não versionado por projeto |
+| **Uso típico** | Convenções da equipa para um repo | Padrões pessoais, verificações de segurança |
 
 ### Como funciona
 
-Quando o GitPR executa o linter (através de `-l`, `-r`, `-f`, ou hooks de pre-commit), ele:
+Quando o GitPR executa o linter (via `-l`, `-r`, `-f` ou hooks de pre-commit), ele:
 
-1. Carrega as regras do `.gitpr.skill/.gitpr.linter.yml` local (se existir)
-2. Percorre todos os ficheiros `.yml` e `.yaml` em `~/.gitpr/plugins/linter/`
-3. Funde os dois conjuntos numa única lista de regras
-4. Executa as regras combinadas sobre o diff
+1. Carrega as regras do ficheiro local `.gitpr.skill/.gitpr.linter.yml` (se existir)
+2. Itera sobre todos os ficheiros `.yml` e `.yaml` em `~/.gitpr/plugins/linter/`
+3. Une ambos os conjuntos numa única lista de regras
+4. Executa as regras combinadas contra o diff
 
-Se um plugin global tiver YAML inválido, o GitPR mostra um **aviso amarelo** e continua — o seu fluxo de trabalho nunca é bloqueado por um plugin defeituoso.
+Se um plugin global tiver YAML inválido, o GitPR mostra um **aviso amarelo** e continua — o seu fluxo nunca é bloqueado por um plugin corrompido.
 
 ### Exemplo: Pacote de Segurança
 
@@ -53,34 +53,34 @@ Crie `~/.gitpr/plugins/linter/security.yml`:
 
 ```yaml
 rules:
-  - name: "AWS Access Key leak"
+  - name: "Fuga de Access Key da AWS"
     regex: "AKIA[0-9A-Z]{16}"
     severity: error
-    message: "AWS Access Key ID found — this should never be committed."
+    message: "Chave de acesso AWS encontrada — isto nunca deve ser commitado."
 
-  - name: "Generic password assignment"
+  - name: "Password hardcoded"
     regex: "(?i)(password|passwd|senha)\\s*=\\s*['\"][^'\"]+['\"]"
     severity: warning
-    message: "Hardcoded password detected. Use environment variables."
+    message: "Password hardcoded detetada. Utilize variáveis de ambiente."
 ```
 
-### Exemplo: Pacote No-Debug
+### Exemplo: Pacote Anti-Debug
 
 Crie `~/.gitpr/plugins/linter/no-debug.yml`:
 
 ```yaml
 rules:
-  - name: "console.log left behind"
+  - name: "console.log esquecido"
     regex: "console\\.log\\("
     severity: error
     extensions: [".js", ".ts", ".jsx", ".tsx"]
-    message: "Remove console.log() before committing."
+    message: "Remova console.log() antes de commitar."
 
-  - name: "var_dump left behind"
+  - name: "var_dump esquecido"
     regex: "var_dump\\("
     severity: error
     extensions: [".php"]
-    message: "Remove var_dump() before committing."
+    message: "Remova var_dump() antes de commitar."
 ```
 
 ---
@@ -89,10 +89,10 @@ rules:
 
 ### O que são
 
-Os plugins de prompt são ficheiros Markdown (`.md`) que definem prompts de IA personalizados. Cada ficheiro fica disponível como:
+Plugins de prompt são ficheiros Markdown (`.md`) que definem prompts de IA personalizados. Cada ficheiro fica disponível como:
 
-- Um **Recurso MCP** em `prompt://plugin/<filename>`
-- Um **Prompt MCP** com o nome `Plugin: <filename>`
+- Um **Recurso MCP** em `prompt://plugin/<nomedoficheiro>`
+- Um **Prompt MCP** chamado `Plugin: <nomedoficheiro>`
 
 Isto permite que editores com IA (VS Code, Cursor, Claude Desktop, Zed) utilizem os seus fluxos de trabalho personalizados.
 
@@ -100,9 +100,9 @@ Isto permite que editores com IA (VS Code, Cursor, Claude Desktop, Zed) utilizem
 
 No arranque do servidor MCP (`gitpr --mcp`), o GitPR:
 
-1. Analisa `~/.gitpr/plugins/prompts/` à procura de ficheiros `.md`
+1. Examina `~/.gitpr/plugins/prompts/` em busca de ficheiros `.md`
 2. Regista cada um como recurso e prompt MCP
-3. Lista-os juntamente com os prompts incorporados em `prompt://list`
+3. Lista-os juntamente com os prompts nativos em `prompt://list`
 
 ### Exemplo: Auditor de Segurança
 
@@ -156,7 +156,7 @@ Output a ready-to-run PHPUnit test class with:
 
 ---
 
-## 🖥️ CLI: Listar Plugins Ativos
+## 🖥️ CLI: Listando Plugins Ativos
 
 Execute `gitpr --plugins` para ver todos os plugins instalados:
 
@@ -173,32 +173,32 @@ Execute `gitpr --plugins` para ver todos os plugins instalados:
 💡 Plugin directory: ~/.gitpr/plugins/
 ```
 
-Utilize `gitpr -h --plugins` para obter ajuda contextual sobre o sistema de plugins.
+Utilize `gitpr -h --plugins` para ajuda contextual sobre o sistema de plugins.
 
 ---
 
 ## 🔄 Ordem de Execução e Precedência
 
-| Camada | Prioridade | Comportamento de sobreposição |
-|-------|----------|-------------------|
-| Local `.gitpr.linter.yml` | Carregada primeiro | — |
-| Global `plugins/linter/*.yml` | Acrescentada depois da local | Mesmo nome de regra = ambas executam (sem deduplicação) |
+| Camada | Prioridade | Comportamento |
+|--------|-----------|---------------|
+| Local `.gitpr.linter.yml` | Carregado primeiro | — |
+| Global `plugins/linter/*.yml` | Adicionado depois | Mesma regra = ambas executam (sem dedup) |
 
-As regras são **aditivas** — os plugins globais nunca substituem as regras locais; são adicionadas juntamente com elas.
+As regras são **aditivas** — plugins globais nunca substituem regras locais; são adicionadas juntamente com elas.
 
 ---
 
 ## 🛡️ Tratamento de Erros
 
-- **YAML global malformado** → Aviso amarelo, plugin ignorado. O fluxo principal continua.
-- **Diretório de plugins em falta** → Ignorado silenciosamente. Sem avisos.
+- **YAML global mal formatado** → Aviso amarelo, plugin ignorado. Fluxo principal continua.
+- **Diretório de plugin ausente** → Ignorado silenciosamente. Sem avisos.
 - **Ficheiro de plugin vazio** → Ignorado sem mensagem.
-- **Arranque do servidor MCP** → As falhas de registo de plugins são capturadas silenciosamente. O MCP arranca normalmente.
+- **Arranque do servidor MCP** → Falhas no registo de plugins são capturadas silenciosamente. MCP inicia normalmente.
 
 ---
 
-## 📚 Ver Também
+## 📚 Veja Também
 
-- [Regras de Linter Personalizadas](linter-regras-customizadas) — Como escrever regras `.gitpr.linter.yml`
-- [Skills e Modelos](skill-template) — Prompts de IA e regras locais do projeto
-- [Integração MCP](mcp-integration) — Utilizar o GitPR com editores de IA
+- [Regras de Linter Personalizadas](linter-regras-customizadas.md) — Como escrever regras `.gitpr.linter.yml`
+- [Sistema de Skills e Templates](skill-template.md) — Prompts e regras de IA locais do projeto
+- [Integração MCP](https://gitpr.natanfiuza.dev.br/docs/mcp) — Usando GitPR com editores de IA

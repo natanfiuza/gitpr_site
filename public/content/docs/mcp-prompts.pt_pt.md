@@ -88,31 +88,31 @@ URI `prompt://`, para que os agentes de IA possam ler o conteúdo bruto do model
 
 ## 🔧 Equivalentes via CLI
 
-Embora os prompts MCP sejam modelos de mensagem para chats de IA nos editores,
-pode obter os mesmos resultados do terminal utilizando `--tool`:
+Embora os prompts MCP sejam modelos de mensagens para o chat de IA do editor, pode
+obter os mesmos resultados do terminal usando `--tool`:
 
 | Prompt | Equivalente CLI |
 | ------ | --------------- |
-| Review PR | `gitpr-mcp --tool full_review` |
-| Generate Commit Message | `gitpr-mcp --tool generate_commit_message` |
-| Create PR Description | `gitpr-mcp --tool generate_pr_description` |
-| Run Code Linter | `gitpr-mcp --tool run_linter` |
-| Create Issue from Diff | `gitpr-mcp --tool generate_issue` |
-| Trace Code Origin | `gitpr-mcp --tool analyze_blame --tool-args '{"file_path":"...","start_line":"...","end_line":"..."}'` |
-| Explore Project Context | `gitpr-mcp --tool get_git_context` |
+| Revisar PR | `gitpr-mcp --tool full_review` |
+| Gerar Mensagem de Commit | `gitpr-mcp --tool generate_commit_message` |
+| Criar Descrição de PR | `gitpr-mcp --tool generate_pr_description` |
+| Executar Linter | `gitpr-mcp --tool run_linter` |
+| Criar Issue a partir do Diff | `gitpr-mcp --tool generate_issue` |
+| Rastrear Origem do Código | `gitpr-mcp --tool analyze_blame --tool-args '{"file_path":"...","start_line":"...","end_line":"..."}'` |
+| Explorar Contexto do Projeto | `gitpr-mcp --tool get_git_context` |
 
-> **Nota:** `--tool` invoca apenas ferramentas — prompts (modelos de mensagem)
-> não são executáveis. Utilize `gitpr-mcp --list` para ver todos os recursos e
-> prompts, depois execute a ferramenta subjacente com `--tool`. Consulte
-> [Integração MCP — Invocação Direta via CLI](docs/mcp-integration?lang=pt_pt#direct-cli-invocation)
+> **Nota:** `--tool` invoca apenas ferramentas — prompts (modelos de mensagem) não
+> são executáveis. Use `gitpr-mcp --list` para ver todos os recursos e prompts, depois
+> execute a ferramenta subjacente com `--tool`. Veja
+> [Integração MCP — Invocação Direta via CLI](mcp-integration.md#invocação-direta-via-cli)
 > para detalhes.
 
 ## 📚 Documentação Relacionada
 
-- [Integração MCP](docs/mcp-integration?lang=pt_pt) — Como configurar o MCP para o seu editor
-- [Code Review com IA](docs/code-review-ia?lang=pt_pt) — Guia dos modos de revisão de código
-- [Mensagens de Commit com IA](docs/commit-message-ia?lang=pt_pt) — Guia de Conventional Commits
-- [Modo de Descrição de PR](docs/pr-descricao-padrao?lang=pt_pt) — Fluxo de geração de PR
+- [Integração MCP](mcp-integration.md) — Como configurar o MCP para o seu editor
+- [Code Review com IA](code-review-ia.md) — Guia dos modos de revisão de código
+- [Mensagens de Commit com IA](commit-message-ia.md) — Guia de Conventional Commits
+- [Modo de Descrição de PR](pr-descricao-padrao.md) — Fluxo de geração de PR
 
 ---
 **Dica profissional:** Combine prompts com skills (ficheiros `.gitpr.*.md`) para

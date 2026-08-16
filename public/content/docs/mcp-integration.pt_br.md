@@ -33,9 +33,8 @@ O instalador:
 
 ## Invocação Direta via CLI
 
-Você pode invocar qualquer ferramenta MCP diretamente do terminal sem iniciar o
-servidor. Isso é útil para depuração, scripts e teste de ferramentas sem um
-cliente MCP.
+Você pode invocar qualquer ferramenta MCP diretamente do terminal sem iniciar o servidor.
+Isso é útil para debugging, scripting e teste de ferramentas sem um cliente MCP.
 
 ```bash
 # Ferramentas sem parâmetros
@@ -52,11 +51,11 @@ gitpr-mcp --tool generate_issue --tool-args '{"context_type":"history"}'
 gitpr-mcp --tool
 ```
 
-A saída JSON vai para stdout; todas as mensagens de diagnóstico (spinners, banners,
-logs) vão para stderr. A configuração do `.env` é carregada automaticamente, então
-as chaves de API funcionam sem prompts interativos.
+A saída JSON vai para stdout; todas as mensagens de diagnóstico (spinners, banners, logs)
+vão para stderr. A configuração do `.env` é carregada automaticamente, então as chaves
+de API funcionam sem prompts interativos.
 
-> **Nota:** No Prompt de Comando do Windows, use aspas duplas para `--tool-args` e
+> **Nota:** No Windows Command Prompt, use aspas duplas para `--tool-args` e
 > escape as aspas internas: `"{\"file_path\":\"src/main.py\",\"start_line\":\"10\"}"`.
 > PowerShell e shells Unix aceitam aspas simples como mostrado acima.
 
@@ -66,6 +65,8 @@ as chaves de API funcionam sem prompts interativos.
 |-----------|-------------|
 | `get_git_context` | Branch atual, nome do repositório e URL do remote |
 | `analyze_diff` | Diff git das alterações não commitadas (`git diff HEAD`) |
+| `list_unstaged_files` | Arquivos não commitados agrupados como novos, modificados ou excluídos (JSON estruturado) |
+| `analyze_unstaged_diff` | Apenas alterações não staged (`git diff` — index vs árvore de trabalho) |
 | `get_full_diff` | Diff completo contra origin/main (`git fetch` + diff) |
 | `generate_commit_message` | Mensagem de commit no formato Conventional Commits gerada por IA |
 | `review_code` | Code review com IA das alterações locais (não commitadas) |
@@ -87,6 +88,30 @@ as chaves de API funcionam sem prompts interativos.
 | `skill://issue` | Instruções de IA personalizadas para geração de issues |
 | `skill://blame` | Instruções de IA personalizadas para análise de blame |
 | `linter://config` | Regras YAML do linter (`.gitpr.linter.yml`) |
+
+### Recursos de Prompts
+
+Os templates de prompt também são expostos como recursos — e como prompts
+selecionáveis no chat de IA do seu editor:
+
+| URI | Conteúdo |
+|-----|----------|
+| `prompt://list` | Lista de todas as URIs de templates de prompt disponíveis |
+| `prompt://review` | Code review completo da branch atual |
+| `prompt://commit` | Geração de mensagem Conventional Commits |
+| `prompt://pr` | Geração de descrição de Pull Request |
+| `prompt://linter` | Execução do linter estático nas alterações |
+| `prompt://issue` | Geração de issue estruturada a partir das alterações |
+| `prompt://blame` | Rastreamento de origem de código com git blame + IA |
+| `prompt://explore` | Exploração do contexto do projeto e skills disponíveis |
+
+Prompts personalizados instalados em `~/.gitpr/plugins/` são registrados
+automaticamente como `prompt://plugin/<nome>`.
+
+O servidor também expõe estes **prompts** integrados (mensagens iniciais
+selecionáveis no chat de IA do editor): *Review PR*, *Generate Commit Message*,
+*Create PR Description*, *Run Code Linter*, *Create Issue from Diff*,
+*Trace Code Origin* e *Explore Project Context*.
 
 ## Configuração nos Editores
 

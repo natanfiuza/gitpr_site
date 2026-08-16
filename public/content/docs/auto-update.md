@@ -62,4 +62,4 @@ Before any network operation, GitPR checks connectivity via socket `8.8.8.8:53`.
 
 The local version is defined in `src/updater.py` (`__version__`) and incremented with each release.
 
-> **Note:** See also the [main documentation (README.md)](docs/readme?lang=en_us) for installation and initial setup information.
+> **Note:** See also the [main documentation (README.md)](../README.md) for installation and initial setup information.

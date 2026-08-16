@@ -102,4 +102,4 @@ gitpr -r -i file.py -p deepseek  # Audit with DeepSeek
 | `OUTPUT_FILE_NAME_FULLREVIEW` | `-f` | `{branch}_{datetime}_PR_FULLREVIEW.txt` |
 | `OUTPUT_FILE_NAME_FILEREVIEW` | `-i` | `{branch}_{datetime}_FILE_REVIEW.txt` |
 
-> **Note:** See also the [Linter documentation](docs/linter-regras-customizadas?lang=en_us) for creating static validation rules.
+> **Note:** See also the [Linter documentation](linter-regras-customizadas.md) for creating static validation rules.

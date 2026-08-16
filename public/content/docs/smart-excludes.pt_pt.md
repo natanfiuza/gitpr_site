@@ -61,7 +61,7 @@ Desta forma, a IA sabe quais documentos foram alterados — um contexto útil pa
 | `templates/gitpr.docs-smart-excludes.json` | Extensões de documentação | Remoto (GitHub) |
 | `~/.gitpr/conf/gitpr.smart-excludes.json` | Cache local das exclusões centrais | Descarregamento automático |
 | `~/.gitpr/conf/gitpr.docs-smart-excludes.json` | Cache local das exclusões de documentação | Descarregamento automático |
-| `./.gitpr/conf/gitpr.smart-excludes.json` | **Exclusões específicas do projeto** (opcional) | Criado pelo utilizador (versionável) |
+| `./.gitpr/conf/gitpr.smart-excludes.json` | Exclusões **específicas do projeto** (opcional) | Criado pelo utilizador (versionável) |
 
 Ambos os templates remotos são **versionados** — o GitPR volta a descarregá-los automaticamente quando é publicada uma nova versão (acionado pelo marcador `__lang_version__`). Nunca precisa de atualizar estes ficheiros manualmente.
 
@@ -69,11 +69,11 @@ Ambos os templates remotos são **versionados** — o GitPR volta a descarregá-
 
 Ao iniciar, o GitPR carrega cada lista de exclusões através de uma cadeia de fallback:
 
-1. **Cache local** — `~/.gitpr/conf/` (mais rápida, zero rede)
+1. **Cache global** — `~/.gitpr/conf/` (mais rápida, zero rede)
 2. **Descarregamento remoto** — a partir do repositório oficial do GitHub (timeout: 3 segundos)
-3. **Cópia local desatualizada** — utilizada quando a rede está indisponível
+3. **Cópia global desatualizada** — utilizada quando a rede está indisponível
 4. **Fallback integrado** — valores predefinidos embutidos no código (garante o funcionamento offline)
-5. **Fusão projeto-local** — o `.gitpr/conf/gitpr.smart-excludes.json` na raiz do projeto é carregado e **fundido** (união) com a lista global. Os itens no ficheiro local são aditivos — adicionam exclusões extra específicas do seu projeto
+5. **Fusão local do projeto** — `.gitpr/conf/gitpr.smart-excludes.json` na raiz do projeto é carregado e **fundido** (união) com a lista global. Os itens no ficheiro local são aditivos — adicionam exclusões extra específicas do seu projeto
 
 ## 📊 Exemplo de Utilização
 
@@ -117,17 +117,17 @@ Para adicionar novos padrões de forma permanente, edite os ficheiros de templat
 3. Aumente `__lang_version__` em `src/updater.py`
 4. Os novos padrões são propagados para todos os utilizadores na próxima execução
 
-### Configuração Projeto-Local (Recomendado)
+### Configuração Local do Projeto (Recomendado)
 
-Cada projeto pode ter o seu próprio ficheiro de Smart Excludes em `.gitpr/conf/gitpr.smart-excludes.json`. Este ficheiro é **fundido** com a lista global em tempo de execução — adiciona exclusões extra que apenas se aplicam ao seu projeto (por exemplo, `dist/`, `node_modules/`, artefactos de build específicos do framework).
+Cada projeto pode ter o seu próprio ficheiro Smart Excludes em `.gitpr/conf/gitpr.smart-excludes.json`. Este ficheiro é **fundido** com a lista global em tempo de execução — adiciona exclusões extras que se aplicam apenas ao seu projeto (ex: `dist/`, `node_modules/`, artefactos de build de frameworks específicos).
 
-**Criar o ficheiro:**
+**Criando o ficheiro:**
 
-O ficheiro é criado automaticamente na primeira vez que o GitPR descarrega a lista global de Smart Excludes. Também pode criá-lo manualmente:
+O ficheiro é criado automaticamente na primeira vez que o GitPR descarrega a lista global do Smart Excludes. Também pode criá-lo manualmente:
 
 ```json
 {
-  "_comment": "Project-specific Smart Excludes. Merged with the global list at runtime.",
+  "_comment": "Exclusões específicas do projeto. Fundido com a lista global em tempo de execução.",
   "excludes": [
     "dist/",
     "*.pyc",
@@ -138,17 +138,17 @@ O ficheiro é criado automaticamente na primeira vez que o GitPR descarrega a li
 
 **Porquê usar o ficheiro local em vez de editar a cache global?**
 
-- A cache global (`~/.gitpr/conf/`) é substituída em cada atualização de versão
-- O ficheiro local persiste de forma independente e pode ser **versionado** no seu repositório
-- Os membros da equipa obtêm as mesmas exclusões específicas do projeto quando fazem clone do repositório
+- A cache global (`~/.gitpr/conf/`) é substituída a cada atualização de versão
+- O ficheiro local persiste independentemente e pode ser **versionado** no seu repositório
+- Os membros da equipa recebem as mesmas exclusões específicas do projeto quando clonam o repositório
 
 ### Substituição Temporária
 
-Pode editar diretamente os ficheiros em cache em `~/.gitpr/conf/`. Estas alterações persistem até ao próximo aumento de `__lang_version__`, altura em que a versão remota os substitui. Prefira o ficheiro projeto-local para exclusões permanentes.
+Pode editar diretamente os ficheiros em cache em `~/.gitpr/conf/`. Estas alterações persistem até ao próximo aumento de `__lang_version__`, altura em que a versão remota os substitui. Prefira o ficheiro local do projeto para exclusões permanentes.
 
 ### Desativar o Smart Excludes
 
-Defina a variável de ambiente `GITPR_SKIP_SMART_EXCLUDES=1` para desativar toda a filtragem do Smart Excludes na sessão atual. Utilize esta opção com moderação — remove tanto as exclusões globais como as do projeto.
+Defina a variável de ambiente `GITPR_SKIP_SMART_EXCLUDES=1` para desativar toda a filtragem do Smart Excludes na sessão atual. Utilize com moderação — remove tanto as exclusões globais como as locais do projeto.
 
 ## ❓ FAQ
 
@@ -162,7 +162,7 @@ O GitPR injeta automaticamente a lista dos ficheiros de documentação alterados
 
 ### Posso desativar o Smart Excludes por completo?
 
-O Smart Excludes é uma otimização central, mas pode ser desativado definindo `GITPR_SKIP_SMART_EXCLUDES=1` no seu ambiente. Para um controlo mais granular, utilize o ficheiro de configuração projeto-local (`.gitpr/conf/gitpr.smart-excludes.json`) para adicionar ou ajustar as exclusões do seu projeto sem desativar o sistema globalmente.
+O Smart Excludes é uma otimização central, mas pode ser desativado definindo `GITPR_SKIP_SMART_EXCLUDES=1` no seu ambiente. Para um controlo mais refinado, utilize o ficheiro de configuração local do projeto (`.gitpr/conf/gitpr.smart-excludes.json`) para adicionar ou ajustar exclusões para o seu projeto sem desativar o sistema globalmente.
 
 ### Isto afeta o repositório git real?
 
