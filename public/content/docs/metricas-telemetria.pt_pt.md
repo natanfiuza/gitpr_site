@@ -115,9 +115,9 @@ regista o evento silenciosamente sem output.
 
 ## 📚 Documentação Relacionada
 
-- [Integração MCP](docs/mcp-integration?lang=pt_pt) — Configuração do servidor MCP
-- [MCP Prompts](docs/mcp-prompts?lang=pt_pt) — Modelos de mensagem pré-definidos
-- [MCP Tool Annotations](docs/mcp-annotations?lang=pt_pt) — Dicas de integração com IDEs
+- [Integração MCP](mcp-integration.md) — Configuração do servidor MCP
+- [MCP Prompts](mcp-prompts.md) — Modelos de mensagem pré-definidos
+- [MCP Tool Annotations](mcp-annotations.md) — Dicas de integração com IDEs
 
 ---
 **Dica profissional:** Combine as exportações de métricas com o pipeline de CI

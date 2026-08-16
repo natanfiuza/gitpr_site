@@ -28,24 +28,24 @@ git add .
 
 Depois de executar o `git add`, basta executar o comando do **GitPR** novamente. A IA agora verá as suas novidades e gerará a análise perfeitamente! 🚀
 
-## 🔎 Verificação Rápida: Quais ficheiros não estão em *staged*?
+## 🔎 Verificação Rápida: Quais ficheiros não estão em stage?
 
-Pode verificar rapidamente quais os ficheiros que não estão em *staged* usando a flag `--status` — **sem IA, sem rede, instantâneo**:
+Pode verificar rapidamente quais ficheiros não estão em stage usando a flag `--status` — **sem IA, sem rede, instantâneo**:
 
 ```bash
 gitpr --status
 ```
 
-Isto mostra todas as alterações não cometidas em 3 categorias: novas (untracked), modificadas e eliminadas. Consulte a [documentação do Git Status](git-status.md) para mais detalhes.
+Isto mostra todas as alterações não commitadas em 3 categorias: novos (não rastreados), modificados e eliminados. Consulte a [documentação do Git Status](git-status.pt_pt.md) para mais detalhes.
 
-## 🛑 Omitir a verificação de *unstaged*
+## 🛑 Ignorar a verificação de unstaged
 
-Se quiser omitir a verificação de *unstaged* que é executada antes dos comandos da IA, use:
+Se quiser ignorar a verificação de ficheiros unstaged que é executada antes dos comandos de IA, use:
 
 ```bash
 gitpr -c --no-unstaged-check
 ```
 
-Ou defina `GITPR_SKIP_UNSTAGED_CHECK=true` no seu ficheiro `~/.gitpr/.env` para a omitir permanentemente.
+Ou defina `GITPR_SKIP_UNSTAGED_CHECK=true` no seu ficheiro `~/.gitpr/.env` para ignorar permanentemente.
 
-> 📖 **Documentação completa:** [docs/git-status.md](git-status.md) — cobre o `--status`, o `--no-unstaged-check`, as ferramentas MCP e a verificação de *unstaged* que agora é executada em todos os comandos (`-c`, `-r`, `-f`, `-is`).
+> 📖 **Documentação completa:** [docs/git-status.pt_pt.md](git-status.pt_pt.md) — cobre `--status`, `--no-unstaged-check`, ferramentas MCP e a verificação de unstaged que agora é executada em todos os comandos (`-c`, `-r`, `-f`, `-is`).

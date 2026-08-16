@@ -33,3 +33,6 @@ Execute o plano de desenvolvimento:
 
 - Gere o relatorio ao final conforme a regra 
 
+## 5. Atualizar o README.md
+
+Carregue o arquivo C:\Users\nataniel\projetos\python\gitpr\README.md e atualize a sua versão em @public\content\docs\readme.md e suas versões nos idiomas suportados.

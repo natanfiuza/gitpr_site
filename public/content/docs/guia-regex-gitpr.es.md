@@ -40,7 +40,7 @@ Si está buscando algo dentro de comillas o paréntesis, especifique exactamente
 * ❌ **Lento:** `console\.log\(.*\)` *(Va hasta el final de la línea antes de retroceder para encontrar el paréntesis de cierre)*  
 * ✅ **Rápido:** `console\.log\([^)]*\)` *(La clase `[^)]` significa: "Captura todo, siempre que NO sea un paréntesis de cierre". Se detiene en el milisegundo exacto en que encuentra el límite)*
 
-### **Regla 3: Evite Cuantificadores Opcionales Anidados**
+### **Regra 3: Evite Cuantificadores Opcionales Anidados**
 
 Nunca coloque un cuantificador opcional (`*` o `?`) justo después de otro cuantificador opcional, o dentro de un grupo que también se repita.
 

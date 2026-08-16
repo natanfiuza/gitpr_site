@@ -312,7 +312,7 @@ Na primeira vez que utilizar `F3` ou `--no-edit`, o GitPR irá:
 - O token é guardado como um hash encriptado — nunca em texto simples
 - A chave mestra de desencriptação está localizada em `~/.gitpr/secret.key`
 - O token é validado via `GET /user` antes de a TUI abrir
-- Consulte o guia completo em [github-pat-integration.md](github-pat-integration?lang=pt_pt)
+- Consulte o guia completo em [github-pat-integration.md](github-pat-integration.md)
 
 ---
 
@@ -482,4 +482,4 @@ OUTPUT_FILE_NAME=/home/user/prs/my_custom_pr.md
 | `.gitpr/reports/review/` | Diretório de saída predefinido para ficheiros de code review |
 | `.gitpr/reports/full_review/` | Diretório de saída predefinido para ficheiros de revisão completa |
 
-> **Nota:** Consulte também a [documentação principal (README.md)](docs/readme?lang=pt_pt) para uma visão geral de todas as funcionalidades do GitPR e o [guia de Descrição de PR](docs/pr-descricao-padrao?lang=pt_pt) para o fluxo predefinido de geração de PR.
+> **Nota:** Consulte também a [documentação principal (README.md)](../README.md) para uma visão geral de todas as funcionalidades do GitPR e o [guia de Descrição de PR](pr-descricao-padrao.md) para o fluxo predefinido de geração de PR.
