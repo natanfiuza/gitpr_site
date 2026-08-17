@@ -13,7 +13,7 @@ O provedor padrão e recomendado. Rápido, econômico e com suporte nativo.
 ```bash
 # Definir como padrão em ~/.gitpr/.env
 GITPR_PROVIDER=gemini
-GEMINI_API_MODEL=gemini-pro-latest
+GEMINI_API_MODEL_PRIMARY=gemini-pro-latest
 
 # Ou usar uma vez
 gitpr --provider gemini
@@ -32,7 +32,7 @@ Alternativa poderosa com excelente capacidade de análise de código. Usa o SDK 
 ```bash
 # Definir como padrão em ~/.gitpr/.env
 GITPR_PROVIDER=deepseek
-DEEPSEEK_API_MODEL=deepseek-v4-pro
+DEEPSEEK_API_MODEL_PRIMARY=deepseek-v4-pro
 
 # Ou usar uma vez
 gitpr --provider deepseek
@@ -81,8 +81,8 @@ Substitua a versão padrão do modelo por provedor:
 
 ```bash
 # ~/.gitpr/.env
-GEMINI_API_MODEL=gemini-2.5-pro     # Para análises mais pesadas
-DEEPSEEK_API_MODEL=deepseek-reasoner # Para raciocínio complexo
+GEMINI_API_MODEL_PRIMARY=gemini-2.5-pro     # Para análises mais pesadas
+DEEPSEEK_API_MODEL_PRIMARY=deepseek-reasoner # Para raciocínio complexo
 ```
 
 ---

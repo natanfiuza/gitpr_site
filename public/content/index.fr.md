@@ -63,8 +63,8 @@ La configuration guidée télécharge les modèles de skills, installe les Git H
 
 GitPR est **agnostique de l'IA** — choisissez votre moteur :
 
-- **Google Gemini** (défaut : `gemini-2.5-flash`)
-- **DeepSeek** (défaut : `deepseek-chat`)
+- **Google Gemini** (défaut : `gemini-pro-latest`)
+- **DeepSeek** (défaut : `deepseek-v4-pro`)
 - **Ollama** — exécutez des modèles locaux sans internet
 
 Changez à tout moment avec `--provider <gemini|deepseek|ollama>`.

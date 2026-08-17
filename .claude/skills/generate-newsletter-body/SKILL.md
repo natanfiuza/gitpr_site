@@ -20,7 +20,7 @@ Gerar `public/content/newsletter/{version}/newsletter_body.{lang}.md` nos 5 idio
 3. **Extrair o conteúdo por idioma**, mantendo apenas:
    - **Novidades da versão** (seção "What's New" / equivalente traduzido).
    - **Como usar** (instalação/uso relevantes à versão — apenas o essencial, sem duplicar a doc completa).
-   - **Dicas úteis**: escolher de 3 a 5 dicas com `used=false` de `public/content/tip_tools.json`, no idioma correspondente, e marcar cada dica escolhida com `used=true` no JSON.
+   - **Dicas úteis**: escolher apenas 1 dica com `used=false` de `public/content/tip_tools.json`, no idioma correspondente, e marcar a dica escolhida com `used=true` no JSON (uma por edição rende mais versões antes de esgotar o banco de dicas).
 
 4. **Gerar os arquivos.**
    - `public/content/newsletter/{version}/newsletter_body.md` + `.pt_br.md` + `.pt_pt.md` + `.es.md` + `.fr.md`.
