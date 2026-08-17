@@ -49,7 +49,7 @@
     },
     {
         "id": "tip_5",
-        "used": false,
+        "used": true,
         "source": "docs/git-hooks-locais.md",
         "content": {
             "en": "With hooks installed (`gitpr -ih`), a plain `git commit` opens your editor with the AI message pre-filled. But GitPR knows when to step aside: `-m`, merges, squashes and amends are detected and the AI stays silent, so your own messages are never overwritten.",
