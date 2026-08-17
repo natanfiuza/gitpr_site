@@ -17,7 +17,7 @@ class NewsletterSendCommand extends Command
      * @var string
      */
     protected $signature = 'newsletter:send
-                            {version? : Newsletter version (defaults to the current report version)}
+                            {version? : Newsletter version (defaults to the GitPR version from the current report)}
                             {--force : Skip the already-sent and long-run warnings}
                             {--interval=5 : Seconds between sends}';
 

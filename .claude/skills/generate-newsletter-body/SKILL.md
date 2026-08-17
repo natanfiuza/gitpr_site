@@ -10,8 +10,8 @@ Gerar `public/content/newsletter/{version}/newsletter_body.{lang}.md` nos 5 idio
 ## Passos
 
 1. **Determinar a versão.**
-   - Leia o H1 de `public/content/relatorio.md` e extraia a versão com regex `v\d+\.\d+\.\d+` (ex.: `v0.0.10`).
-   - A versão da newsletter deve ser a versão do relatório.
+   - Leia `public/content/relatorio.md` e extraia a versão do GitPR CLI do campo **Current version** com regex `\d+\.\d+\.\d+` (ex.: `0.0.35`).
+   - A versão da newsletter deve ser a versão do CLI citada no relatório — não a versão do relatório em si (H1).
 
 2. **Ler o relatório nos 5 idiomas.**
    - `relatorio.md` (en), `relatorio.pt_br.md`, `relatorio.pt_pt.md`, `relatorio.es.md`, `relatorio.fr.md`.
@@ -48,5 +48,5 @@ Gerar `public/content/newsletter/{version}/newsletter_body.{lang}.md` nos 5 idio
 ## Observações
 
 - O corpo é enviado pelo comando `php artisan newsletter:send` (envio manual temporário), que resolve o idioma de cada inscrito com fallback para inglês.
-- A versão do arquivo de relatório (`v0.0.10`) difere da versão do CLI (`0.0.35`) citada dentro dele — a newsletter usa a versão do relatório.
+- A versão do arquivo de relatório (H1, ex.: `v0.0.10`) difere da versão do CLI (ex.: `0.0.35`) citada no campo Current version — a newsletter usa a versão do CLI.
 - Se `tip_tools.json` não tiver dicas suficientes, rode antes a skill `update-tip-tools`.
