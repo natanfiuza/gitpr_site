@@ -121,7 +121,7 @@
     },
     {
         "id": "tip_11",
-        "used": false,
+        "used": true,
         "source": "docs/mcp-integration.md",
         "content": {
             "en": "One command configures GitPR's MCP server in your editor: `gitpr-mcp --install auto` detects VSCode, Cursor, Claude Code, Claude Desktop or Zed and writes the right config file. It's idempotent and merges with existing settings, never overwriting other MCP servers.",
