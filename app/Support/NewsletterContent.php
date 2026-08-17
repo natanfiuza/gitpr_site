@@ -14,8 +14,9 @@ use RuntimeException;
 final class NewsletterContent
 {
     /**
-     * Extract the report version from the H1 of public/content/relatorio.md.
-     * Example: "# Project Status Report: GitPR CLI — v0.0.10 (2026-08-11)" → "v0.0.10".
+     * Extract the GitPR CLI version from the "Current version" field of
+     * public/content/relatorio.md.
+     * Example: "- **Current version:** 0.0.35" → "0.0.35".
      */
     public static function version_from_relatorio(): ?string
     {
@@ -25,13 +26,11 @@ final class NewsletterContent
             return null;
         }
 
-        $first_line = strtok(File::get($path), "\n");
-
-        if ($first_line === false || ! preg_match('/v(\d+\.\d+\.\d+)/', $first_line, $matches)) {
+        if (! preg_match('/Current version:\*{0,2}\s*(\d+\.\d+\.\d+)/', File::get($path), $matches)) {
             return null;
         }
 
-        return 'v'.$matches[1];
+        return $matches[1];
     }
 
     /**

@@ -67,7 +67,8 @@ Rode a skill `update-tip-tools`. Ela varre `public/content/**/*.md` e atualiza
 
 Rode a skill `generate-newsletter-body`. Ela:
 
-1. Extrai a versão do H1 de `public/content/relatorio.md` (ex.: `v0.0.10`).
+1. Extrai a versão do GitPR CLI do campo **Current version** de
+   `public/content/relatorio.md` (ex.: `0.0.35`).
 2. Gera `public/content/newsletter/{version}/newsletter_body.md` + variantes
    `.pt_br.md`, `.pt_pt.md`, `.es.md`, `.fr.md` com apenas:
    - **Novidades da versão** (seção "What's New" do relatório);
@@ -99,8 +100,8 @@ APP_URL=https://seudominio.com   # usado nos links de confirmação/cancelamento
 ### Passo 6 — Envie
 
 ```bash
-php artisan newsletter:send              # usa a versão do relatório
-php artisan newsletter:send v0.0.10     # versão explícita
+php artisan newsletter:send              # usa a versão do CLI do relatório
+php artisan newsletter:send 0.0.35      # versão explícita
 php artisan newsletter:send --interval=0   # sem pausa entre envios (testes)
 ```
 
@@ -140,8 +141,9 @@ Regras do comando:
 
 ## 4. Regras que valem ouro
 
-- **Versão da newsletter = versão do relatório** (H1, ex.: `v0.0.10`) — não é a
-  versão do CLI (`0.0.35`) citada dentro do relatório.
+- **Versão da newsletter = versão do CLI** citada no relatório (campo
+  **Current version**, ex.: `0.0.35`) — não é a versão do relatório em si
+  (H1, ex.: `v0.0.10`).
 - Link de confirmação **expira em 24h** (base `created_at`); reenvio antes de
   confirmar reutiliza o **mesmo uuid**; depois de expirar, gera um novo.
 - Só **um registro `is_confirmed=true` por e-mail** (guard de aplicação).

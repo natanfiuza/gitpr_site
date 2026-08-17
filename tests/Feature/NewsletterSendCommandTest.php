@@ -2,6 +2,7 @@
 
 use App\Mail\NewsletterMail;
 use App\Models\NewsletterSubscriber;
+use App\Support\NewsletterContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
@@ -94,8 +95,12 @@ test('large volumes abort without force and warn about duration', function () {
     Mail::assertNothingSent();
 });
 
-test('the version defaults to the current report version and fails fast without a body', function () {
-    $this->artisan('newsletter:send', ['--interval' => 0])
+test('the version defaults to the GitPR version from the current report', function () {
+    expect(NewsletterContent::version_from_relatorio())->toMatch('/^\d+\.\d+\.\d+$/');
+});
+
+test('fails fast when the body does not exist for the resolved version', function () {
+    $this->artisan('newsletter:send', ['version' => 'no-such-version', '--interval' => 0])
         ->expectsOutputToContain('Newsletter body not found for version')
         ->assertFailed();
 });

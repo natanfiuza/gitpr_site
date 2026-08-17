@@ -1,4 +1,4 @@
-# GitPR v0.0.10 — Novedades
+# GitPR 0.0.35 — Novedades
 
 ## Novedades de esta versión
 
