@@ -1,0 +1,314 @@
+[
+    {
+        "id": "tip_1",
+        "used": false,
+        "source": "docs/commit-message-ia.md",
+        "content": {
+            "en": "Re-run any AI command without changing the code and GitPR answers in milliseconds: responses are cached at `~/.gitpr/cache/prompts/`, keyed by an MD5 hash of your diff + instructions — repeating a command costs zero API quota.",
+            "pt_br": "Execute de novo qualquer comando de IA sem alterar o código e o GitPR responde em milissegundos: as respostas ficam em cache em `~/.gitpr/cache/prompts/`, indexadas por um hash MD5 do seu diff + instruções — repetir um comando não gasta nada da sua cota de API.",
+            "pt_pt": "Execute novamente qualquer comando de IA sem alterar o código e o GitPR responde em milissegundos: as respostas ficam em cache em `~/.gitpr/cache/prompts/`, indexadas por um hash MD5 do diff + instruções — repetir um comando não gasta nada da sua quota de API.",
+            "fr": "Relancez n'importe quelle commande IA sans modifier le code et GitPR répond en quelques millisecondes : les réponses sont mises en cache dans `~/.gitpr/cache/prompts/`, indexées par un hash MD5 de votre diff + instructions — répéter une commande ne consomme aucune part de votre quota API.",
+            "es": "Vuelve a ejecutar cualquier comando de IA sin cambiar el código y GitPR responde en milisegundos: las respuestas se guardan en caché en `~/.gitpr/cache/prompts/`, indexadas por un hash MD5 de tu diff + instrucciones — repetir un comando no gasta nada de tu cuota de API."
+        }
+    },
+    {
+        "id": "tip_2",
+        "used": false,
+        "source": "docs/map-reduce-diff.md",
+        "content": {
+            "en": "Diffs bigger than ~90k tokens (estimated at 4 characters per token) are handled automatically: GitPR splits them into batches at file boundaries, summarizes each part (Map) and unifies everything in a final call (Reduce) — no flags needed.",
+            "pt_br": "Diffs maiores que ~90 mil tokens (estimativa de 4 caracteres por token) são tratados automaticamente: o GitPR divide em lotes nas fronteiras de arquivo, resume cada parte (Map) e unifica tudo numa chamada final (Reduce) — sem precisar de nenhuma flag.",
+            "pt_pt": "Diffs maiores do que ~90 mil tokens (estimativa de 4 caracteres por token) são tratados automaticamente: o GitPR divide-os em lotes nas fronteiras de ficheiro, resume cada parte (Map) e unifica tudo numa chamada final (Reduce) — sem precisar de qualquer flag.",
+            "fr": "Les diffs de plus de ~90 000 tokens (estimation de 4 caractères par token) sont gérés automatiquement : GitPR les découpe en lots aux frontières de fichiers, résume chaque partie (Map) puis unifie le tout dans un appel final (Reduce) — aucun flag nécessaire.",
+            "es": "Los diffs de más de ~90 mil tokens (estimación de 4 caracteres por token) se gestionan automáticamente: GitPR los divide en lotes por límites de archivo, resume cada parte (Map) y unifica todo en una llamada final (Reduce) — sin necesidad de flags."
+        }
+    },
+    {
+        "id": "tip_3",
+        "used": false,
+        "source": "docs/smart-excludes.md",
+        "content": {
+            "en": "Smart Excludes filters lockfiles, minified and generated files out of the diff with Git's native pathspec syntax, before the AI ever sees it — the docs' example cuts ~15,000 tokens down to ~250 (98% less), while the changed file list is still injected as metadata.",
+            "pt_br": "O Smart Excludes filtra lockfiles, arquivos minificados e gerados do diff com a sintaxe nativa de pathspec do Git, antes de a IA ver qualquer coisa — o exemplo da documentação reduz ~15.000 tokens para ~250 (98% a menos), e a lista de arquivos alterados continua sendo injetada como metadado.",
+            "pt_pt": "O Smart Excludes filtra lockfiles, ficheiros minificados e gerados do diff com a sintaxe nativa de pathspec do Git, antes de a IA ver o que quer que seja — o exemplo da documentação reduz ~15.000 tokens para ~250 (98% menos), e a lista de ficheiros alterados continua a ser injetada como metadado.",
+            "fr": "Smart Excludes filtre les lockfiles, fichiers minifiés et générés du diff grâce à la syntaxe pathspec native de Git, avant même que l'IA ne voie quoi que ce soit — l'exemple de la documentation fait passer ~15 000 tokens à ~250 (98 % de moins), tout en injectant la liste des fichiers modifiés comme métadonnée.",
+            "es": "Smart Excludes filtra lockfiles, archivos minificados y generados del diff con la sintaxis pathspec nativa de Git, antes de que la IA vea nada — el ejemplo de la documentación reduce ~15.000 tokens a ~250 (98% menos), mientras la lista de archivos modificados se inyecta igualmente como metadato."
+        }
+    },
+    {
+        "id": "tip_4",
+        "used": false,
+        "source": "docs/readme.md",
+        "content": {
+            "en": "Hidden debug flag: run any AI command with `--pre-save` (e.g. `gitpr -c --pre-save`) and GitPR dumps the full payload — system instruction, prompt and character counters — to a JSON file in the current folder. No file is generated when the answer comes from cache.",
+            "pt_br": "Flag de debug escondida: rode qualquer comando de IA com `--pre-save` (ex.: `gitpr -c --pre-save`) e o GitPR grava o payload completo — instrução de sistema, prompt e contadores de caracteres — num arquivo JSON na pasta atual. Nenhum arquivo é gerado quando a resposta vem do cache.",
+            "pt_pt": "Flag de debug escondida: execute qualquer comando de IA com `--pre-save` (ex.: `gitpr -c --pre-save`) e o GitPR grava o payload completo — instrução de sistema, prompt e contadores de caracteres — num ficheiro JSON na pasta atual. Nenhum ficheiro é gerado quando a resposta vem da cache.",
+            "fr": "Flag de debug cachée : lancez n'importe quelle commande IA avec `--pre-save` (ex. `gitpr -c --pre-save`) et GitPR écrit le payload complet — instruction système, prompt et compteurs de caractères — dans un fichier JSON du dossier courant. Aucun fichier n'est généré quand la réponse vient du cache.",
+            "es": "Flag de debug oculta: ejecuta cualquier comando de IA con `--pre-save` (p. ej. `gitpr -c --pre-save`) y GitPR guarda el payload completo — instrucción de sistema, prompt y contadores de caracteres — en un JSON de la carpeta actual. No se genera ningún archivo cuando la respuesta viene de la caché."
+        }
+    },
+    {
+        "id": "tip_5",
+        "used": false,
+        "source": "docs/git-hooks-locais.md",
+        "content": {
+            "en": "With hooks installed (`gitpr -ih`), a plain `git commit` opens your editor with the AI message pre-filled. But GitPR knows when to step aside: `-m`, merges, squashes and amends are detected and the AI stays silent, so your own messages are never overwritten.",
+            "pt_br": "Com os hooks instalados (`gitpr -ih`), um `git commit` simples abre o editor com a mensagem da IA preenchida. Mas o GitPR sabe quando sair de cena: `-m`, merges, squashes e amends são detectados e a IA fica em silêncio — suas próprias mensagens nunca são sobrescritas.",
+            "pt_pt": "Com os hooks instalados (`gitpr -ih`), um simples `git commit` abre o editor com a mensagem da IA preenchida. Mas o GitPR sabe quando sair de cena: `-m`, merges, squashes e amends são detetados e a IA fica em silêncio — as suas mensagens nunca são sobrescritas.",
+            "fr": "Avec les hooks installés (`gitpr -ih`), un simple `git commit` ouvre votre éditeur avec le message de l'IA prérempli. Mais GitPR sait s'effacer : les `-m`, merges, squashes et amends sont détectés et l'IA reste silencieuse — vos propres messages ne sont jamais écrasés.",
+            "es": "Con los hooks instalados (`gitpr -ih`), un simple `git commit` abre tu editor con el mensaje de la IA ya rellenado. Pero GitPR sabe cuándo apartarse: detecta `-m`, merges, squashes y amends y la IA permanece en silencio — tus propios mensajes nunca se sobrescriben."
+        }
+    },
+    {
+        "id": "tip_6",
+        "used": false,
+        "source": "docs/understanding_chat_functionality.md",
+        "content": {
+            "en": "In the interactive chat, F5 extracts code blocks to a patch file and F6 exports the whole session to Markdown; F7/F8 move focus between AI messages so Ctrl+Shift+S can patch any older answer, not just the last one. Memory is per-branch: switching branches gives a clean context, coming back restores the session.",
+            "pt_br": "No chat interativo, F5 extrai blocos de código para um arquivo de patch e F6 exporta a sessão inteira para Markdown; F7/F8 movem o foco entre mensagens da IA para o Ctrl+Shift+S aplicar o patch de qualquer resposta antiga, não só da última. A memória é por branch: trocar de branch limpa o contexto, voltar restaura a sessão.",
+            "pt_pt": "No chat interativo, F5 extrai blocos de código para um ficheiro de patch e F6 exporta a sessão inteira para Markdown; F7/F8 movem o foco entre mensagens da IA para o Ctrl+Shift+S aplicar o patch de qualquer resposta antiga, não apenas da última. A memória é por branch: mudar de branch limpa o contexto, voltar restaura a sessão.",
+            "fr": "Dans le chat interactif, F5 extrait les blocs de code vers un fichier de patch et F6 exporte toute la session en Markdown ; F7/F8 déplacent le focus entre les messages de l'IA pour que Ctrl+Shift+S applique le patch de n'importe quelle réponse antérieure, pas seulement la dernière. La mémoire est par branche : changer de branche fait table rase, y revenir restaure la session.",
+            "es": "En el chat interactivo, F5 extrae bloques de código a un archivo de patch y F6 exporta toda la sesión a Markdown; F7/F8 mueven el foco entre mensajes de la IA para que Ctrl+Shift+S aplique el patch de cualquier respuesta anterior, no solo de la última. La memoria es por rama: cambiar de rama limpia el contexto, volver restaura la sesión."
+        }
+    },
+    {
+        "id": "tip_7",
+        "used": false,
+        "source": "docs/issue-tui-help.md",
+        "content": {
+            "en": "`gitpr -is` generates an issue from your current diff, but there are two other engines: `-ht` compiles the whole branch history into a release/epic issue, and `-b src/core.py:140-195` traces a file's evolution via `git blame` to document legacy code and technical debt.",
+            "pt_br": "O `gitpr -is` gera uma issue a partir do diff atual, mas há dois outros motores: `-ht` compila todo o histórico da branch numa issue de release/épico, e `-b src/core.py:140-195` rastreia a evolução de um arquivo via `git blame` para documentar código legado e dívida técnica.",
+            "pt_pt": "O `gitpr -is` gera uma issue a partir do diff atual, mas há dois outros motores: `-ht` compila todo o histórico da branch numa issue de release/épico, e `-b src/core.py:140-195` rastreia a evolução de um ficheiro via `git blame` para documentar código legado e dívida técnica.",
+            "fr": "`gitpr -is` génère une issue à partir du diff actuel, mais il existe deux autres moteurs : `-ht` compile tout l'historique de la branche en une issue de release/épique, et `-b src/core.py:140-195` retrace l'évolution d'un fichier via `git blame` pour documenter le code legacy et la dette technique.",
+            "es": "`gitpr -is` genera una issue a partir del diff actual, pero hay otros dos motores: `-ht` compila todo el historial de la rama en una issue de release/épica, y `-b src/core.py:140-195` rastrea la evolución de un archivo vía `git blame` para documentar código legado y deuda técnica."
+        }
+    },
+    {
+        "id": "tip_8",
+        "used": false,
+        "source": "docs/blame-arqueologo.md",
+        "content": {
+            "en": "The Code Archaeologist: `gitpr -b file.py:10-20` runs `git blame` and classifies each commit as ORIGIN (the rule was introduced) or REFACTORING (change without logic alteration), tracing up to 4 parent levels — and it uses the cheaper secondary model for classification, saving quota.",
+            "pt_br": "O Arqueólogo de Código: `gitpr -b file.py:10-20` roda `git blame` e classifica cada commit como ORIGIN (a regra foi introduzida) ou REFACTORING (mudança sem alterar a lógica), rastreando até 4 níveis de pais — e usa o modelo secundário, mais barato, na classificação para economizar cota.",
+            "pt_pt": "O Arqueólogo de Código: `gitpr -b file.py:10-20` executa `git blame` e classifica cada commit como ORIGIN (a regra foi introduzida) ou REFACTORING (alteração sem mudar a lógica), rastreando até 4 níveis de pais — e usa o modelo secundário, mais barato, na classificação para poupar quota.",
+            "fr": "L'Archéologue du Code : `gitpr -b file.py:10-20` exécute `git blame` et classe chaque commit en ORIGIN (la règle a été introduite) ou REFACTORING (changement sans altération de la logique), en remontant jusqu'à 4 niveaux de parents — et il utilise le modèle secondaire, moins cher, pour la classification afin d'économiser le quota.",
+            "es": "El Arqueólogo de Código: `gitpr -b file.py:10-20` ejecuta `git blame` y clasifica cada commit como ORIGIN (la regla fue introducida) o REFACTORING (cambio sin alterar la lógica), rastreando hasta 4 niveles de padres — y usa el modelo secundario, más barato, en la clasificación para ahorrar cuota."
+        }
+    },
+    {
+        "id": "tip_9",
+        "used": false,
+        "source": "docs/auto-update.md",
+        "content": {
+            "en": "GitPR updates itself silently (checked on every run, result cached for 24h): the new binary is hot-swapped with the old one kept as `.exe.old`, and if anything fails it rolls back automatically. Before any network call, a Connection Guardian pings `8.8.8.8:53` — offline, GitPR just works normally. Force it with `gitpr -u`.",
+            "pt_br": "O GitPR se atualiza sozinho (verificado a cada execução, resultado em cache por 24h): o novo binário é trocado a quente com o antigo guardado como `.exe.old` e, se algo falhar, o rollback é automático. Antes de qualquer chamada de rede, um Guardião de Conexão testa `8.8.8.8:53` — offline, o GitPR simplesmente funciona normal. Force com `gitpr -u`.",
+            "pt_pt": "O GitPR atualiza-se sozinho (verificado em cada execução, resultado em cache por 24h): o novo binário é trocado a quente com o antigo guardado como `.exe.old` e, se algo falhar, o rollback é automático. Antes de qualquer chamada de rede, um Guardião de Ligação testa `8.8.8.8:53` — offline, o GitPR simplesmente funciona normalmente. Force com `gitpr -u`.",
+            "fr": "GitPR se met à jour tout seul (vérification à chaque exécution, résultat mis en cache 24 h) : le nouveau binaire est échangé à chaud, l'ancien conservé en `.exe.old`, et en cas d'échec le rollback est automatique. Avant tout appel réseau, un Gardien de Connexion teste `8.8.8.8:53` — hors ligne, GitPR fonctionne simplement normalement. Forcer avec `gitpr -u`.",
+            "es": "GitPR se actualiza solo (verificado en cada ejecución, resultado en caché durante 24h): el nuevo binario se intercambia en caliente con el antiguo guardado como `.exe.old` y, si algo falla, el rollback es automático. Antes de cualquier llamada de red, un Guardián de Conexión prueba `8.8.8.8:53` — sin conexión, GitPR simplemente sigue funcionando. Fuerza la actualización con `gitpr -u`."
+        }
+    },
+    {
+        "id": "tip_10",
+        "used": false,
+        "source": "docs/pull-request-publication.md",
+        "content": {
+            "en": "Re-run `gitpr` on the same branch and you won't get duplicate PRs: GitPR detects the existing PR and offers \"Push to existing PR\", which updates only the body (the title stays untouched). Bonus: a failed `git push` with \"no upstream\" is auto-retried with `--set-upstream`.",
+            "pt_br": "Rode o `gitpr` de novo na mesma branch e você não terá PRs duplicados: o GitPR detecta a PR existente e oferece \"Push to existing PR\", que atualiza apenas o corpo (o título fica intacto). Bônus: um `git push` que falha com \"no upstream\" é repetido automaticamente com `--set-upstream`.",
+            "pt_pt": "Execute o `gitpr` novamente na mesma branch e não terá PRs duplicados: o GitPR deteta o PR existente e oferece \"Push to existing PR\", que atualiza apenas o corpo (o título fica intacto). Bónus: um `git push` que falha com \"no upstream\" é repetido automaticamente com `--set-upstream`.",
+            "fr": "Relancez `gitpr` sur la même branche et vous n'aurez pas de PR en double : GitPR détecte la PR existante et propose « Push to existing PR », qui ne met à jour que le corps (le titre reste intact). Bonus : un `git push` échouant avec « no upstream » est automatiquement relancé avec `--set-upstream`.",
+            "es": "Vuelve a ejecutar `gitpr` en la misma rama y no tendrás PRs duplicados: GitPR detecta la PR existente y ofrece \"Push to existing PR\", que actualiza solo el cuerpo (el título queda intacto). Extra: un `git push` que falla con \"no upstream\" se reintenta automáticamente con `--set-upstream`."
+        }
+    },
+    {
+        "id": "tip_11",
+        "used": false,
+        "source": "docs/mcp-integration.md",
+        "content": {
+            "en": "One command configures GitPR's MCP server in your editor: `gitpr-mcp --install auto` detects VSCode, Cursor, Claude Code, Claude Desktop or Zed and writes the right config file. It's idempotent and merges with existing settings, never overwriting other MCP servers.",
+            "pt_br": "Um único comando configura o servidor MCP do GitPR no seu editor: `gitpr-mcp --install auto` detecta VSCode, Cursor, Claude Code, Claude Desktop ou Zed e grava o arquivo de config certo. É idempotente e faz merge com as configurações existentes, sem sobrescrever outros servidores MCP.",
+            "pt_pt": "Um único comando configura o servidor MCP do GitPR no seu editor: `gitpr-mcp --install auto` deteta VSCode, Cursor, Claude Code, Claude Desktop ou Zed e grava o ficheiro de config certo. É idempotente e faz merge com as configurações existentes, sem sobrescrever outros servidores MCP.",
+            "fr": "Une seule commande configure le serveur MCP de GitPR dans votre éditeur : `gitpr-mcp --install auto` détecte VSCode, Cursor, Claude Code, Claude Desktop ou Zed et écrit le bon fichier de config. Elle est idempotente et fusionne avec les réglages existants, sans jamais écraser d'autres serveurs MCP.",
+            "es": "Un solo comando configura el servidor MCP de GitPR en tu editor: `gitpr-mcp --install auto` detecta VSCode, Cursor, Claude Code, Claude Desktop o Zed y escribe el archivo de config correcto. Es idempotente y se fusiona con la configuración existente, sin sobrescribir otros servidores MCP."
+        }
+    },
+    {
+        "id": "tip_12",
+        "used": false,
+        "source": "docs/mcp-integration.md",
+        "content": {
+            "en": "No MCP client needed: `gitpr-mcp --tool <name>` runs any of the 12 AI tools straight from the terminal — e.g. `gitpr-mcp --tool analyze_diff` or `--tool run_linter` in a cron job. JSON goes to stdout and diagnostics to stderr, so it's fully scriptable.",
+            "pt_br": "Não precisa de cliente MCP: `gitpr-mcp --tool <nome>` roda qualquer uma das 12 ferramentas de IA direto do terminal — ex.: `gitpr-mcp --tool analyze_diff` ou `--tool run_linter` num cron. O JSON sai no stdout e os diagnósticos no stderr, então dá para usar em scripts tranquilamente.",
+            "pt_pt": "Não precisa de cliente MCP: `gitpr-mcp --tool <nome>` executa qualquer uma das 12 ferramentas de IA diretamente do terminal — ex.: `gitpr-mcp --tool analyze_diff` ou `--tool run_linter` num cron. O JSON sai no stdout e os diagnósticos no stderr, pelo que é totalmente utilizável em scripts.",
+            "fr": "Pas besoin de client MCP : `gitpr-mcp --tool <nom>` exécute l'un des 12 outils IA directement depuis le terminal — ex. `gitpr-mcp --tool analyze_diff` ou `--tool run_linter` dans un cron. Le JSON sort sur stdout et les diagnostics sur stderr, ce qui rend le tout parfaitement scriptable.",
+            "es": "No necesitas cliente MCP: `gitpr-mcp --tool <nombre>` ejecuta cualquiera de las 12 herramientas de IA directamente desde la terminal — p. ej. `gitpr-mcp --tool analyze_diff` o `--tool run_linter` en un cron. El JSON sale por stdout y los diagnósticos por stderr, así que es totalmente scriptable."
+        }
+    },
+    {
+        "id": "tip_13",
+        "used": false,
+        "source": "docs/plugins-system.md",
+        "content": {
+            "en": "Zero-code plugins: drop any Markdown file into `~/.gitpr/plugins/prompts/` and it's registered as an MCP prompt at the next server start — your team's AI workflows (security audit, test generation) become selectable prompts. YAML files in `~/.gitpr/plugins/linter/` become global linter rule packs for every project.",
+            "pt_br": "Plugins sem código: jogue qualquer arquivo Markdown em `~/.gitpr/plugins/prompts/` e ele vira um prompt MCP no próximo start do servidor — os fluxos de IA do seu time (auditoria de segurança, geração de testes) viram prompts selecionáveis. Arquivos YAML em `~/.gitpr/plugins/linter/` viram pacotes globais de regras de linter para todos os projetos.",
+            "pt_pt": "Plugins sem código: coloque qualquer ficheiro Markdown em `~/.gitpr/plugins/prompts/` e ele é registado como prompt MCP no próximo arranque do servidor — os fluxos de IA da sua equipa (auditoria de segurança, geração de testes) tornam-se prompts selecionáveis. Ficheiros YAML em `~/.gitpr/plugins/linter/` tornam-se pacotes globais de regras de linter para todos os projetos.",
+            "fr": "Plugins sans code : déposez n'importe quel fichier Markdown dans `~/.gitpr/plugins/prompts/` et il devient un prompt MCP au prochain démarrage du serveur — les workflows IA de votre équipe (audit sécurité, génération de tests) deviennent des prompts sélectionnables. Les fichiers YAML dans `~/.gitpr/plugins/linter/` deviennent des packs globaux de règles de linter pour tous les projets.",
+            "es": "Plugins sin código: deja cualquier archivo Markdown en `~/.gitpr/plugins/prompts/` y se registrará como prompt MCP en el siguiente arranque del servidor — los flujos de IA de tu equipo (auditoría de seguridad, generación de tests) se vuelven prompts seleccionables. Los YAML en `~/.gitpr/plugins/linter/` se convierten en packs globales de reglas de linter para todos los proyectos."
+        }
+    },
+    {
+        "id": "tip_14",
+        "used": false,
+        "source": "docs/github-ci-linter.md",
+        "content": {
+            "en": "The linter is free: no API keys, no AI calls, only the added lines of your diff. Exit code 0 = pass, 1 = violations, so it's ideal as a GitHub Actions quality gate that blocks secrets and debug code before human review — the docs include the complete workflow.",
+            "pt_br": "O linter é de graça: sem API key, sem chamadas de IA, só as linhas adicionadas no seu diff. Exit code 0 = passou, 1 = violações, então ele é ideal como quality gate no GitHub Actions que bloqueia segredos e código de debug antes da revisão humana — a documentação inclui o workflow completo.",
+            "pt_pt": "O linter é gratuito: sem API key, sem chamadas de IA, apenas as linhas adicionadas no seu diff. Exit code 0 = passou, 1 = violações, pelo que é ideal como quality gate no GitHub Actions que bloqueia segredos e código de debug antes da revisão humana — a documentação inclui o workflow completo.",
+            "fr": "Le linter est gratuit : pas de clé API, pas d'appel IA, uniquement les lignes ajoutées de votre diff. Code de sortie 0 = succès, 1 = violations — idéal comme quality gate GitHub Actions qui bloque secrets et code de debug avant la revue humaine ; la documentation fournit le workflow complet.",
+            "es": "El linter es gratis: sin API keys, sin llamadas de IA, solo las líneas añadidas de tu diff. Exit code 0 = pasa, 1 = violaciones, así que es ideal como quality gate en GitHub Actions que bloquea secretos y código de debug antes de la revisión humana — la documentación incluye el workflow completo."
+        }
+    },
+    {
+        "id": "tip_15",
+        "used": false,
+        "source": "docs/guia-regex-gitpr.md",
+        "content": {
+            "en": "A naive regex like `(a+)+$` can make the linter try 700+ million combinations and freeze your commit. The regex guide's rules: fail fast with anchors like `\\b`, replace greedy `.*` with negated classes, avoid nested quantifiers and prefer `(?:...)` groups.",
+            "pt_br": "Uma regex ingênua como `(a+)+$` pode fazer o linter tentar mais de 700 milhões de combinações e travar seu commit. As regras do guia de regex: falhe rápido com âncoras como `\\b`, troque `.*` guloso por classes negadas, evite quantificadores aninhados e prefira grupos `(?:...)`.",
+            "pt_pt": "Uma regex ingénua como `(a+)+$` pode fazer o linter tentar mais de 700 milhões de combinações e bloquear o seu commit. As regras do guia de regex: falhe rápido com âncoras como `\\b`, troque `.*` ganancioso por classes negadas, evite quantificadores aninhados e prefira grupos `(?:...)`.",
+            "fr": "Une regex naïve comme `(a+)+$` peut faire essayer au linter plus de 700 millions de combinaisons et geler votre commit. Les règles du guide : échouer vite avec des ancres comme `\\b`, remplacer les `.*` gourmands par des classes niées, éviter les quantifieurs imbriqués et préférer les groupes `(?:...)`.",
+            "es": "Una regex ingenua como `(a+)+$` puede hacer que el linter pruebe más de 700 millones de combinaciones y congele tu commit. Las reglas de la guía: falla rápido con anclas como `\\b`, sustituye `.*` codiciosos por clases negadas, evita cuantificadores anidados y prefiere grupos `(?:...)`."
+        }
+    },
+    {
+        "id": "tip_16",
+        "used": false,
+        "source": "docs/metricas-telemetria.md",
+        "content": {
+            "en": "Curious how the team uses GitPR? `gitpr --metrics --dashboard` opens a local TUI with tokens, top commands and providers (F5 refresh, Esc exit), and `--metrics --export` consolidates everything into CSV/JSON. It's 100% offline: data never leaves `~/.gitpr/metrics/`.",
+            "pt_br": "Curioso sobre como o time usa o GitPR? `gitpr --metrics --dashboard` abre uma TUI local com tokens, comandos e providers mais usados (F5 atualiza, Esc sai), e `--metrics --export` consolida tudo em CSV/JSON. É 100% offline: os dados nunca saem de `~/.gitpr/metrics/`.",
+            "pt_pt": "Curioso sobre como a equipa usa o GitPR? `gitpr --metrics --dashboard` abre uma TUI local com tokens, comandos e providers mais usados (F5 atualiza, Esc sai), e `--metrics --export` consolida tudo em CSV/JSON. É 100% offline: os dados nunca saem de `~/.gitpr/metrics/`.",
+            "fr": "Curieux de savoir comment l'équipe utilise GitPR ? `gitpr --metrics --dashboard` ouvre une TUI locale avec tokens, commandes et providers les plus utilisés (F5 rafraîchit, Esc quitte), et `--metrics --export` consolide tout en CSV/JSON. 100 % hors ligne : les données ne quittent jamais `~/.gitpr/metrics/`.",
+            "es": "¿Curioso por cómo usa el equipo GitPR? `gitpr --metrics --dashboard` abre una TUI local con tokens, comandos y providers más usados (F5 refresca, Esc sale), y `--metrics --export` consolida todo en CSV/JSON. Es 100% offline: los datos nunca salen de `~/.gitpr/metrics/`."
+        }
+    },
+    {
+        "id": "tip_17",
+        "used": false,
+        "source": "docs/skill-template.md",
+        "content": {
+            "en": "`gitpr -s` generates six templates in your project (`.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md`) that the AI reads as system instructions — commit them to git and the whole team shares the same conventions, like a mandatory JIRA prefix or a 72-char subject.",
+            "pt_br": "O `gitpr -s` gera seis templates no seu projeto (`.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md`) que a IA lê como instruções de sistema — comite no git e o time inteiro compartilha as mesmas convenções, como prefixo JIRA obrigatório ou assunto de 72 caracteres.",
+            "pt_pt": "O `gitpr -s` gera seis templates no seu projeto (`.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md`) que a IA lê como instruções de sistema — faça commit no git e a equipa inteira partilha as mesmas convenções, como prefixo JIRA obrigatório ou assunto de 72 caracteres.",
+            "fr": "`gitpr -s` génère six templates dans votre projet (`.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md`) que l'IA lit comme instructions système — committez-les et toute l'équipe partage les mêmes conventions, comme un préfixe JIRA obligatoire ou un sujet de 72 caractères.",
+            "es": "`gitpr -s` genera seis plantillas en tu proyecto (`.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md`) que la IA lee como instrucciones de sistema — hazles commit y todo el equipo comparte las mismas convenciones, como un prefijo JIRA obligatorio o un asunto de 72 caracteres."
+        }
+    },
+    {
+        "id": "tip_18",
+        "used": false,
+        "source": "docs/otimizacao-de-tokens.md",
+        "content": {
+            "en": "Keep your skill files under 150 tokens: don't teach the AI what it already knows, strip politeness, use CAPS LOCK headers instead of markdown, and end with \"ZERO saudações\" — the cheapest way to stop the AI burning ~20 tokens on \"Here is your PR description:\".",
+            "pt_br": "Mantenha seus arquivos de skill com menos de 150 tokens: não ensine à IA o que ela já sabe, corte a polidez, use cabeçalhos em CAPS LOCK no lugar de markdown e termine com \"ZERO saudações\" — a forma mais barata de impedir a IA de gastar ~20 tokens com \"Aqui está a sua descrição do Pull Request:\".",
+            "pt_pt": "Mantenha os seus ficheiros de skill com menos de 150 tokens: não ensine à IA o que ela já sabe, corte a delicadeza, use cabeçalhos em CAPS LOCK em vez de markdown e termine com \"ZERO saudações\" — a forma mais barata de impedir a IA de gastar ~20 tokens com \"Aqui está a sua descrição do Pull Request:\".",
+            "fr": "Gardez vos fichiers de skill sous 150 tokens : n'enseignez pas à l'IA ce qu'elle sait déjà, supprimez la politesse, utilisez des en-têtes en MAJUSCULES plutôt que du markdown et terminez par « ZERO saudações » — le moyen le moins cher d'empêcher l'IA de brûler ~20 tokens en « Here is your PR description: ».",
+            "es": "Mantén tus archivos de skill por debajo de 150 tokens: no enseñes a la IA lo que ya sabe, elimina la cortesía, usa encabezados en MAYÚSCULAS en lugar de markdown y termina con \"ZERO saudações\" — la forma más barata de impedir que la IA gaste ~20 tokens en \"Aquí está la descripción de tu PR:\"."
+        }
+    },
+    {
+        "id": "tip_19",
+        "used": false,
+        "source": "providers.md",
+        "content": {
+            "en": "Switch engines per run with `gitpr --provider gemini|deepseek|ollama` (default in `GITPR_PROVIDER`). Ollama runs entirely offline — no internet, no API keys, no quotas — and you can tune models via `GEMINI_API_MODEL` / `DEEPSEEK_API_MODEL`.",
+            "pt_br": "Troque de motor por execução com `gitpr --provider gemini|deepseek|ollama` (padrão em `GITPR_PROVIDER`). O Ollama roda totalmente offline — sem internet, sem API keys, sem cotas — e você pode ajustar os modelos via `GEMINI_API_MODEL` / `DEEPSEEK_API_MODEL`.",
+            "pt_pt": "Troque de motor por execução com `gitpr --provider gemini|deepseek|ollama` (padrão em `GITPR_PROVIDER`). O Ollama executa totalmente offline — sem internet, sem API keys, sem quotas — e pode ajustar os modelos via `GEMINI_API_MODEL` / `DEEPSEEK_API_MODEL`.",
+            "fr": "Changez de moteur à chaque exécution avec `gitpr --provider gemini|deepseek|ollama` (défaut dans `GITPR_PROVIDER`). Ollama fonctionne entièrement hors ligne — pas d'internet, pas de clés API, pas de quota — et vous pouvez ajuster les modèles via `GEMINI_API_MODEL` / `DEEPSEEK_API_MODEL`.",
+            "es": "Cambia de motor por ejecución con `gitpr --provider gemini|deepseek|ollama` (por defecto en `GITPR_PROVIDER`). Ollama funciona totalmente offline — sin internet, sin API keys, sin cuotas — y puedes ajustar los modelos con `GEMINI_API_MODEL` / `DEEPSEEK_API_MODEL`."
+        }
+    },
+    {
+        "id": "tip_20",
+        "used": false,
+        "source": "docs/providers-ia.md",
+        "content": {
+            "en": "Both providers are configured for deterministic output — temperature 0.0, Top P 0.1, structured JSON, 3 retries at 2s intervals. And if the chosen provider fails (network, quota), GitPR automatically falls back to the other one, so a Gemini outage silently switches you to DeepSeek.",
+            "pt_br": "Os dois providers são configurados para saída determinística — temperatura 0.0, Top P 0.1, JSON estruturado, 3 tentativas com intervalo de 2s. E se o provider escolhido falhar (rede, cota), o GitPR cai automaticamente para o outro: uma queda do Gemini troca você silenciosamente para o DeepSeek.",
+            "pt_pt": "Os dois providers são configurados para saída determinística — temperatura 0.0, Top P 0.1, JSON estruturado, 3 tentativas com intervalo de 2s. E se o provider escolhido falhar (rede, quota), o GitPR muda automaticamente para o outro: uma falha do Gemini troca-o silenciosamente para o DeepSeek.",
+            "fr": "Les deux providers sont configurés pour une sortie déterministe — température 0.0, Top P 0.1, JSON structuré, 3 tentatives à 2 s d'intervalle. Et si le provider choisi échoue (réseau, quota), GitPR bascule automatiquement sur l'autre : une panne de Gemini vous fait passer silencieusement à DeepSeek.",
+            "es": "Ambos providers están configurados para salida determinista — temperatura 0.0, Top P 0.1, JSON estructurado, 3 reintentos a intervalos de 2s. Y si el provider elegido falla (red, cuota), GitPR cambia automáticamente al otro: una caída de Gemini te pasa silenciosamente a DeepSeek."
+        }
+    },
+    {
+        "id": "tip_21",
+        "used": false,
+        "source": "i18n.md",
+        "content": {
+            "en": "Mixed-language team? `gitpr --lang <code>` overrides the language for a single run: `gitpr -c --lang en`, `gitpr -r --lang pt_br`, `gitpr -ch --lang fr`. GitPR speaks 5 languages and auto-detects your system locale on first run.",
+            "pt_br": "Time com idiomas mistos? O `gitpr --lang <código>` sobrescreve o idioma de uma única execução: `gitpr -c --lang en`, `gitpr -r --lang pt_br`, `gitpr -ch --lang fr`. O GitPR fala 5 idiomas e detecta o locale do sistema automaticamente no primeiro uso.",
+            "pt_pt": "Equipa com idiomas mistos? O `gitpr --lang <código>` substitui o idioma de uma única execução: `gitpr -c --lang en`, `gitpr -r --lang pt_br`, `gitpr -ch --lang fr`. O GitPR fala 5 idiomas e deteta o locale do sistema automaticamente na primeira utilização.",
+            "fr": "Équipe multilingue ? `gitpr --lang <code>` remplace la langue pour une seule exécution : `gitpr -c --lang en`, `gitpr -r --lang pt_br`, `gitpr -ch --lang fr`. GitPR parle 5 langues et détecte automatiquement la locale du système au premier lancement.",
+            "es": "¿Equipo con idiomas mixtos? `gitpr --lang <código>` sustituye el idioma de una sola ejecución: `gitpr -c --lang en`, `gitpr -r --lang pt_br`, `gitpr -ch --lang fr`. GitPR habla 5 idiomas y detecta automáticamente el locale del sistema en el primer uso."
+        }
+    },
+    {
+        "id": "tip_22",
+        "used": false,
+        "source": "docs/git-status.md",
+        "content": {
+            "en": "`gitpr --status` is a no-AI, no-network `git status`: it lists New, Modified and Deleted files in human-readable categories, normalizing Git's two-character porcelain codes (MM, AM, RD...) — and it deliberately shows only working-tree changes, not what's already staged.",
+            "pt_br": "O `gitpr --status` é um `git status` sem IA e sem rede: lista arquivos Novos, Modificados e Deletados em categorias legíveis, normalizando os códigos porcelain de dois caracteres do Git (MM, AM, RD...) — e mostra de propósito apenas as mudanças do working tree, não o que já está no stage.",
+            "pt_pt": "O `gitpr --status` é um `git status` sem IA e sem rede: lista ficheiros Novos, Modificados e Eliminados em categorias legíveis, normalizando os códigos porcelain de dois caracteres do Git (MM, AM, RD...) — e mostra de propósito apenas as alterações do working tree, não o que já está no stage.",
+            "fr": "`gitpr --status` est un `git status` sans IA ni réseau : il liste les fichiers Nouveaux, Modifiés et Supprimés en catégories lisibles, en normalisant les codes porcelain à deux caractères de Git (MM, AM, RD...) — et il n'affiche volontairement que les changements du working tree, pas ce qui est déjà stagé.",
+            "es": "`gitpr --status` es un `git status` sin IA y sin red: lista archivos Nuevos, Modificados y Eliminados en categorías legibles, normalizando los códigos porcelain de dos caracteres de Git (MM, AM, RD...) — y muestra a propósito solo los cambios del working tree, no lo que ya está en el stage."
+        }
+    },
+    {
+        "id": "tip_23",
+        "used": false,
+        "source": "docs/untracked-files.md",
+        "content": {
+            "en": "GitPR deliberately ignores untracked files (it reads `git diff HEAD`), and that's a feature: a forgotten `.env.local` with production passwords is never sent to the AI, and giant cache folders never waste tokens. To include a new file, just `git add` it first.",
+            "pt_br": "O GitPR ignora arquivos não rastreados de propósito (ele lê `git diff HEAD`), e isso é uma feature: um `.env.local` esquecido com senhas de produção nunca é enviado à IA, e pastas de cache gigantes nunca gastam tokens. Para incluir um arquivo novo, basta dar `git add` antes.",
+            "pt_pt": "O GitPR ignora ficheiros não rastreados de propósito (lê `git diff HEAD`), e isso é uma funcionalidade: um `.env.local` esquecido com palavras-passe de produção nunca é enviado à IA, e pastas de cache gigantes nunca gastam tokens. Para incluir um ficheiro novo, basta fazer `git add` antes.",
+            "fr": "GitPR ignore volontairement les fichiers non suivis (il lit `git diff HEAD`), et c'est une fonctionnalité : un `.env.local` oublié avec des mots de passe de production n'est jamais envoyé à l'IA, et les énormes dossiers de cache ne gaspillent jamais de tokens. Pour inclure un nouveau fichier, faites simplement `git add` avant.",
+            "es": "GitPR ignora a propósito los archivos no rastreados (lee `git diff HEAD`), y eso es una característica: un `.env.local` olvidado con contraseñas de producción nunca se envía a la IA, y las carpetas de caché gigantes nunca gastan tokens. Para incluir un archivo nuevo, basta con hacer `git add` antes."
+        }
+    },
+    {
+        "id": "tip_24",
+        "used": false,
+        "source": "docs/code-review-ia.md",
+        "content": {
+            "en": "`gitpr -r -i src/legacy/parser.py` reviews a whole file, ignoring git history — the docs call it \"acting as a consultant on legacy code refactoring\". Customize the audit's focus via the `.gitpr.filereview.md` skill file (cohesion, coupling).",
+            "pt_br": "O `gitpr -r -i src/legacy/parser.py` revisa um arquivo inteiro, ignorando o histórico do git — a documentação chama isso de \"atuar como consultor de refatoração de código legado\". Customize o foco da auditoria pelo arquivo de skill `.gitpr.filereview.md` (coesão, acoplamento).",
+            "pt_pt": "O `gitpr -r -i src/legacy/parser.py` revê um ficheiro inteiro, ignorando o histórico do git — a documentação chama-lhe \"atuar como consultor de refatoração de código legado\". Personalize o foco da auditoria através do ficheiro de skill `.gitpr.filereview.md` (coesão, acoplamento).",
+            "fr": "`gitpr -r -i src/legacy/parser.py` passe en revue un fichier entier en ignorant l'historique git — la documentation parle d'« agir comme consultant en refactorisation de code legacy ». Personnalisez le focus de l'audit via le fichier de skill `.gitpr.filereview.md` (cohésion, couplage).",
+            "es": "`gitpr -r -i src/legacy/parser.py` revisa un archivo completo ignorando el historial de git — la documentación lo llama \"actuar como consultor de refactorización de código legado\". Personaliza el foco de la auditoría con el archivo de skill `.gitpr.filereview.md` (cohesión, acoplamiento)."
+        }
+    },
+    {
+        "id": "tip_25",
+        "used": false,
+        "source": "docs/caveman-commit.md",
+        "content": {
+            "en": "The Caveman Commit persona turns messages ultra-terse: Conventional Commits, subject ≤50 chars (hard cap 72), imperative mood, no trailing period, `Closes #42` at the end. Say \"stop caveman-commit\" to go back to verbose style. Example: `feat(api): add GET /users/:id/profile`.",
+            "pt_br": "A persona Caveman Commit deixa as mensagens ultratelegráficas: Conventional Commits, assunto ≤50 caracteres (teto de 72), modo imperativo, sem ponto final, `Closes #42` no fim. Diga \"stop caveman-commit\" para voltar ao estilo prolixo. Exemplo: `feat(api): add GET /users/:id/profile`.",
+            "pt_pt": "A persona Caveman Commit torna as mensagens ultratelegráficas: Conventional Commits, assunto ≤50 caracteres (limite de 72), modo imperativo, sem ponto final, `Closes #42` no fim. Diga \"stop caveman-commit\" para voltar ao estilo prolixo. Exemplo: `feat(api): add GET /users/:id/profile`.",
+            "fr": "La persona Caveman Commit rend les messages ultra-télégraphiques : Conventional Commits, sujet ≤ 50 caractères (plafond 72), mode impératif, pas de point final, `Closes #42` à la fin. Dites « stop caveman-commit » pour revenir au style verbeux. Exemple : `feat(api): add GET /users/:id/profile`.",
+            "es": "La persona Caveman Commit vuelve los mensajes ultratelegráficos: Conventional Commits, asunto ≤50 caracteres (tope 72), modo imperativo, sin punto final, `Closes #42` al final. Di \"stop caveman-commit\" para volver al estilo verboso. Ejemplo: `feat(api): add GET /users/:id/profile`."
+        }
+    },
+    {
+        "id": "tip_26",
+        "used": false,
+        "source": "docs/gitpr-issue-option.md",
+        "content": {
+            "en": "After the AI structures your issue, a TUI opens: F2 saves a local draft, F3 publishes to GitHub and prints the link, Esc aborts. The first publish asks for a PAT via a generated URL with the `repo` scope pre-selected — the token is stored Fernet-encrypted in `~/.gitpr/.env`.",
+            "pt_br": "Depois que a IA estrutura sua issue, abre uma TUI: F2 salva um rascunho local, F3 publica no GitHub e imprime o link, Esc aborta. Na primeira publicação, ela pede um PAT por uma URL gerada com o escopo `repo` pré-selecionado — o token fica criptografado com Fernet em `~/.gitpr/.env`.",
+            "pt_pt": "Depois de a IA estruturar a sua issue, abre uma TUI: F2 guarda um rascunho local, F3 publica no GitHub e imprime o link, Esc aborta. Na primeira publicação, pede um PAT através de uma URL gerada com o escopo `repo` pré-selecionado — o token fica encriptado com Fernet em `~/.gitpr/.env`.",
+            "fr": "Une fois votre issue structurée par l'IA, une TUI s'ouvre : F2 enregistre un brouillon local, F3 publie sur GitHub et affiche le lien, Esc abandonne. À la première publication, elle demande un PAT via une URL générée avec le scope `repo` présélectionné — le token est stocké chiffré Fernet dans `~/.gitpr/.env`.",
+            "es": "Después de que la IA estructura tu issue, se abre una TUI: F2 guarda un borrador local, F3 publica en GitHub e imprime el enlace, Esc aborta. En la primera publicación, pide un PAT mediante una URL generada con el scope `repo` preseleccionado — el token se guarda cifrado con Fernet en `~/.gitpr/.env`."
+        }
+    }
+]

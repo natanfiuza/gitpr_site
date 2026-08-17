@@ -63,8 +63,8 @@ Guided configuration downloads skill templates, installs Git Hooks, configures M
 
 GitPR is **AI-agnostic** — choose your engine:
 
-- **Google Gemini** (default: `gemini-2.5-flash`)
-- **DeepSeek** (default: `deepseek-chat`)
+- **Google Gemini** (default: `gemini-pro-latest`)
+- **DeepSeek** (default: `deepseek-v4-pro`)
 - **Ollama** — run local models without internet
 
 Switch anytime with `--provider <gemini|deepseek|ollama>`.

@@ -127,9 +127,9 @@ Todas as configurações ficam em `~/.gitpr/.env`:
 | Variável | Descrição | Padrão |
 | --- | --- | --- |
 | `GEMINI_API_KEY` | Sua chave de API do Google Gemini (criptografada) | — |
-| `GEMINI_API_MODEL` | Versão do modelo Gemini | `gemini-pro-latest` |
+| `GEMINI_API_MODEL_PRIMARY` | Versão do modelo Gemini | `gemini-pro-latest` |
 | `DEEPSEEK_API_KEY` | Sua chave de API do DeepSeek (criptografada) | — |
-| `DEEPSEEK_API_MODEL` | Versão do modelo DeepSeek | `deepseek-v4-pro` |
+| `DEEPSEEK_API_MODEL_PRIMARY` | Versão do modelo DeepSeek | `deepseek-v4-pro` |
 | `GITPR_PROVIDER` | Provedor de IA padrão | `gemini` |
 | `GITPR_LANG` | Idioma da interface | detectado automaticamente |
 

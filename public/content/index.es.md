@@ -63,8 +63,8 @@ La configuración guiada descarga plantillas de skills, instala Git Hooks, confi
 
 GitPR es **agnóstico de IA** — elige tu motor:
 
-- **Google Gemini** (por defecto: `gemini-2.5-flash`)
-- **DeepSeek** (por defecto: `deepseek-chat`)
+- **Google Gemini** (por defecto: `gemini-pro-latest`)
+- **DeepSeek** (por defecto: `deepseek-v4-pro`)
 - **Ollama** — ejecuta modelos locales sin internet
 
 Cambia en cualquier momento con `--provider <gemini|deepseek|ollama>`.
