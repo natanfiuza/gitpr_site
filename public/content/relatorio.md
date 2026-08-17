@@ -1,18 +1,19 @@
-# **🚀 Project Status Report: GitPR CLI — v0.0.10 (2026-08-11)**
+# **🚀 Project Status Report: GitPR CLI — v0.0.11 (2026-08-15)**
 
 ## **📌 Overview**
 
 **GitPR** is an advanced CLI (Command Line Interface) tool for automating Git processes using Artificial Intelligence (Google Gemini / DeepSeek / Ollama). Its main goal is to act as a local intelligent assistant that performs Code Reviews, generates Pull Requests, semantic commit messages, audits technical debt, and injects best practices into the developer workflow (Shift Left).
 
-**What's New in This Version (v0.0.10):**
+**What's New in This Version (v0.0.11):**
+- **Staging Selection and Error Fix (`stage_files`):** The staging TUI now reads the actual selection from `SelectionList.selected` (individual toggles respected), and `stage_files()` returns `(success, error_message)` — `git add` failures display the real git error instead of a false success message. Staging now happens only once per flow (previously duplicated between the modal and `check_unstaged_files`).
+- **AI Message Skip on Git-Generated Commits:** The `prepare-commit-msg` hooks (5 language variants) now skip all git-generated sources (`merge`, `squash`, `amend`, `commit` — previously only `message`), with a belt-and-braces check of `.git/MERGE_HEAD`. `git pull`/`git merge` no longer corrupt `.git/MERGE_MSG` with an AI message. New helper `is_merge_in_progress()` in core and a guard in hook mode. `__scripts_version__` → v0.0.2 with auto-sync of the hooks.
+- **File Status Translations:** Status labels ("Modified", "Deleted", "New") translated in the es, es_es, fr, fr_fr, pt_br and pt_pt packs — pt_BR coverage rose to 507 keys.
+- **Multilingual Documentation Expanded and Synced:** `docs/pr-descricao-padrao.md` rewritten in canonical EN + 4 locales with a publication section (execution modes, TUI shortcuts, PAT); `docs/mcp-integration.md` synced in the 5 languages (2 missing tools in the table + new prompt resources subsection); `docs/git-hooks-locais.md` documents the merge-source skip in the 5 languages.
+- **New MCP Template:** `templates/gitpr.mcp-jsonrpc-calls.md` — JSON-RPC call reference for the MCP tools.
 
-- **Direct Invocation of MCP Tools via CLI (`gitpr-mcp --tool`):** The 12 GitPR MCP tools can now be invoked directly from the command line with `gitpr-mcp --tool <name> [--tool-args '<json>']`, without starting the stdio JSON-RPC server. The `--tool` mode (without a name) lists all available tools with their signatures. Ideal for debugging, scripts, and manual use.
-- **Error Handling in PR Merge:** The PR Publisher (Textual TUI) now displays a visible error modal when the PR merge fails — especially HTTP 405 indicating conflicts. Previously, the failure was silently ignored and the flow continued as if everything had worked.
-- **New MCP Documents:** 3 new MCP documentation topics in 5 languages: `mcp-annotations.md` (tool annotations), `mcp-integration.md` (integration guide), `mcp-prompts.md` (templated prompts guide).
-
-- **Current version:** 0.0.35
+- **Current version:** 0.0.36
 - **Language dictionaries version:** v0.0.13
-- **Hook scripts version:** v0.0.1
+- **Hook scripts version:** v0.0.2
 - **Distribution:** PyPI (`pip install gitpr-cli`) + GitHub Releases (standalone binary)
 - **Website:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
 - **Repository:** [github.com/natanfiuza/gitpr](https://github.com/natanfiuza/gitpr)
@@ -31,7 +32,7 @@
 * **AI Providers:** Integration via the official Google GenAI SDK (`gemini-2.5-flash`), OpenAI SDK (`DeepSeek`), and OpenAI SDK (local `Ollama`).
 * **GitHub API:** `requests` (REST API via PAT) — `src/github_api.py` module with `create_pull_request()`, `update_pull_request()`, `merge_pull_request()`.
 * **MCP:** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 (official Anthropic SDK for Model Context Protocol) — 12 annotated tools, 15 resources, 7 prompts.
-* **Tests:** Pytest + `unittest.mock` (13 test files, 207 scenarios).
+* **Tests:** Pytest + `unittest.mock` (13 test files, 214 scenarios).
 * **Packaging:** PyInstaller (standalone binary) + setuptools/build (PyPI).
 * **CI/CD:** GitHub Actions (`pr-review.yml`) + `action.yml` for execution in pipelines.
 
@@ -50,6 +51,8 @@
 * **Smart Excludes with Two Layers:** Smart pathspec filter with a global layer (`~/.gitpr/conf/`) + project-local layer (`./.gitpr/conf/`). Runtime merging (union, deduplicated). Auto-seeding of the local file on first run. Support for 3 environment variables (`GITPR_SKIP_SMART_EXCLUDES`, `GITPR_SMART_EXCLUDES_GLOBAL`, `GITPR_SMART_EXCLUDES_LOCAL`).
 * **Metrics with Time Tracking:** Injection of `log_command_metric()` into all flows passing the duration in milliseconds (`duration_ms`), with lazy imports.
 * **Centralized Output Resolution:** `resolve_output_path()` function that centralizes output directory logic — defaulting to `.gitpr/reports/{type}/` with fallback to custom paths from `.env`.
+* **Merge In-Progress Detection 🆕:** `is_merge_in_progress()` helper (checks `git rev-parse -q --verify MERGE_HEAD`, silent and worktree-safe) — used as defense in depth against old hooks calling the CLI during a merge.
+* **Staging with Real Error 🆕:** `stage_files()` now returns the `(success, error_message)` tuple, capturing the `git add` stderr/stdout on failures — the real git error reaches the user instead of being swallowed.
 
 ### **2. Global Plugin System (`src/plugins.py`)**
 
@@ -71,7 +74,7 @@
   * `--no-edit`: Skips the TUI entirely — auto-commit (with linter validation), auto-push, and publishes directly to GitHub.
   * `--base <branch>`: Overrides the Pull Request target branch.
   * `--plugins`: Lists installed global plugins.
-  * `--version` 🆕: Displays the current GitPR version (via `@click.version_option`).
+  * `--version`: Displays the current GitPR version (via `@click.version_option`).
 * **Environment Variables:** `GITPR_AUTO_COMMIT`, `GITPR_SKIP_LINT`, `GITPR_AUTO_STAGE`, `GITPR_SKIP_UNSTAGED_CHECK`, `GITPR_SHOW_LOGS`, `GITPR_AUTO_MERGE`, `GITPR_SKIP_SMART_EXCLUDES`, `GITPR_SMART_EXCLUDES_GLOBAL`, `GITPR_SMART_EXCLUDES_LOCAL`.
 * **Contextual Help:** `-h --flag` displays feature-specific documentation with a direct (language-aware) link to GitHub.
 * **--lang:** Forces the interface language for the current run without persisting the change.
@@ -80,6 +83,8 @@
 * **--install:** 4-step guided wizard that downloads skill templates, installs Git Hooks, configures MCP in editors, and validates API keys.
 * **--metrics:** Local telemetry system scoped per repository: `--export`, `--purge`, `--dashboard` (interactive TUI with cache scanning).
 * **--status:** Lists uncommitted files categorized (new/modified/deleted) — fast, no AI, no network.
+* **Merge Guard in Hook Mode 🆕:** In the hook-mode commit flow, if `is_merge_in_progress()` returns True the run ends silently with exit 0 before any diff or AI call.
+* **Real Staging Feedback 🆕:** `check_unstaged_files()` checks the `stage_files()` result at the 3 call sites (TUI result, pr/issue auto-stage, commit auto-stage) and shows "❌ Failed to stage files: {real git error}" on failures.
 
 ### **4. PR Publisher TUI (`src/ui/pr_publish_app.py` and `src/ui/pr_publish_help.py`)**
 
@@ -93,7 +98,8 @@
 * **Auto-Upstream:** Detects `git push` failure due to a missing upstream and automatically retries with `--set-upstream origin <branch>`.
 * **"Nothing to commit" Detection:** Treats `git commit` without changes as success.
 * **Merge Flow:** After PR creation/update, offers a merge option. Controlled by `GITPR_AUTO_MERGE`.
-* **Merge Error Handling 🆕:** Refactoring of `_do_merge` into 3 methods with separation of responsibilities: `_do_merge` (fires on a thread), `_on_merge_success` (success callback), `_on_merge_failure` (failure callback with error modal). HTTP 405 (conflicts) displays a clear message and offers opening in the browser for manual resolution. Tracking of `final_action` ("merged"/"merge_failed") for post-TUI visual feedback with correct colors.
+* **Merge Error Handling:** `_on_merge_success` / `_on_merge_failure` callbacks with an error modal for HTTP 405 (conflicts) and post-TUI visual feedback.
+* **Real File Selection 🆕:** `StageFilesScreen.btn_stage` reads the selection directly from `SelectionList.selected` — individual row toggles (click/Enter) are now respected; removed the manual `_selected` dictionary that went out of sync and the duplicate `git add` inside the TUI (single staging in `main.py`).
 
 ### **5. GitHub API Module (`src/github_api.py`)**
 
@@ -121,7 +127,7 @@
 * **Hot-Swap:** Checks the latest version via the GitHub Releases API, downloads the compiled binary, and replaces it without breaking the running execution (with rollback).
 * **Daily Cache:** Avoids repeated checks on the same day.
 * **Connection Check:** Socket `8.8.8.8:53` before any network operation.
-* **Centralized Versioning:** `__version__` (0.0.35), `__lang_version__` (v0.0.13), `__scripts_version__` (v0.0.1), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`.
+* **Centralized Versioning:** `__version__` (0.0.36), `__lang_version__` (v0.0.13), `__scripts_version__` (v0.0.2), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`.
 
 ### **9. Interactive Chat Interface (`src/ui/chat_app.py`)**
 
@@ -138,7 +144,8 @@
 * **Automatic Detection:** Detects the OS language on first run and saves it in `GITPR_LANG`.
 * **5 Languages:** en_us (default/fallback), pt_br, pt_pt, es_es, fr_fr.
 * **Versioned Files:** `__lang_version__` (v0.0.13) controls updating of the language packs (`langs/*.json`).
-* **Coverage:** 503 translation keys in pt_BR.
+* **Coverage:** 507 translation keys in pt_BR.
+* **File Status Translations 🆕:** "Modified", "Deleted" and "New" keys translated in the 6 non-English packs (es, es_es, fr, fr_fr, pt_br, pt_pt).
 * **Cache with Language Indexing:** Cached AI responses include the current language in the MD5 keying.
 * **Sync Script:** `tests/sync_i18n.py` for automatic detection of orphan keys.
 
@@ -174,16 +181,16 @@
 * **Git Blame + AI:** Tracks the historical evolution and authorship of code snippets with commit classification (`ORIGIN` vs `REFACTORING`).
 * **Blame Metrics:** Events recorded via `log_blame_metric()` with tracking of depth and number of analyzed commits.
 
-### **16. MCP Server and Direct CLI Invocation (`src/mcp_server.py`)** 🆕
+### **16. MCP Server and Direct CLI Invocation (`src/mcp_server.py`)**
 
 * **12 Annotated MCP Tools:** Tools for `get_git_context`, `analyze_diff`, `list_unstaged_files`, `analyze_unstaged_diff`, `get_full_diff`, `generate_commit_message`, `review_code`, `full_review`, `generate_pr_description`, `run_linter`, `analyze_blame`, `generate_issue`.
 * **15 Resources + 7 Templated Prompts:** 35 template files in `templates/gitpr.prompt.*.md`.
-* **Direct CLI Invocation 🆕:** Command `gitpr-mcp --tool <name> [--tool-args '<json>']` invokes any MCP tool directly without starting the stdio JSON-RPC server.
-* **Registry Pattern 🆕:** `_TOOL_FUNCS` maps tool name → callable; `_get_tool_registry()` merges with catalog metadata.
-* **Real Stdout Isolation 🆕:** `_write_real_stdout()` writes directly to the original `sys.__stdout__` (saved before monkey-patching), guaranteeing pure JSON on stdout.
-* **Tool Listing 🆕:** `gitpr-mcp --tool` (without a name) lists all 12 available tools with parameter signatures.
-* **Automatic .env Loading 🆕:** API keys automatically available in CLI mode.
-* **New MCP Documents 🆕:** `docs/mcp-annotations.md`, `docs/mcp-integration.md`, `docs/mcp-prompts.md` in 5 languages each (15 new files).
+* **Direct CLI Invocation:** Command `gitpr-mcp --tool <name> [--tool-args '<json>']` invokes any MCP tool directly without starting the stdio JSON-RPC server.
+* **Registry Pattern:** `_TOOL_FUNCS` maps tool name → callable; `_get_tool_registry()` merges with catalog metadata.
+* **Real Stdout Isolation:** `_write_real_stdout()` writes directly to the original `sys.__stdout__` (saved before monkey-patching), guaranteeing pure JSON on stdout.
+* **Tool Listing:** `gitpr-mcp --tool` (without a name) lists all 12 available tools with parameter signatures.
+* **Automatic .env Loading:** API keys automatically available in CLI mode.
+* **New JSON-RPC Template 🆕:** `templates/gitpr.mcp-jsonrpc-calls.md` — JSON-RPC call reference for the MCP tools.
 * **Automatic Installer:** Configuration of supported editors (VS Code, Cursor, Claude Code, Claude Desktop, Zed) with smart JSON merge.
 
 ### **17. Metrics Dashboard TUI (`src/ui/metrics_app.py`)**
@@ -205,9 +212,10 @@
 
 ### **19. Git Hooks Synchronization**
 
-* **Independent Versioning:** `__scripts_version__` (v0.0.1) controls the version of the hook scripts.
+* **Independent Versioning:** `__scripts_version__` (v0.0.2) controls the version of the hook scripts.
 * **Automatic Detection:** Compares the local version with the latest and updates automatically.
 * **Language-Aware:** Downloads hook templates corresponding to the configured language.
+* **Merge-Source Skip 🆕:** The `prepare-commit-msg` template (5 language variants) now uses a POSIX case that skips the `message|merge|squash|commit` sources and checks `.git/MERGE_HEAD` as belt-and-braces — git-generated commits (`git pull`, `git merge`, `--amend`, `-c`/`-C`, `--squash`) preserve the original git message.
 
 ---
 
@@ -215,10 +223,10 @@
 
 | Test File | Scenarios | Focus |
 |------------------|----------|------|
-| `tests/test_core.py` | 25+ | Main flows, git diff, PR generation, timing |
+| `tests/test_core.py` | 32+ 🆕 | Main flows, git diff, PR generation, timing, merge in progress, staging |
 | `tests/test_chat_backend.py` | 30+ | Chat memory, persistence, slash commands |
 | `tests/test_plugins.py` | 17 | Plugin discovery, linter rule merging, MCP prompts |
-| `tests/test_mcp_server.py` | 75+ 🆕 | MCP tools, resources, annotations, patching, direct CLI |
+| `tests/test_mcp_server.py` | 75+ | MCP tools, resources, annotations, patching, direct CLI |
 | `tests/test_metrics.py` | 36+ | Collection, local export, repo scope, cache token summary, duration_ms |
 | `tests/test_smart_excludes.py` | 14+ | Smart pathspec filter |
 | `tests/test_mcp_prompts.py` | 11 | MCP prompt templates and language fallback |
@@ -230,22 +238,22 @@
 | `tests/test_pre_save.py` | 3+ | --pre-save flag and JSON payload |
 | `tests/sync_i18n.py` | — | i18n coverage verification script (orphan keys) |
 
-**Total:** 207 automated test scenarios passing (13 test files). 1 known failure in `test_metrics.py::test_app_skips_export_and_config_files` (pre-existing, unrelated to recent changes).
+**Total:** 214 automated test scenarios passing (13 test files). Full execution verified in this version: **214/214 passed**. New tests: `TestIsMergeInProgress` (3 merge-in-progress cases) and `TestStageFiles` (4 cases: empty list, success, failure with git error, exception). The known failure reported in v0.0.10 in `test_metrics.py::test_app_skips_export_and_config_files` did not reproduce in this run.
 
 ---
 
 ## **🌐 Internationalization and Documentation**
 
-* **i18n Coverage:** 503 translation keys in pt_BR.
-* **New Technical Documents 🆕:** 3 new MCP topics in 5 languages each (15 files):
-  - `docs/mcp-annotations.md` — catalog of annotations for the 12 MCP tools
-  - `docs/mcp-integration.md` — MCP integration guide for editors (VS Code, Cursor, Claude Code, Claude Desktop, Zed)
-  - `docs/mcp-prompts.md` — reference for the 7 templated MCP prompts
-* **Existing Documentation:** `docs/plugins-system.md`, `docs/smart-excludes.md`, `docs/untracked-files.md` and more — all in 5 languages.
-* **Documentation in 5 languages:** 37 unique topics in `docs/` (+3 new MCP topics).
-* **Memory Index:** `.claude/memory/MEMORY.md` with 20 architecture patterns (+2 new: mcp-tool-cli-invocacao-direta, merge-conflict-error-handling).
-* **Task reports:** `docs/claude-code/reports/` and `docs/reports/` (10 status reports).
-* **Development plans:** 10+ plans documented in `docs/plans/`.
+* **i18n Coverage:** 507 translation keys in pt_BR (+4: file status labels and staging error message).
+* **Updated Documents 🆕 (all in 5 languages):**
+  - `docs/pr-descricao-padrao.md` — rewritten in canonical EN (multilingual docs convention) + 4 locales; publication section with 3 execution modes (`gitpr`, `--no-publish`, `--no-edit`), TUI shortcuts (F1/F2/F3/Esc), PAT requirement and base branch resolution; output path corrected to `.gitpr/reports/pr_desc/`
+  - `docs/mcp-integration.md` — synced with the implementation: 2 missing tools in the table (`list_unstaged_files`, `analyze_unstaged_diff`), new prompt resources subsection (`prompt://*`, plugins, built-in prompts) and Claude Code section in the 4 translations
+  - `docs/git-hooks-locais.md` — documents the merge-source skip of the `prepare-commit-msg` hook (merge/squash/amend preserve the git message)
+* **Documentation in 5 languages:** 34 canonical topics in `docs/` (28 with full 5-language coverage).
+* **Memory Index:** `.claude/memory/MEMORY.md` with 27 patterns in 3 categories (20 project, 3 reference, 4 feedback).
+* **Task reports:** `docs/claude-code/reports/` (+4 new: multilingual pr-descricao-padrao, prepare-commit-msg merge skip fix, unstaged modal stage fix, MCP docs sync) and `docs/gemini/reports/`.
+* **Status reports:** `docs/reports/` (11 status reports).
+* **Development plans:** 11+ plans documented in `docs/plans/`.
 
 ---
 
@@ -258,25 +266,27 @@
 
 ---
 
-## **📈 Evolution Since the Previous Report (v0.0.9)**
+## **📈 Evolution Since the Previous Report (v0.0.10)**
 
-| Area | v0.0.9 (previous) | v0.0.10 (current) |
+| Area | v0.0.10 (previous) | v0.0.11 (current) |
 |------|-------------------|----------------|
-| **GitPR Version** | 0.0.34 | **0.0.35** |
-| **Language Version** | v0.0.12 | **v0.0.13** |
-| **Hook Scripts Version** | v0.0.1 | v0.0.1 |
+| **GitPR Version** | 0.0.35 | **0.0.36** |
+| **Language Version** | v0.0.13 | v0.0.13 |
+| **Hook Scripts Version** | v0.0.1 | **v0.0.2** |
 | **AI Providers** | Gemini + DeepSeek + Ollama | Gemini + DeepSeek + Ollama |
 | **Languages** | 5 (en, pt_br, pt_pt, es_es, fr_fr) | 5 (en, pt_br, pt_pt, es_es, fr_fr) |
-| **Interface** | CLI + TUI Issues + Chat TUI + MCP Server + Dashboard + PR Publisher TUI | CLI + TUI Issues + Chat TUI + MCP Server + Dashboard + PR Publisher TUI + **Direct MCP CLI** |
-| **MCP Tools** | 10 tools | **12 tools (+ list_unstaged_files, analyze_unstaged_diff)** |
-| **Direct MCP CLI** | — | **`gitpr-mcp --tool <name>` — direct invocation without server** |
-| **PR Merge Handling** | Flow ignored merge errors | **Error modal for HTTP 405 (conflicts) + visual feedback** |
-| **CLI Flags** | 25 flags | **26 flags (+ `--version`)** |
+| **Interface** | CLI + TUI Issues + Chat TUI + MCP Server + Dashboard + PR Publisher TUI | CLI + TUI Issues + Chat TUI + MCP Server + Dashboard + PR Publisher TUI |
+| **MCP Tools** | 12 tools | 12 tools |
+| **CLI Flags** | 26 flags | 26 flags |
 | **Environment Variables** | 16 vars | 16 vars |
-| **Documentation** | 34 topics | **37 topics (+3: mcp-annotations, mcp-integration, mcp-prompts in 5 languages)** |
-| **Test Suite** | 171 scenarios (13 files) | **207 scenarios (13 files, +36 MCP tests)** |
-| **Commits since v0.0.34** | — | **2 commits (mcp-tool-cli + merge-error-handling)** |
-| **Merged PRs** | — | **2 PRs (#107, #110)** |
+| **File Staging** | Selection via manual dictionary (out of sync) + silent `git add` failures + duplicated staging | **Real selection (`SelectionList.selected`) + real git error shown + single staging per flow** |
+| **Commit Hooks** | AI skipped only the `message` source | **AI skips `message/merge/squash/commit` + `.git/MERGE_HEAD` check + `is_merge_in_progress()` guard** |
+| **i18n (pt_BR keys)** | 503 | **507 (+ file status labels and staging error)** |
+| **Documentation** | 37 topics | **34 canonical topics in `docs/` (28 with complete 5 languages) — 3 updated topics (pr-descricao-padrao, mcp-integration, git-hooks-locais)** |
+| **Test Suite** | 207 scenarios (13 files) | **214 scenarios (13 files, +7: merge in progress and staging)** |
+| **Commits since the report** | 2 commits | **4 commits (i18n status, merge skip, docs hooks, staging fix)** |
+| **Merged PRs** | 2 PRs (#107, #110) | **2 PRs (#111, #114)** |
+| **Memory Index** | 20 patterns | **27 patterns in 3 categories (project/reference/feedback)** |
 
 ---
 
@@ -289,9 +299,12 @@
 * **Release pipeline in GitHub Actions:** Full automation of the PyInstaller build and asset upload to GitHub Releases.
 * **More providers:** Direct OpenAI, additional local providers.
 * **Local `--init` command:** Seed of `.gitpr/conf/` with local configuration templates (smart-excludes, linter, etc.).
+* **Pending staging translations in the other languages:** The new staging error keys exist in pt_br — propagate to pt_pt, es_es and fr_fr in the next language version change.
+* **Dead code in the TUI:** The draft `FileStageScreen` class duplicates `StageFilesScreen` — integrate or remove.
+* **MCP documentation adjustments:** `gitpr-mcp --install` help omits `claude-code` from the editor list; document the hidden alias `gitpr --mcp` in `mcp-integration.md`.
 
 ---
 
-**Report generated on:** 2026-08-11  
+**Report generated on:** 2026-08-15  
 **Branch:** `develop_natan`  
 **Author:** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))
