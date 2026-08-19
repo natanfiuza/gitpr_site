@@ -150,6 +150,11 @@ Lorsque vous utilisez `--no-edit` ou appuyez sur `F3` dans la TUI avec des modif
    └─ "Nothing to commit" → treated as success, proceed to publish
 ```
 
+> **Remarque — Signature de co-auteur :** le trailer `Co-Authored-By: Gitpr-cli <gitpr@natanfiuza.dev.br>` est injecté à des moments différents selon le flux :
+>
+> - **TUI (F3) :** l'écran modifiable `CommitMessageScreen` affiche le message pur de l'IA ; le trailer n'est injecté qu'à l'exécution du commit (étape 4).
+> - **`--no-edit` (console) :** le trailer est ajouté à la génération et reste visible dans l'aperçu avant la confirmation.
+
 ### 5.1 Gestion du cas « Nothing to Commit »
 
 Lorsque `git commit` renvoie un code de sortie non nul mais que la sortie indique qu'aucun changement réel n'existe, le flux traite cela comme un succès et continue. Les motifs suivants sont reconnus :
@@ -185,7 +190,7 @@ Le flux d'auto-commit dans la TUI utilise une série d'écrans modaux :
 | Écran | Rôle |
 |---|---|
 | `CommitConfirmScreen` | Confirmation avant le lancement du flux de commit. Libellés de boutons personnalisables selon le contexte |
-| `FileStageScreen` | Liste de fichiers à cases à cocher pour le `git add` sélectif avant le commit |
+| `StageFilesScreen` | Liste de fichiers à cases à cocher pour sélectionner les fichiers à ajouter au stage avant le commit |
 | `CommitProgressScreen` | Modal `RichLog` de type terminal qui isole les journaux de commit de la TUI principale |
 | `CommitMessageScreen` | Message de commit modifiable avec un bouton « Regenerate » pour la régénération du message par l'IA |
 | `LinterErrorScreen` | Affiche les erreurs du linter avec les options de faire le commit avec `--no-verify` ou d'annuler |
