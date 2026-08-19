@@ -144,7 +144,7 @@ Pode passar as seguintes *flags* para ações específicas:
 * `-l` ou `--linter`: Executa **apenas o linter estático local** (sem chamadas de IA). Ideal para uso em pipelines de CI/CD para bloquear código fora de conformidade.
 * `--status`: Lista alterações de ficheiros não commitados categorizadas como **novos**, **modificados** e **eliminados** — rápido, sem IA, sem rede. 📖 [Documentação completa](https://github.com/natanfiuza/gitpr/blob/main/docs/git-status.md)
 * `--no-unstaged-check`: Ignora a verificação de ficheiros unstaged antes do processamento de IA para uma única execução. Equivalente a `GITPR_SKIP_UNSTAGED_CHECK=true` para uma execução. 📖 [Documentação completa](https://github.com/natanfiuza/gitpr/blob/main/docs/git-status.md)
-* `--linter-setup`: **Assistente interativo de linters externos.** Guia-o na instalação e configuração de linters externos (ESLint, PHPCS, Stylelint) como ponte para Checkstyle XML. 📖 [Documentação completa](https://github.com/natanfiuza/gitpr/blob/main/docs/linter-regras-customizadas.md)
+* `--linter-setup`: **Assistente interativo de linters externos.** Orienta a instalação e configuração de linters externos (ESLint, PHPCS, Stylelint) como bridge via Checkstyle XML. 📖 [Documentação completa](https://github.com/natanfiuza/gitpr/blob/main/docs/linter-regras-customizadas.md)
 * `--mcp`: Inicia o GitPR como um **servidor MCP** (Model Context Protocol) no transporte stdio. Permite integração com VS Code, Cursor, Claude Desktop e outros editores compatíveis com MCP — expondo todas as capacidades de IA do GitPR como ferramentas diretamente dentro do seu IDE. Também disponível como comando standalone `gitpr-mcp`.
 * `--plugins`: Lista todos os **plugins instalados globalmente** — pacotes de linter personalizados de `~/.gitpr/plugins/linter/` e templates de prompt MCP de `~/.gitpr/plugins/prompts/`. Estes plugins aplicam-se a todos os seus projetos sem duplicação. 📖 [Documentação completa](https://github.com/natanfiuza/gitpr/blob/main/docs/plugins-system.md)
 * `--install`: **Assistente de Configuração Interativo.** Executa uma configuração guiada em 4 etapas: descarrega skill templates, instala Git Hooks, configura MCP para editores detetados e verifica/solicita a sua chave de API do fornecedor de IA. Cada etapa pede confirmação antes de prosseguir.
@@ -189,9 +189,9 @@ rules:
 
 O Linter analisa apenas as **linhas adicionadas** no seu `git diff`, garantindo uma execução focada e extremamente rápida. Se houver violações, estas aparecerão destacadas no topo do seu ficheiro de review.
 
-### Linters Externos (Ponte Checkstyle)
+### Linters Externos (Bridge via Checkstyle)
 
-Se o seu projeto já utiliza ferramentas como ESLint, PHP_CodeSniffer ou Stylelint, o GitPR pode atuar como uma ponte — executando-as em segundo plano e filtrando erros **apenas nas linhas que alterou** no seu diff atual. Qualquer linter que emita relatórios no formato `checkstyle` é suportado.
+Se o seu projeto já usa ferramentas como ESLint, PHP_CodeSniffer ou Stylelint, o GitPR pode atuar como bridge — executando-as em segundo plano e filtrando erros **apenas das linhas que alterou** no seu diff atual. Qualquer linter que emita relatórios no formato `checkstyle` é suportado.
 
 Em vez de configurar o YAML manualmente, use o assistente interativo:
 
@@ -199,7 +199,7 @@ Em vez de configurar o YAML manualmente, use o assistente interativo:
 gitpr --linter-setup
 ```
 
-O assistente mostra presets pré-configurados (PHPCS, ESLint, Stylelint — controlados remotamente via `templates/gitpr.linter-presets.json`), guia-o pelo comando nativo de instalação (ex.: `npm install --save-dev eslint`) e injeta o bloco `external_linters` correto no seu `.gitpr.linter.yml`.
+O assistente apresenta presets pré-configurados (PHPCS, ESLint, Stylelint — controlados remotamente via `templates/gitpr.linter-presets.json`), orienta o comando de instalação nativa (ex.: `npm install --save-dev eslint`) e injeta o bloco `external_linters` correto no seu `.gitpr.linter.yml`.
 
 Cada execução — manual via `--linter` ou automática antes dos commits — consolida as Regras Regex e os Linters Externos num único relatório Markdown guardado em `.gitpr/reports/linter/` (personalizável via `OUTPUT_FILE_NAME_LINTER`).
 

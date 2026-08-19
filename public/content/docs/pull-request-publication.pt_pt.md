@@ -150,6 +150,11 @@ Ao utilizar `--no-edit` ou ao premir `F3` na TUI com alterações não commitada
    └─ "Nothing to commit" → treated as success, proceed to publish
 ```
 
+> **Nota — Assinatura de coautoria:** o trailer `Co-Authored-By: Gitpr-cli <gitpr@natanfiuza.dev.br>` é injetado em momentos diferentes consoante o fluxo:
+>
+> - **TUI (F3):** a `CommitMessageScreen` editável mostra a mensagem pura da IA; o trailer é injetado apenas quando o commit é executado (passo 4).
+> - **`--no-edit` (consola):** o trailer é anexado na geração e fica visível na pré-visualização antes da confirmação.
+
 ### 5.1 Tratamento de «Nothing to Commit»
 
 Quando `git commit` devolve um código diferente de zero, mas o resultado indica que não existem alterações reais, o fluxo trata isto como um sucesso e continua. São reconhecidos os seguintes padrões:
@@ -185,7 +190,7 @@ O fluxo de commit automático na TUI utiliza uma série de ecrãs modais:
 | Ecrã | Finalidade |
 |---|---|
 | `CommitConfirmScreen` | Confirmação antes de iniciar o fluxo de commit. Rótulos de botão personalizáveis para diferentes contextos |
-| `FileStageScreen` | Lista de ficheiros alternável para `git add` seletivo antes do commit |
+| `StageFilesScreen` | Lista de ficheiros alternável para selecionar quais ficheiros adicionar ao stage antes do commit |
 | `CommitProgressScreen` | Modal `RichLog` semelhante a um terminal que isola os logs de commit da TUI principal |
 | `CommitMessageScreen` | Mensagem de commit editável com botão «Regenerate» para regenerar a mensagem gerada por IA |
 | `LinterErrorScreen` | Mostra os erros de lint com opções para fazer commit com `--no-verify` ou abortar |
