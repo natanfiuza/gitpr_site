@@ -1,7 +1,7 @@
 [
     {
         "id": "tip_1",
-        "used": false,
+        "used": true,
         "source": "docs/commit-message-ia.md",
         "content": {
             "en": "Re-run any AI command without changing the code and GitPR answers in milliseconds: responses are cached at `~/.gitpr/cache/prompts/`, keyed by an MD5 hash of your diff + instructions — repeating a command costs zero API quota.",
