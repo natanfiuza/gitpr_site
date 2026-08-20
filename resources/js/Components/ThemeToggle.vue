@@ -21,7 +21,8 @@ const apply_theme = (dark_mode) => {
 };
 
 const toggle_theme = () => {
-    is_dark.value = !is_dark.value;
+    // Derive from the DOM so multiple instances (header + mobile menu) stay in sync
+    is_dark.value = !document.documentElement.classList.contains('dark');
     apply_theme(is_dark.value);
     localStorage.setItem('gitpr_theme', is_dark.value ? 'dark' : 'light');
 };
