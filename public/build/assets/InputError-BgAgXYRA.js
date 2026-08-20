@@ -1,0 +1,1 @@
+import{A as e,I as t,_ as n,l as r,m as i,w as a}from"./app-DGu_4v25.js";var o={class:`text-sm text-red-600 dark:text-red-400`},s={__name:`InputError`,props:{message:{type:String}},setup(s){return(c,l)=>e((a(),n(`div`,null,[i(`p`,o,t(s.message),1)],512)),[[r,s.message]])}};export{s as t};

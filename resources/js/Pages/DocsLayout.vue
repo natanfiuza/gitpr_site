@@ -32,45 +32,64 @@
 
             <!-- Sidebar -->
             <aside
-                :class="['w-64 md:flex-shrink-0 overflow-y-auto border-r bg-white border-slate-200 dark:border-gitpr_dark_border p-6 fixed top-14 bottom-0 left-0 dark:bg-gitpr_dark z-50 transform transition-transform duration-300 md:relative md:top-0 md:translate-x-0', is_mobile_menu_open ? 'translate-x-0' : '-translate-x-full']">
+                :class="['w-64 md:flex-shrink-0 flex flex-col overflow-hidden border-r bg-white border-slate-200 dark:border-gitpr_dark_border fixed top-14 bottom-0 left-0 dark:bg-gitpr_dark z-50 transform transition-transform duration-300 md:relative md:top-0 md:translate-x-0', is_mobile_menu_open ? 'translate-x-0' : '-translate-x-full']">
+                <!-- Language selector pinned to the top of the mobile menu (≤425px) -->
+                <div
+                    class="hidden max-[425px]:flex items-center shrink-0 border-b border-slate-200 dark:border-gitpr_dark_border px-4 py-3 pr-14">
+                    <LanguageSelector :current_lang="current_lang" />
+                </div>
                 <button @click="is_mobile_menu_open = false"
                     class="md:hidden absolute top-6 right-6 text-gitpr_text hover:text-gitpr_cyan_light text-xl">
                     ✕
                 </button>
-                <div class="mt-8 mb-6 md:hidden">
-                    <NewsletterBox :current_lang="current_lang" :ui_strings="ui_strings" class="mb-6" />
-                    <SearchBar :current_lang="current_lang" />
-                </div>
-                <nav>
-                    <ul class="space-y-2">
-                        <template v-for="group in menu_groups" :key="group.title ?? '__top__'">
-                            <!-- Section header (collapsible) -->
-                            <li v-if="group.title"
-                                class="text-sm font-bold uppercase tracking-wider text-gitpr_cyan_dark mt-6 mb-2 first:mt-0">
-                                <button
-                                    @click="toggle_section(group.title)"
-                                    class="flex items-center justify-between w-full text-left hover:text-gitpr_cyan_light transition-colors cursor-pointer"
-                                    :aria-expanded="is_section_expanded(group.title)">
-                                    <span>{{ group.title }}</span>
-                                    <svg
-                                        :class="['w-3 h-3 transition-transform duration-200', is_section_expanded(group.title) ? 'rotate-90' : 'rotate-0']"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                            </li>
-                            <!-- Section items -->
-                            <template v-if="!group.title || is_section_expanded(group.title)">
-                                <li v-for="item in group.items" :key="item.path">
-                                    <Link :href="'/' + item.path"
-                                        :class="['block py-1 transition-colors', current_page === item.path ? 'text-gitpr_cyan_light font-bold' : 'text-gitpr_primary hover:text-gitpr_cyan_light']">
-                                        {{ item.title }}
-                                    </Link>
+                <div class="flex-1 overflow-y-auto p-6">
+                    <div class="mt-8 mb-6 md:hidden">
+                        <NewsletterBox :current_lang="current_lang" :ui_strings="ui_strings" class="mb-6" />
+                        <SearchBar :current_lang="current_lang" />
+                    </div>
+                    <nav>
+                        <ul class="space-y-2">
+                            <template v-for="group in menu_groups" :key="group.title ?? '__top__'">
+                                <!-- Section header (collapsible) -->
+                                <li v-if="group.title"
+                                    class="text-sm font-bold uppercase tracking-wider text-gitpr_cyan_dark mt-6 mb-2 first:mt-0">
+                                    <button
+                                        @click="toggle_section(group.title)"
+                                        class="flex items-center justify-between w-full text-left hover:text-gitpr_cyan_light transition-colors cursor-pointer"
+                                        :aria-expanded="is_section_expanded(group.title)">
+                                        <span>{{ group.title }}</span>
+                                        <svg
+                                            :class="['w-3 h-3 transition-transform duration-200', is_section_expanded(group.title) ? 'rotate-90' : 'rotate-0']"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
                                 </li>
+                                <!-- Section items -->
+                                <template v-if="!group.title || is_section_expanded(group.title)">
+                                    <li v-for="item in group.items" :key="item.path">
+                                        <Link :href="'/' + item.path"
+                                            :class="['block py-1 transition-colors', current_page === item.path ? 'text-gitpr_cyan_light font-bold' : 'text-gitpr_primary hover:text-gitpr_cyan_light']">
+                                            {{ item.title }}
+                                        </Link>
+                                    </li>
+                                </template>
                             </template>
-                        </template>
-                    </ul>
-                </nav>
+                        </ul>
+                    </nav>
+                </div>
+                <!-- GitHub + theme toggle pinned to the bottom of the mobile menu (≤425px) -->
+                <div
+                    class="hidden max-[425px]:flex items-center justify-between shrink-0 border-t border-slate-200 dark:border-gitpr_dark_border px-4 py-3">
+                    <a href="https://github.com/natanfiuza/gitpr" target="_blank" rel="noopener noreferrer"
+                        class="flex items-center gap-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-gitpr_text transition-colors"
+                        title="GitHub Repository">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <ThemeToggle />
+                </div>
             </aside>
 
             <!-- Main Content -->
@@ -139,6 +158,8 @@ import MarkdownViewer from '../Components/MarkdownViewer.vue';
 import NewsletterBox from '../Components/NewsletterBox.vue';
 import SearchBar from '../Components/SearchBar.vue';
 import SiteHeader from '../Components/SiteHeader.vue';
+import LanguageSelector from '../Components/LanguageSelector.vue';
+import ThemeToggle from '../Components/ThemeToggle.vue';
 
 const props = defineProps({
     content: String,
