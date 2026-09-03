@@ -2,6 +2,26 @@
 
 Sincronização de `public/content/docs/` com a documentação técnica do repositório GitPR CLI (`C:\Users\nataniel\projetos\python\gitpr\docs\`), executada via skill `/sync-docs`. Branch: `develop_natan`.
 
+## 8. Segunda execução do dia — "carregue e atualize todos os arquivos"
+
+Nova execução do `/sync-docs` (mesmo dia) com argumento para recarregar e atualizar **todos** os arquivos.
+
+**Diagnóstico (fresco):**
+- Nenhum tópico faltando no site; nenhum tópico novo na fonte.
+- Zero divergências de conteúdo variante a variante (incluindo README).
+- Zero arquivos legados `.es_es`/`.fr_fr` no site (permanece limpo após o follow-up).
+- Tópicos monolíngues na fonte (lacunas conhecidas, sem traduções inventadas): `como_reverter_commit_git_localmente`, `github-issue-prompt-com-gh`, `otimizacao-de-tokens`, `testar_sem_usar_pypi`, `version-markers` (apenas `.md`).
+- Exclusivos do site (não tocados): `caveman-commit`, `chat-interativo` (+ `readme`, caso especial).
+
+**Ação:** re-cópia completa e idempotente da fonte → site com mapeamento de sufixos — **155 arquivos** (150 variantes de tópicos comuns + 5 variantes do README).
+
+**Verificação pós-cópia:**
+- ✅ Re-diff variante a variante: zero divergências.
+- ✅ Nenhum sufixo `.es_es`/`.fr_fr` criado.
+- ✅ `menu.json` válido, 49 entradas por seção, todos os tópicos cobertos nas 5 línguas.
+
+**Resultado:** o site já estava 100% sincronizado com a fonte após a primeira execução; a re-cópia confirmou o estado e garantiu byte a byte a fidelidade do conteúdo.
+
 ## 1. Diagnóstico
 
 Comparação tópico a tópico e variante a variante (fonte é autoridade), com mapeamento de sufixos `es_es → es`, `fr_fr → fr`.
