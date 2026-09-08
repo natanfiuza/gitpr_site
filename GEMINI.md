@@ -41,7 +41,7 @@ app/
   Models/
     User.php
 routes/
-  web.php                 # Dynamic doc routes (/{page?}), /api/search, /dashboard, /profile
+  web.php                 # Dynamic doc routes (/{page?}), /search, /dashboard, /profile
   auth.php                # Breeze auth routes
 resources/
   js/

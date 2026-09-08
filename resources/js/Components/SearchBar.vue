@@ -24,9 +24,15 @@
         </div>
 
         <!-- Estado Vazio -->
-        <div v-else-if="search_query.length >= 3 && !is_loading"
+        <div v-else-if="search_query.length >= 3 && !is_loading && !search_error"
             class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gitpr_dark border border-slate-200 dark:border-gitpr_dark_border rounded shadow-lg z-50 p-3 text-sm text-slate-900 dark:text-gitpr_text transition-colors duration-300">
             Nenhum resultado encontrado.
+        </div>
+
+        <!-- Estado de Erro -->
+        <div v-if="search_error"
+            class="absolute top-full left-0 right-0 mt-2 bg-red-50 dark:bg-red-950 border border-red-300 dark:border-red-800 rounded shadow-lg z-50 p-3 text-sm text-red-700 dark:text-red-300 transition-colors duration-300">
+            Erro ao buscar. Tente novamente.
         </div>
     </div>
 </template>
@@ -46,6 +52,7 @@ const props = defineProps({
 const search_query = ref('');
 const search_results = ref([]);
 const is_loading = ref(false);
+const search_error = ref(false);
 let debounce_timer = null;
 const search_container = ref(null);
 
@@ -65,6 +72,7 @@ onUnmounted(() => {
 
 const handle_input = () => {
     clearTimeout(debounce_timer);
+    search_error.value = false;
     if (search_query.value.length < 3) {
         search_results.value = [];
         return;
@@ -73,12 +81,16 @@ const handle_input = () => {
     is_loading.value = true;
     debounce_timer = setTimeout(async () => {
         try {
-            const response = await axios.get('/api/search', {
+            // Não usar /api/*: o edge da hospedagem responde 307 em loop para essas rotas.
+            const response = await axios.get('/search', {
                 params: { q: search_query.value, lang: props.current_lang }
             });
             search_results.value = response.data;
+            search_error.value = false;
         } catch (error) {
             console.error('Erro na busca:', error);
+            search_results.value = [];
+            search_error.value = true;
         } finally {
             is_loading.value = false;
         }
