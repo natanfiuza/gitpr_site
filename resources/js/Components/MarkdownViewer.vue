@@ -116,6 +116,8 @@ const handle_copy = async (event) => {
     }
 };
 
+const escape_regex = (term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const highlight_marked_text = () => {
     const url_params = new URLSearchParams(window.location.search);
     const mark_term = url_params.get('mark');
@@ -132,11 +134,22 @@ const highlight_marked_text = () => {
     }
 
     nodes_to_replace.forEach(n => {
-        const regex = new RegExp(`(${mark_term})`, 'gi');
+        const regex = new RegExp(`(${escape_regex(mark_term)})`, 'gi');
         const wrapper = document.createElement('span');
         wrapper.innerHTML = n.nodeValue.replace(regex, '<mark class="bg-yellow-400 text-black px-1 rounded">$1</mark>');
         n.parentNode.replaceChild(wrapper, n);
     });
+};
+
+// Rola a página até a primeira ocorrência destacada (?mark=) — usado ao abrir
+// um resultado da busca.
+const scroll_to_first_mark = () => {
+    const url_params = new URLSearchParams(window.location.search);
+    if (!url_params.get('mark') || !content_ref.value) return;
+    const first_mark = content_ref.value.querySelector('mark');
+    if (first_mark) {
+        first_mark.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 };
 
 // ── Fetch GitHub collaborator data & replace placeholders ─────────
@@ -187,6 +200,7 @@ watch(parsed_content, async () => {
     if (!content_ref.value) return;
 
     highlight_marked_text();
+    scroll_to_first_mark();
     await fetch_collaborators();
 
     const extracted_headers = [];
