@@ -156,9 +156,15 @@ class DocsController extends Controller
                 $clean_content = trim(preg_replace('/\s+/', ' ', preg_replace('/[#*`>-]/', '', $content)));
 
                 if (str_contains(strtolower($clean_content), $search_term)) {
-                    $pos     = stripos($clean_content, $search_term);
+                    // mb_* conta caracteres (não bytes): substr() por byte podia
+                    // dividir um caractere multibyte (ex.: acentos) e gerar UTF-8
+                    // inválido — o que fazia o json_encode lançar 500.
+                    $pos     = mb_stripos($clean_content, $search_term);
+                    if ($pos === false) {
+                        continue; // conteúdo com UTF-8 inválido: pula em vez de 500
+                    }
                     $start   = max(0, $pos - 40);
-                    $snippet = substr($clean_content, $start, 100);
+                    $snippet = mb_substr($clean_content, $start, 100);
 
                     $results[] = [
                         'title'   => $item['title'],
@@ -169,6 +175,8 @@ class DocsController extends Controller
             }
         }
 
-        return response()->json($results);
+        // JSON_INVALID_UTF8_SUBSTITUTE: rede de segurança — arquivo de conteúdo
+        // com bytes inválidos vira "�" no resultado, em vez de derrubar o JSON.
+        return response()->json($results, 200, [], JSON_INVALID_UTF8_SUBSTITUTE);
     }
 }

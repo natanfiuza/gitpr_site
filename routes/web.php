@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 
-Route::get('/api/search', [\App\Http\Controllers\DocsController::class, 'search_content'])->name('api.search');
+// NOTE: não usar prefixo /api/* — o edge da hospedagem (hcdn) responde 307 em
+// loop para qualquer rota /api/*, impedindo a requisição de chegar ao Laravel.
+Route::get('/search', [\App\Http\Controllers\DocsController::class, 'search_content'])->name('api.search');
 
 Route::get('/linter-utility', [\App\Http\Controllers\LinterUtilityController::class, 'index'])->name('linter.utility');
 Route::post('/linter-utility/generate', [\App\Http\Controllers\LinterUtilityController::class, 'generateYaml'])->name('linter.utility.generate');

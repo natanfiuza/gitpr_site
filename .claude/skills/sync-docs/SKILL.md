@@ -1,6 +1,6 @@
 ---
 name: sync-docs
-description: Sincroniza a documentação técnica do site (public/content/docs) com os arquivos de C:\Users\nataniel\projetos\python\gitpr\docs — verifica arquivos faltando, conteúdo divergente e se os idiomas (en, pt_br, pt_pt, es, fr) de cada tópico estão sincronizados, copiando/atualizando o que estiver dessincronizado. Use quando o usuário pedir para sincronizar, atualizar ou verificar a documentação técnica do site.
+description: Sincroniza a documentação técnica do site (public/content/docs) com os arquivos de C:\Users\nataniel\projetos\pessoal\gitpr_projeto\gitpr\docs — verifica arquivos faltando, conteúdo divergente e se os idiomas (en, pt_br, pt_pt, es, fr) de cada tópico estão sincronizados, copiando/atualizando o que estiver dessincronizado. Use quando o usuário pedir para sincronizar, atualizar ou verificar a documentação técnica do site.
 ---
 
 # Sincronizar Documentação Técnica
@@ -9,8 +9,8 @@ Sincronizar `public/content/docs/` com a documentação técnica do repositório
 
 ## Fontes e destinos
 
-- **Fonte (autoridade):** `C:\Users\nataniel\projetos\python\gitpr\docs\*.md` — somente arquivos do nível superior. Ignorar subdiretórios (`claude-code/`, `extra/`, `gemini/`, `plans/`, `prompts/`, `reports/`) e arquivos não-doc (`gitpr_landing_page.pdf`).
-- **Caso especial `readme`:** a fonte é a RAIZ do repo gitpr: `README.md` + variantes → site `docs/readme.*`.
+- **Fonte (autoridade):** `C:\Users\nataniel\projetos\pessoal\gitpr_projeto\gitpr\docs\*.md` — somente arquivos do nível superior. Ignorar subdiretórios (`claude-code/`, `extra/`, `gemini/`, `plans/`, `prompts/`, `reports/`, `testing/`) e arquivos não-doc (`gitpr_landing_page.pdf`, `logo.png`, `logo.psd`, `progit.pdf`).
+- **Caso especial `readme`:** a fonte é a RAIZ do repo gitpr: `C:\Users\nataniel\projetos\pessoal\gitpr_projeto\gitpr\README.md` + variantes → site `docs/readme.*`.
 - **Destino:** `public/content/docs/*.md`.
 
 ## Mapeamento de sufixos de idioma (CRÍTICO)
@@ -42,7 +42,7 @@ O site resolve `public/content/{page}.{lang}.md` com `lang` ∈ {en, pt_br, pt_p
 2. **Sincronizar.**
    - **Tópico faltando no site:** copiar da fonte todas as variantes existentes (renomeando sufixos), sem alterar o conteúdo markdown.
    - **Conteúdo divergente:** sobrescrever o arquivo do site com o conteúdo da fonte (variante por variante). Atualizar TODAS as variantes do tópico, não só a inglesa.
-   - **Variante de idioma faltando no site:** copiar da fonte se existir. Se a fonte não tiver a variante (tópicos monolíngues: `ARCHITECTURE`, `caveman-commit`, `como_reverter_commit_git_localmente`, `github-issue-prompt-com-gh`, `testar_sem_usar_pypi`), reportar como lacuna — não inventar traduções nem remover variantes que o site já tenha além da fonte.
+   - **Variante de idioma faltando no site:** copiar da fonte se existir. Se a fonte não tiver a variante (tópicos monolíngues: `como_reverter_commit_git_localmente`, `github-issue-prompt-com-gh`, `otimizacao-de-tokens`, `testar_sem_usar_pypi`, `version-markers`), reportar como lacuna — não inventar traduções nem remover variantes que o site já tenha além da fonte.
    - **Arquivos legados `.es_es`/`.fr_fr` no site:** reportar como duplicados obsoletos e sugerir remoção — NÃO remover sem confirmação do usuário.
    - **Tópicos só no site** (ex.: `chat-interativo`): não tocar; reportar como exclusivos do site.
    - **menu.json:** para cada tópico NOVO copiado da fonte, adicionar entrada nas 5 línguas sob a seção "Technical Documentation", no formato `{"title": "▸ <título traduzido>", "path": "docs/<tópico>"}`, mantendo a ordem alfabética aproximada do menu e o título traduzido por idioma (use o título do arquivo traduzido como referência). Tópicos pré-existentes sem entrada no menu: apenas reportar (decisão do usuário).
