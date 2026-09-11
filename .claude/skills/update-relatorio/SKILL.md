@@ -1,6 +1,6 @@
 ---
 name: update-relatorio
-description: Atualiza o relatório de status do GitPR no site — public/content/relatorio.md (inglês) e traduções pt_br, pt_pt, es, fr — a partir do relatório mais recente em C:\Users\nataniel\projetos\python\gitpr\docs\reports. Use quando o usuário pedir para atualizar, sincronizar ou gerar o relatório do site com a versão mais atual do GitPR.
+description: Atualiza o relatório de status do GitPR no site — public/content/relatorio.md (inglês) e traduções pt_br, pt_pt, es, fr — a partir do relatório mais recente em C:\Users\nataniel\projetos\pessoal\gitpr_projeto\gitpr\docs\reports. Use quando o usuário pedir para atualizar, sincronizar ou gerar o relatório do site com a versão mais atual do GitPR.
 ---
 
 # Atualizar Relatório do Site
@@ -10,7 +10,7 @@ Sincronizar `public/content/relatorio.md` e suas traduções com o relatório de
 ## Passos
 
 1. **Descobrir o relatório fonte mais recente.**
-   - Liste `C:\Users\nataniel\projetos\python\gitpr\docs\reports\` e filtre por `relatorio_estado_v*.md`.
+   - Liste `C:\Users\nataniel\projetos\pessoal\gitpr_projeto\gitpr\docs\reports\` e filtre por `relatorio_estado_v*.md`.
    - Ignore arquivos sem versão (ex.: `relatorio_estado_ GitPR-CLI.md` — tem espaço no nome).
    - Escolha o arquivo com a maior versão semântica (ex.: `v0.0.10` > `v0.0.9`).
    - Se o diretório não existir ou estiver vazio, avise o usuário e pare.
