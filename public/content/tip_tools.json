@@ -73,7 +73,7 @@
     },
     {
         "id": "tip_7",
-        "used": false,
+        "used": true,
         "source": "docs/issue-tui-help.md",
         "content": {
             "en": "`gitpr -is` generates an issue from your current diff, but there are two other engines: `-ht` compiles the whole branch history into a release/epic issue, and `-b src/core.py:140-195` traces a file's evolution via `git blame` to document legacy code and technical debt.",
