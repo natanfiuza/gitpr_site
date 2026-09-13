@@ -50,7 +50,10 @@
         { "title": "▸ GitHub Issues with GH CLI", "path": "docs/github-issue-prompt-com-gh" },
         { "title": "▸ Local Testing (without PyPI)", "path": "docs/testar_sem_usar_pypi" },
         { "title": "▸ CI/CD (GitHub Actions)", "path": "docs/github-ci-linter" },
-        { "title": "▸ PR Default Mode", "path": "docs/pr-descricao-padrao" }
+        { "title": "▸ PR Default Mode", "path": "docs/pr-descricao-padrao" },
+        { "title": "▸ Interactive Config (TUI)", "path": "docs/config-tui" },
+        { "title": "▸ Release Notes & Changelog", "path": "docs/release-notes" },
+        { "title": "▸ Usage Log", "path": "docs/usage-log" }
     ],
     "pt_br": [
         { "title": "Início", "path": "index" },
@@ -103,7 +106,10 @@
         { "title": "▸ GitHub Issues com GH CLI", "path": "docs/github-issue-prompt-com-gh" },
         { "title": "▸ Testar Localmente (sem PyPI)", "path": "docs/testar_sem_usar_pypi" },
         { "title": "▸ CI/CD (GitHub Actions)", "path": "docs/github-ci-linter" },
-        { "title": "▸ PR (Modo Padrão)", "path": "docs/pr-descricao-padrao" }
+        { "title": "▸ PR (Modo Padrão)", "path": "docs/pr-descricao-padrao" },
+        { "title": "▸ Configuração Interativa (TUI)", "path": "docs/config-tui" },
+        { "title": "▸ Notas de Versão e Changelog", "path": "docs/release-notes" },
+        { "title": "▸ Log de Uso", "path": "docs/usage-log" }
     ],
     "pt_pt": [
         { "title": "Início", "path": "index" },
@@ -156,7 +162,10 @@
         { "title": "▸ GitHub Issues com GH CLI", "path": "docs/github-issue-prompt-com-gh" },
         { "title": "▸ Testar Localmente (sem PyPI)", "path": "docs/testar_sem_usar_pypi" },
         { "title": "▸ CI/CD (GitHub Actions)", "path": "docs/github-ci-linter" },
-        { "title": "▸ PR (Modo Predefinido)", "path": "docs/pr-descricao-padrao" }
+        { "title": "▸ PR (Modo Predefinido)", "path": "docs/pr-descricao-padrao" },
+        { "title": "▸ Configuração Interativa (TUI)", "path": "docs/config-tui" },
+        { "title": "▸ Notas de Versão e Changelog", "path": "docs/release-notes" },
+        { "title": "▸ Registo de Utilização", "path": "docs/usage-log" }
     ],
     "fr": [
         { "title": "Accueil", "path": "index" },
@@ -209,7 +218,10 @@
         { "title": "▸ Issues GitHub avec GH CLI", "path": "docs/github-issue-prompt-com-gh" },
         { "title": "▸ Tests Locaux (sans PyPI)", "path": "docs/testar_sem_usar_pypi" },
         { "title": "▸ CI/CD (GitHub Actions)", "path": "docs/github-ci-linter" },
-        { "title": "▸ PR (Mode par Défaut)", "path": "docs/pr-descricao-padrao" }
+        { "title": "▸ PR (Mode par Défaut)", "path": "docs/pr-descricao-padrao" },
+        { "title": "▸ Configuration Interactive (TUI)", "path": "docs/config-tui" },
+        { "title": "▸ Notes de Version et Changelog", "path": "docs/release-notes" },
+        { "title": "▸ Journal d'Utilisation", "path": "docs/usage-log" }
     ],
     "es": [
         { "title": "Inicio", "path": "index" },
@@ -262,6 +274,9 @@
         { "title": "▸ GitHub Issues con GH CLI", "path": "docs/github-issue-prompt-com-gh" },
         { "title": "▸ Pruebas Locales (sin PyPI)", "path": "docs/testar_sem_usar_pypi" },
         { "title": "▸ CI/CD (GitHub Actions)", "path": "docs/github-ci-linter" },
-        { "title": "▸ PR (Modo por Defecto)", "path": "docs/pr-descricao-padrao" }
+        { "title": "▸ PR (Modo por Defecto)", "path": "docs/pr-descricao-padrao" },
+        { "title": "▸ Configuración Interactiva (TUI)", "path": "docs/config-tui" },
+        { "title": "▸ Notas de Versión y Changelog", "path": "docs/release-notes" },
+        { "title": "▸ Registro de Uso", "path": "docs/usage-log" }
     ]
 }
