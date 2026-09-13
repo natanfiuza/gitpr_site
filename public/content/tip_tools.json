@@ -241,7 +241,7 @@
     },
     {
         "id": "tip_21",
-        "used": false,
+        "used": true,
         "source": "i18n.md",
         "content": {
             "en": "Mixed-language team? `gitpr --lang <code>` overrides the language for a single run: `gitpr -c --lang en`, `gitpr -r --lang pt_br`, `gitpr -ch --lang fr`. GitPR speaks 5 languages and auto-detects your system locale on first run.",
