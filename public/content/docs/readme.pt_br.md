@@ -132,7 +132,7 @@ Você pode passar as seguintes *flags* para ações específicas:
 * `--plugins`: Lista todos os **plugins instalados globalmente** — pacotes de linter customizados de `~/.gitpr/plugins/linter/` e templates de prompt MCP de `~/.gitpr/plugins/prompts/`. Estes plugins aplicam-se a todos os seus projetos sem duplicação. 📖 [Documentação completa](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plugins-system.md)
 * `--install`: **Assistente de Configuração Interativo.** Executa uma configuração guiada em 4 etapas: baixa skill templates, instala Git Hooks, configura MCP para editores detetados e verifica/solicita sua chave de API do provedor de IA. Cada etapa pede confirmação antes de prosseguir.
 * `-ih` ou `--installhooks`: Instala automaticamente **Git Hooks locais** (`pre-commit` e `prepare-commit-msg`) no seu repositório.
-* `-s` ou `--skill`: Cria os arquivos de template de contexto da IA (`.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md`) e o Linter (`.gitpr.linter.yml`) na raiz do projeto.
+* `-s` ou `--skill`: Cria os arquivos de template de contexto da IA (`.gitpr.commit.md`, `.gitpr.pr.md`, `.gitpr.review.md`, `.gitpr.filereview.md`, `.gitpr.issue.md`, `.gitpr.blame.md`) e o Linter (`.gitpr.linter.yml`) em `.gitpr/skill/`.
 * `-is` ou `--issue`: Gera automaticamente um rascunho de uma **Issue padronizada** e abre uma interface interativa (TUI) para edição ou envio direto via API REST. Esta funcionalidade possui **3 motores de contexto** dependendo da combinação de comandos:
   * **Issue de Código Novo (`gitpr -is`):** Lê o `git diff` atual. **Por que usar:** Ideal para documentar rapidamente a tarefa que você acabou de programar, antes de commitar.
   * **Issue de Épico/Release (`gitpr -is -ht`):** Lê o histórico completo da branch atual (Git Log + Cache de PR). **Por que usar:** Ideal para gerar documentação consolidada de uma release inteira ou de uma *feature* grande que levou vários dias/commits para ser concluída.
@@ -209,7 +209,7 @@ Você pode alternar dinamicamente os modelos configurando as variáveis `GEMINI_
 
 ## 🎯 Sistema de "Skills" Customizáveis (Prompt Engineering)
 
-Em vez de esconder instruções de IA no código fonte, o GitPR usa arquivos Markdown locais que atuam como *System Instructions*. Ao executar `gitpr -s`, os seguintes arquivos são gerados na raiz do seu projeto para personalizar a "persona" da IA de acordo com as regras de negócio da sua empresa:
+Em vez de esconder instruções de IA no código fonte, o GitPR usa arquivos Markdown locais que atuam como *System Instructions*. Ao executar `gitpr -s`, os seguintes arquivos são gerados em `.gitpr/skill/` para personalizar a "persona" da IA de acordo com as regras de negócio da sua empresa:
 
 * `.gitpr.commit.md`: Regras para gerar mensagens de commit curtas.
 * `.gitpr.pr.md`: Estrutura de tópicos obrigatória para a descrição do Pull Request.
@@ -316,6 +316,8 @@ Uma vez configurado, use linguagem natural no chat de IA do seu editor:
 | `generate_issue` | Issue estruturada a partir de diff, histórico ou blame |
 | `list_unstaged_files` | Alterações não commitadas categorizadas (novos/modificados/deletados) |
 | `analyze_unstaged_diff` | Diff apenas unstaged (working tree vs index) |
+| `list_fix_candidates` | Candidatos de correção da última revisão: patch, classificação, id (somente leitura) |
+| `review_remote_pr` | Revisão por IA de um pull request já aberto na forge, buscado pelo número (somente leitura) |
 
 ### Invocação Direta via CLI
 
@@ -411,12 +413,14 @@ Se você deseja implementar o GitPR como uma barreira de qualidade automatizada 
 
 * [**Pull Request (Modo Padrão)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/pr-descricao-padrao.md) — Fluxo completo para gerar descrições de PR sem flags.
 * [**Publicador de Pull Request (TUI)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/pull-request-publication.pt_br.md) — Como revisar e publicar Pull Requests diretamente no GitHub pelo terminal.
-* [**Code Review com IA**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/code-review-ia.md) — Guia dos modos de review (`--review`, `--fullreview`) e auditoria de arquivos (`--input`).
+* [**Code Review com IA**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/code-review-ia.md) — Guia dos modos de review (`--review`, `--fullreview`), auditoria de arquivos (`--input`) e review de pull request remoto (`gitpr review-pr`).
+* [**Review de Pull Request Remoto (gitpr review-pr)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/review-pr.pt_br.md) — Como o subcomando `gitpr review-pr` revisa um pull request já aberto na forge, buscando o diff pela API sem fazer checkout da branch.
 * [**Mensagens de Commit com IA**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/commit-message-ia.md) — Como gerar mensagens no padrão Conventional Commits e integrar com Git Hooks.
 * [**Geração de Issues e Interface TUI**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/issue-tui-help.md) — Como usar a interface gráfica de terminal (TUI) e os 3 motores de contexto para gerenciar Issues estruturadas.
 * [**Arqueólogo de Código (Git Blame)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/blame-arqueologo.md) — Como rastrear a origem de regras de negócio com `git blame` e IA.
 * [**Sistema de Skills e Templates**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/skill-template.md) — Como personalizar o comportamento da IA com arquivos `.gitpr.*.md`.
 * [**Notas de Versão e Changelog (gitpr release)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/release-notes.md) — Como o subcomando `gitpr release` gera o changelog / as notas de versão de um repositório, sugere a próxima versão semântica e publica releases na forge.
+* [**Comando Fix (gitpr fix)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/fix-command.md) — Como o subcomando `gitpr fix` transforma os apontamentos da última revisão em patches que você lê antes de tocarem a sua árvore, classifica cada um por segurança e desfaz um patch aplicado sob demanda.
 
 ### Configuração e Infraestrutura
 
