@@ -277,7 +277,7 @@
     },
     {
         "id": "tip_24",
-        "used": false,
+        "used": true,
         "source": "docs/code-review-ia.md",
         "content": {
             "en": "`gitpr -r -i src/legacy/parser.py` reviews a whole file, ignoring git history — the docs call it \"acting as a consultant on legacy code refactoring\". Customize the audit's focus via the `.gitpr.filereview.md` skill file (cohesion, coupling).",
