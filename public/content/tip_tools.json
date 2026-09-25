@@ -157,7 +157,7 @@
     },
     {
         "id": "tip_14",
-        "used": false,
+        "used": true,
         "source": "docs/github-ci-linter.md",
         "content": {
             "en": "The linter is free: no API keys, no AI calls, only the added lines of your diff. Exit code 0 = pass, 1 = violations, so it's ideal as a GitHub Actions quality gate that blocks secrets and debug code before human review — the docs include the complete workflow.",

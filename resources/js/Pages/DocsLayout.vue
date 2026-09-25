@@ -100,7 +100,8 @@
                         {{ page_title }}
                     </h1>
 
-                    <MarkdownViewer :content="content" @update_toc="page_toc = $event" />
+                    <MarkdownViewer :content="content" :current_lang="current_lang"
+                        @update_toc="page_toc = $event" />
                 </div>
 
                 <!-- TOC Sidebar (desktop only) -->

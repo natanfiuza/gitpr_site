@@ -101,13 +101,13 @@ mejorar la UX. El comportamiento de la función subyacente es idéntico en ambas
 lo que hace que `--tool` sea útil para verificar que la semántica de las anotaciones
 coincide con el comportamiento real (ej.: `run_linter` es `readOnlyHint` y de hecho no modifica nada).
 
-Consulte [Integración MCP — Invocación Directa por CLI](mcp-integration.md#invocación-directa-por-cli)
+Consulte [Integración MCP — Invocación Directa por CLI](/docs/mcp-integration?lang=es#invocacion-directa-por-cli)
 para obtener detalles completos de uso.
 
 ## 📚 Documentación Relacionada
 
-- [Integración MCP](mcp-integration.md) — Cómo configurar MCP para tu editor
-- [MCP Prompts](mcp-prompts.md) — Plantillas de mensaje predefinidas para flujos comunes
+- [Integración MCP](/docs/mcp-integration?lang=es) — Cómo configurar MCP para tu editor
+- [MCP Prompts](/docs/mcp-prompts?lang=es) — Plantillas de mensaje predefinidas para flujos comunes
 
 ---
 **Consejo profesional:** Las anotaciones de herramienta son sugerencias, no garantías.

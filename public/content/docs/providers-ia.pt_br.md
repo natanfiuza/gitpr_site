@@ -83,4 +83,4 @@ via `GITPR_AI_TIMEOUT` em `~/.gitpr/.env`), garantindo que um provedor travado
 falhe rapidamente com um erro visível, em vez de congelar o CLI. Valores inválidos
 ou não positivos voltam ao padrão de 180s.
 
-> **Nota:** Consulte também a [documentação principal (README.md)](../README.md) para instruções de configuração inicial das chaves de API.
+> **Nota:** Consulte também a [documentação principal (README.md)](/docs/readme?lang=pt_br) para instruções de configuração inicial das chaves de API.

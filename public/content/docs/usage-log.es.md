@@ -53,7 +53,7 @@ Lo controla `GITPR_SHOW_LOGS`, y viene **activada** por defecto — toda instala
 | En el archivo | `GITPR_SHOW_LOGS=false` en `~/.gitpr/.env` |
 | En una sola ejecución | `GITPR_SHOW_LOGS=false gitpr -c` |
 
-El entorno siempre gana al archivo (vea [la pantalla de configuración](config-tui.es_es.md) §2), así que la última fila desactiva ese comando concreto sin tocar nada más.
+El entorno siempre gana al archivo (vea [la pantalla de configuración](/docs/config-tui?lang=es) §2), así que la última fila desactiva ese comando concreto sin tocar nada más.
 
 Desactivarlo detiene las líneas nuevas. No borra lo que ya está ahí.
 

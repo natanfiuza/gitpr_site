@@ -36,7 +36,7 @@ Pode verificar rapidamente quais ficheiros não estão em stage usando a flag `-
 gitpr --status
 ```
 
-Isto mostra todas as alterações não commitadas em 3 categorias: novos (não rastreados), modificados e eliminados. Consulte a [documentação do Git Status](git-status.pt_pt.md) para mais detalhes.
+Isto mostra todas as alterações não commitadas em 3 categorias: novos (não rastreados), modificados e eliminados. Consulte a [documentação do Git Status](/docs/git-status?lang=pt_pt) para mais detalhes.
 
 ## 🛑 Ignorar a verificação de unstaged
 
@@ -48,4 +48,4 @@ gitpr -c --no-unstaged-check
 
 Ou defina `GITPR_SKIP_UNSTAGED_CHECK=true` no seu ficheiro `~/.gitpr/.env` para ignorar permanentemente.
 
-> 📖 **Documentação completa:** [docs/git-status.pt_pt.md](git-status.pt_pt.md) — cobre `--status`, `--no-unstaged-check`, ferramentas MCP e a verificação de unstaged que agora é executada em todos os comandos (`-c`, `-r`, `-f`, `-is`).
+> 📖 **Documentação completa:** [docs/git-status.pt_pt.md](/docs/git-status?lang=pt_pt) — cobre `--status`, `--no-unstaged-check`, ferramentas MCP e a verificação de unstaged que agora é executada em todos os comandos (`-c`, `-r`, `-f`, `-is`).

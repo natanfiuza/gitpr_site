@@ -53,7 +53,7 @@ C'est `GITPR_SHOW_LOGS` qui le contrôle, et elle est **active** par défaut —
 | Dans le fichier | `GITPR_SHOW_LOGS=false` dans `~/.gitpr/.env` |
 | Pour une seule exécution | `GITPR_SHOW_LOGS=false gitpr -c` |
 
-L'environnement l'emporte toujours sur le fichier (voir [l'écran de configuration](config-tui.fr_fr.md) §2), donc la dernière ligne désactive cette commande précise sans rien toucher d'autre.
+L'environnement l'emporte toujours sur le fichier (voir [l'écran de configuration](/docs/config-tui?lang=fr) §2), donc la dernière ligne désactive cette commande précise sans rien toucher d'autre.
 
 Le désactiver arrête les nouvelles lignes. Cela ne supprime pas ce qui est déjà là.
 

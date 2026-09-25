@@ -90,4 +90,4 @@ Co-Authored-By: Gitpr-cli <gitpr@natanfiuza.dev.br>
 
 El trailer se añade programáticamente (nunca por la IA) en todos los flujos: sugerencia en consola, hook `prepare-commit-msg`, auto-commit, TUI de publicación de PR y la herramienta MCP `generate_commit_message`. Se separa del mensaje con líneas en blanco adicionales para que no aparezca a primera vista en las vistas previas colapsadas de commits de GitHub, y nunca se duplica cuando el mensaje ya lo contiene.
 
-> **Nota:** Consulta también la [documentación principal (README.md)](../README.md) para una visión general de todas las funcionalidades.
+> **Nota:** Consulta también la [documentación principal (README.md)](/docs/readme?lang=es) para una visión general de todas las funcionalidades.

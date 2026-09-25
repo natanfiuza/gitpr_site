@@ -176,11 +176,11 @@ El párrafo `### Summary` opcional lo genera la IA a partir de los commits clasi
 gitpr release
 ```
 
-En la primera ejecución en modo markdown, el CLI descarga la plantilla de skill `.gitpr.release.md` de las plantillas del proyecto. La descarga respeta el idioma actual de la interfaz (las variantes remotas como `gitpr.release.es_es.md` se guardan localmente como `.gitpr.release.md`), nunca sobrescribe un archivo local existente y nunca falla por un error de red — la ejecución continúa con la persona integrada. La descarga se omite por completo en `--format json`, que es stdout-only. El archivo se carga como system instruction de la IA (persona: **Release Manager**, contrato estricto de JSON) — edítelo localmente para personalizar el resumen ejecutivo. Consulte la [documentación de Skills y Templates](skill-template.md) para conocer el mecanismo general.
+En la primera ejecución en modo markdown, el CLI descarga la plantilla de skill `.gitpr.release.md` de las plantillas del proyecto. La descarga respeta el idioma actual de la interfaz (las variantes remotas como `gitpr.release.es_es.md` se guardan localmente como `.gitpr.release.md`), nunca sobrescribe un archivo local existente y nunca falla por un error de red — la ejecución continúa con la persona integrada. La descarga se omite por completo en `--format json`, que es stdout-only. El archivo se carga como system instruction de la IA (persona: **Release Manager**, contrato estricto de JSON) — edítelo localmente para personalizar el resumen ejecutivo. Consulte la [documentación de Skills y Templates](/docs/skill-template?lang=es) para conocer el mecanismo general.
 
 ### 4.2 Generación y Degradación Controlada
 
-Los rangos con más de 200 commits se resumen en lotes (Map-Reduce, con un aviso como `📦 Large commit range detected!`), y las respuestas pasan por la caché MD5 estándar de GitPR, de modo que las ejecuciones sin cambios no repiten llamadas de IA. Dos notas: la caché tiene como clave el prompt — editar `.gitpr.release.md` no invalida los resúmenes en caché — y el resumen usa siempre la misma infraestructura de IA que los demás comandos de GitPR (proveedor configurado, salida JSON, reintento automático). Consulte la [documentación de Proveedores de IA](providers-ia.md).
+Los rangos con más de 200 commits se resumen en lotes (Map-Reduce, con un aviso como `📦 Large commit range detected!`), y las respuestas pasan por la caché MD5 estándar de GitPR, de modo que las ejecuciones sin cambios no repiten llamadas de IA. Dos notas: la caché tiene como clave el prompt — editar `.gitpr.release.md` no invalida los resúmenes en caché — y el resumen usa siempre la misma infraestructura de IA que los demás comandos de GitPR (proveedor configurado, salida JSON, reintento automático). Consulte la [documentación de Proveedores de IA](/docs/providers-ia?lang=es).
 
 El resumen nunca bloquea el comando: sin clave de API configurada, o cuando la llamada de IA falla, el comando avisa (`AI summary failed: changelog generated without a summary.`) y genera la sección solo con las listas clasificadas. `GITPR_RELEASE_AI_SUMMARY=false` desactiva el resumen por completo.
 
@@ -201,7 +201,7 @@ Salvaguardas: sin un remote git `origin`, el comando se niega a publicar (`❌ N
 
 ### 5.2 Forges Soportadas
 
-La publicación apunta a la forge configurada en los ajustes SCM (`gitpr --init` o `GITPR_SCM_PROVIDER`). Consulte la [documentación Multi-Forge SCM](scm-multiforge.md) para la configuración del proveedor.
+La publicación apunta a la forge configurada en los ajustes SCM (`gitpr --init` o `GITPR_SCM_PROVIDER`). Consulte la [documentación Multi-Forge SCM](/docs/scm-multiforge?lang=es) para la configuración del proveedor.
 
 | Forge | Release | Notas |
 | --- | --- | --- |
@@ -255,4 +255,4 @@ La configuración de la release se lee del archivo global `~/.gitpr/.env` (forma
 | `GITPR_RELEASE_PUBLISH_DRAFT_BY_DEFAULT` | `true` | GitHub: `--publish` crea la release como borrador por defecto |
 | `OUTPUT_FILE_NAME_RELEASE` | `{branch}_{datetime}_RELEASE.md` | Plantilla de nombre del artefacto de la ejecución en `.gitpr/reports/release/` |
 
-> **Nota:** Consulte también la [documentación de Skills y Templates](skill-template.md) para personalizar los archivos de plantilla de IA de GitPR.
+> **Nota:** Consulte también la [documentación de Skills y Templates](/docs/skill-template?lang=es) para personalizar los archivos de plantilla de IA de GitPR.

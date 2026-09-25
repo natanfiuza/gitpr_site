@@ -96,13 +96,13 @@ improve UX. The underlying function behavior is identical in both paths, making
 `--tool` useful for verifying that annotation semantics match actual behavior
 (e.g., `run_linter` is `readOnlyHint` and indeed mutates nothing).
 
-See [MCP Integration — Direct CLI Invocation](mcp-integration.md#direct-cli-invocation)
+See [MCP Integration — Direct CLI Invocation](/docs/mcp-integration#direct-cli-invocation)
 for full usage details.
 
 ## 📚 Related Documentation
 
-- [MCP Integration](mcp-integration.md) — How to set up MCP for your editor
-- [MCP Prompts](mcp-prompts.md) — Pre-built message templates for common flows
+- [MCP Integration](/docs/mcp-integration) — How to set up MCP for your editor
+- [MCP Prompts](/docs/mcp-prompts) — Pre-built message templates for common flows
 
 ---
 **Pro tip:** Tool annotations are hints, not guarantees. Configure API keys in

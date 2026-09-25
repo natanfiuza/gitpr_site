@@ -61,7 +61,7 @@ Nothing is written when validation fails. Re-run `gitpr --init` anytime to switc
 
 ## 3. Manual Configuration (.env)
 
-Alternative to the wizard: edit `~/.gitpr/.env` directly. See the [GitHub PAT integration guide](github-pat-integration.md) for how GitPR protects tokens at rest.
+Alternative to the wizard: edit `~/.gitpr/.env` directly. See the [GitHub PAT integration guide](/docs/github-pat-integration) for how GitPR protects tokens at rest.
 
 | Variable | Forge | Description |
 | --- | --- | --- |
@@ -140,6 +140,6 @@ The abstraction lives in `src/infrastructure/scm/`: the `ScmProvider` contract i
 
 `src/github_api.py` is a **deprecated shim**: it still exposes the four legacy functions with their tuple returns for third-party integrations, but every call raises a `DeprecationWarning`. New code and plugins must use `resolve_scm_provider()` instead.
 
-Architecture decision record and canonical vocabulary: [ADR-001 SCM abstraction](plans/ADR-001-scm-abstraction.md) and [SCM Multi-Forge glossary](plans/glossary-scm-multiforge.md).
+Architecture decision record and canonical vocabulary: [ADR-001 SCM abstraction](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/ADR-001-scm-abstraction.md) and [SCM Multi-Forge glossary](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/glossary-scm-multiforge.md).
 
-> **Note:** See also the [GitHub PAT integration documentation](github-pat-integration.md) for creating tokens and understanding GitPR's encryption (Fernet).
+> **Note:** See also the [GitHub PAT integration documentation](/docs/github-pat-integration) for creating tokens and understanding GitPR's encryption (Fernet).

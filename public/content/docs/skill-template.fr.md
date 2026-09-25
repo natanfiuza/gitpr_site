@@ -77,11 +77,11 @@ La commande `--skill` télécharge la version la plus récente de chaque templat
 
 ## 5. Modifier depuis l'écran `gitpr config`
 
-L'écran `gitpr config` possède une section **Skills** qui liste ces mêmes fichiers et ouvre chacun dans un éditeur, pour ajuster une règle sans quitter le terminal ([Écran de Configuration Interactif](config-tui.fr_fr.md), §1.7).
+L'écran `gitpr config` possède une section **Skills** qui liste ces mêmes fichiers et ouvre chacun dans un éditeur, pour ajuster une règle sans quitter le terminal ([Écran de Configuration Interactif](/docs/config-tui?lang=fr), §1.7).
 
 - Une entrée par skill prise en charge par GitPR — les sept fichiers `.gitpr.*.md` de la section 1 ci-dessus.
 - Un skill que le projet n'a pas encore est listé comme **absent de ce projet**, avec un bouton **📥 Télécharger le template** qui récupère le template publié pour votre langue d'interface.
 - `F2` enregistre les skills modifiés en même temps que les paramètres du `.env` ; `Ctrl+R` dans le panneau abandonne la modification et remet le texte du disque.
 - Chaque fichier conserve ses fins de ligne d'origine : enregistrer ne transforme donc jamais une ligne intacte en modification.
 
-Deux choses restent volontairement hors de cette liste : `.gitpr.linter.yml`, qu'aucune commande ne charge par ce mécanisme ([Règles de Linter Personnalisées](linter-regras-customizadas.fr_fr.md)), et tout autre fichier que vous gardez dans `.gitpr/skill/` — l'écran propose les skills que les commandes lisent, pas tout ce que contient le dossier.
+Deux choses restent volontairement hors de cette liste : `.gitpr.linter.yml`, qu'aucune commande ne charge par ce mécanisme ([Règles de Linter Personnalisées](/docs/linter-regras-customizadas?lang=fr)), et tout autre fichier que vous gardez dans `.gitpr/skill/` — l'écran propose les skills que les commandes lisent, pas tout ce que contient le dossier.

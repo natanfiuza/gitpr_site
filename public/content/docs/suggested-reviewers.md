@@ -121,6 +121,6 @@ The use case lives in five flat modules in `src/`: `reviewer_suggestion.py` hold
 
 On the SCM side, the base `ScmProvider` contract gained a **non-abstract** `request_pull_request_reviewers(repo, pr_id, reviewers)` whose default raises `ScmNotSupportedError`; only `github_provider.py` implements it, together with the GitHub-only `email_to_handle()`, `get_commit_author_login()` and `get_user_login()`. The method returns the logins the forge **actually attached**, read back from the `201` body — an empty list is how the caller detects a request that was accepted and silently ignored. `main.py` gates the computation to the default TUI flow and hands the app a view dict `{"handles", "lines", "submittable", "note", "resolutions"}`. All user-facing text goes through `__()` i18n keys, so the 5 language packs must stay in sync when messages change.
 
-Architecture decision record and canonical vocabulary: [ADR-002 Reviewer Suggestion](plans/ADR-002-reviewer-suggestion.md) and [Reviewer Suggestion glossary](plans/glossary-reviewer-suggestion.md).
+Architecture decision record and canonical vocabulary: [ADR-002 Reviewer Suggestion](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/ADR-002-reviewer-suggestion.md) and [Reviewer Suggestion glossary](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/glossary-reviewer-suggestion.md).
 
-> **Note:** See also the [pull request publication documentation](pull-request-publication.md) for the full publishing flow, its modes and its flags.
+> **Note:** See also the [pull request publication documentation](/docs/pull-request-publication) for the full publishing flow, its modes and its flags.

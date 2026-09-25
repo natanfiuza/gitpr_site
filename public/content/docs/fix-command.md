@@ -61,7 +61,7 @@ An empty diff aborts with `❌ The working tree has no changes to apply fixes to
 
 ### 2.3 One AI Call, and the Ids It Produces
 
-A single call asks the model for the smallest unified diff per finding of the review, returning one JSON object per finding. It runs through the standard GitPR infrastructure (configured provider, advanced model, JSON output, retry) and the standard MD5 cache in `~/.gitpr/cache/prompts/fix/` — see the [AI Providers documentation](providers-ia.md).
+A single call asks the model for the smallest unified diff per finding of the review, returning one JSON object per finding. It runs through the standard GitPR infrastructure (configured provider, advanced model, JSON output, retry) and the standard MD5 cache in `~/.gitpr/cache/prompts/fix/` — see the [AI Providers documentation](/docs/providers-ia).
 
 The ids are assigned by gitpr, never by the model: `FIX-001`, `FIX-002`, ... in the order the findings came back. Because the prompt is built from the same review and the same diff, the cached answer is reused and **the ids stay put between runs** — the id a listing showed is the id `--apply` addresses. Running `gitpr -r` again produces a new review, hence a new prompt, new findings and new ids.
 
@@ -212,7 +212,7 @@ The rollback reads the stored diff and replays it with `git apply --reverse` —
 
 The findings call uses the `.gitpr.fix.md` file as the AI's system instruction (persona: **Senior Software Engineer**, normalizing the review into minimal patches). The template is downloaded by `gitpr --skill` — language-aware (`gitpr.fix.md` for English, `gitpr.fix.pt_br.md` for PT-BR) and never overwriting an existing local file. Without it, the built-in persona is used.
 
-The template states the contract the pipeline depends on: the patch is the source of truth, one hunk in one file, never reformat untouched code, never delete an existing call or guard, declare an honest `confidence`, and leave the `diff` empty when the finding needs a human decision. Edit it locally to change how patches are written; the prompt is built from it, so a change produces a new prompt and a new AI call. See the [Skills and Templates documentation](skill-template.md) for the general mechanism.
+The template states the contract the pipeline depends on: the patch is the source of truth, one hunk in one file, never reformat untouched code, never delete an existing call or guard, declare an honest `confidence`, and leave the `diff` empty when the finding needs a human decision. Edit it locally to change how patches are written; the prompt is built from it, so a change produces a new prompt and a new AI call. See the [Skills and Templates documentation](/docs/skill-template) for the general mechanism.
 
 ---
 
@@ -224,7 +224,7 @@ The template states the contract the pipeline depends on: the patch is the sourc
 {"status": "success", "finding_count": 2, "candidates": [ ... ]}
 ```
 
-Each candidate carries `finding_id`, `patch_id`, `file_path`, `line_start`, `line_end`, `severity`, `category`, `message`, `safety`, `safety_reason` (the stable code, not a sentence), `confidence`, `suggested_test` and `diff`. The status is `no_data` when the review raised nothing that could become a patch, and `error` with a `message` when there is no review to read or the pipeline cannot run at all. See the [MCP Integration documentation](mcp-integration.md).
+Each candidate carries `finding_id`, `patch_id`, `file_path`, `line_start`, `line_end`, `severity`, `category`, `message`, `safety`, `safety_reason` (the stable code, not a sentence), `confidence`, `suggested_test` and `diff`. The status is `no_data` when the review raised nothing that could become a patch, and `error` with a `message` when there is no review to read or the pipeline cannot run at all. See the [MCP Integration documentation](/docs/mcp-integration).
 
 ---
 
@@ -240,4 +240,4 @@ The fix configuration is read from the global `~/.gitpr/.env` file (dotenv forma
 | `GITPR_FIX_CREATE_BRANCH_ON_ALL_SAFE` | `true` | `--all-safe --apply` creates a branch before writing; `--no-branch` overrides it for one run |
 | `GITPR_FIX_BRANCH_NAME_TEMPLATE` | `fix/gitpr-{datetime}` | Name of that branch. Placeholders: `{branch}` (current branch) and `{datetime}` |
 
-> **Note:** See also the [Skills and Templates documentation](skill-template.md) for customizing the GitPR AI template files.
+> **Note:** See also the [Skills and Templates documentation](/docs/skill-template) for customizing the GitPR AI template files.

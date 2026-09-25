@@ -121,6 +121,6 @@ O use case vive em cinco módulos planos em `src/`: `reviewer_suggestion.py` gua
 
 No lado do SCM, o contrato base `ScmProvider` ganhou um método **não abstrato** `request_pull_request_reviewers(repo, pr_id, reviewers)` cujo padrão levanta `ScmNotSupportedError`; apenas o `github_provider.py` o implementa, junto com o `email_to_handle()`, o `get_commit_author_login()` e o `get_user_login()`, exclusivos do GitHub. O método devolve os logins que o forge **realmente anexou**, relidos do corpo do `201` — uma lista vazia é como o chamador detecta uma solicitação aceita e silenciosamente ignorada. O `main.py` restringe o cálculo ao fluxo TUI padrão e entrega ao app um dict de view `{"handles", "lines", "submittable", "note", "resolutions"}`. Todo texto visível passa por chaves i18n `__()`, então os 5 pacotes de idioma precisam ficar sincronizados quando mensagens mudam.
 
-Registro de decisão de arquitetura e vocabulário canônico: [ADR-002 Sugestão de Revisores](plans/ADR-002-reviewer-suggestion.md) e [Glossário de Sugestão de Revisores](plans/glossary-reviewer-suggestion.md).
+Registro de decisão de arquitetura e vocabulário canônico: [ADR-002 Sugestão de Revisores](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/ADR-002-reviewer-suggestion.md) e [Glossário de Sugestão de Revisores](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/glossary-reviewer-suggestion.md).
 
-> **Nota:** Consulte também a [documentação de publicação de pull requests](pull-request-publication.md) para o fluxo completo de publicação, seus modos e suas flags.
+> **Nota:** Consulte também a [documentação de publicação de pull requests](/docs/pull-request-publication?lang=pt_br) para o fluxo completo de publicação, seus modos e suas flags.

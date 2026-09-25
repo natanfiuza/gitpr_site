@@ -115,6 +115,6 @@ retry — the fix silently never arrives.
 
 ## 5. Related
 
-* [ARCHITECTURE.md](ARCHITECTURE.md) — §16 Version Markers
-* [hooks-versioning.md](hooks-versioning.md) — `SCRIPTS_VERSION` specifics
-* [linter-regras-customizadas.md](linter-regras-customizadas.md) — linter presets and `--linter-setup`
+* [ARCHITECTURE.md](/docs/ARCHITECTURE) — §16 Version Markers
+* [hooks-versioning.md](/docs/hooks-versioning) — `SCRIPTS_VERSION` specifics
+* [linter-regras-customizadas.md](/docs/linter-regras-customizadas) — linter presets and `--linter-setup`

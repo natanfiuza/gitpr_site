@@ -102,7 +102,7 @@ O Pytest detectará automaticamente os arquivos dentro da pasta `tests/` e exibi
 ```
 *Nota: Sua configuração será salva com segurança no arquivo `~/.gitpr/.env`.*
 
-*Nota (atualizações): O GitPR é distribuído exclusivamente pelo PyPI. A cada execução ele verifica se uma versão mais nova foi publicada e, quando existe, **bloqueia a execução** e pede para rodar `pip install --upgrade gitpr-cli`. Veja [auto-update.md](docs/auto-update.md).*
+*Nota (atualizações): O GitPR é distribuído exclusivamente pelo PyPI. A cada execução ele verifica se uma versão mais nova foi publicada e, quando existe, **bloqueia a execução** e pede para rodar `pip install --upgrade gitpr-cli`. Veja [auto-update.md](/docs/auto-update?lang=pt_br).*
 
 > **🔒 Nota de Segurança:** O GitPR CLI usa criptografia simétrica (Fernet). Sua chave de API é armazenada como um hash no arquivo `.env`, e a chave mestra para descriptografia é gerada automaticamente em `~/.gitpr/secret.key`. **Nunca compartilhe seu arquivo secret.key.**
 
@@ -120,7 +120,7 @@ pip install -e .
 
 > Prefere um ambiente isolado? Instale as dependências com `pipenv install google-genai openai python-dotenv click cryptography` e rode `pipenv run python src/main.py`.
 >
-> **Nota sobre o portão de atualização:** uma instalação do fonte reporta a versão que está no seu checkout, então uma árvore atrás da release publicada é barrada na inicialização. Veja [Instalando o GitPR do código-fonte](docs/tutorial/install-from-source.pt_br.md).
+> **Nota sobre o portão de atualização:** uma instalação do fonte reporta a versão que está no seu checkout, então uma árvore atrás da release publicada é barrada na inicialização. Veja [Instalando o GitPR do código-fonte](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/tutorial/install-from-source.pt_br.md).
 
 ## **💻 Como Usar**
 
@@ -180,7 +180,7 @@ Você pode passar as seguintes *flags* para ações específicas:
 
 Quando o diff é grande demais para uma única chamada de IA (acima de ~90 mil tokens estimados), o GitPR o divide automaticamente em lotes por arquivo, pede à IA um resumo técnico de cada parte (Map) e unifica tudo na mensagem de commit, review ou descrição de PR final (Reduce). Sem flags — ativa sob demanda e mostra o progresso no console.
 
-📚 Documentação completa: [docs/map-reduce-diff.pt_br.md](docs/map-reduce-diff.pt_br.md)
+📚 Documentação completa: [docs/map-reduce-diff.pt_br.md](/docs/map-reduce-diff?lang=pt_br)
 
 ## 🛡️ Linter Local (Análise Estática e Segurança)
 
@@ -278,7 +278,7 @@ O GitPR detecta automaticamente o idioma do seu sistema e exibe as mensagens no 
 
 Para forçar um idioma específico, defina `GITPR_LANG=pt_br` ou `GITPR_LANG=en` no `~/.gitpr/.env`.
 
-> 📖 **Guia completo do desenvolvedor:** [docs/i18n_explanation.pt_br.md](docs/i18n_explanation.pt_br.md) — arquitetura, padrões de uso, precauções com import circular e como adicionar novos idiomas.
+> 📖 **Guia completo do desenvolvedor:** [docs/i18n_explanation.pt_br.md](/docs/i18n_explanation?lang=pt_br) — arquitetura, padrões de uso, precauções com import circular e como adicionar novos idiomas.
 
 ## 🔄 Versionamento e Sincronização Automática de Scripts de Hooks
 
@@ -337,7 +337,7 @@ O instalador cria o diretório de config se necessário, mescla com qualquer
 config existente (nunca sobrescreve outros servidores) e é seguro executar
 múltiplas vezes.
 
-> Configuração manual também é suportada — veja [docs/mcp-integration.pt_br.md](docs/mcp-integration.pt_br.md)
+> Configuração manual também é suportada — veja [docs/mcp-integration.pt_br.md](/docs/mcp-integration?lang=pt_br)
 > para o formato JSON de cada editor.
 
 Uma vez configurado, use linguagem natural no chat de IA do seu editor:
@@ -383,7 +383,7 @@ gitpr-mcp --tool analyze_blame --tool-args '{"file_path":"src/main.py","start_li
 
 Ideal para scripts, pipelines de CI/CD e consultas pontuais onde você não precisa de um servidor MCP persistente. A saída JSON vai para stdout; todas as mensagens de diagnóstico vão para stderr — seguro para pipe.
 
-📖 **Documentação completa:** [docs/mcp-integration.pt_br.md](docs/mcp-integration.pt_br.md) — disponível em 5 idiomas (EN, PT-BR, PT-PT, ES, FR).
+📖 **Documentação completa:** [docs/mcp-integration.pt_br.md](/docs/mcp-integration?lang=pt_br) — disponível em 5 idiomas (EN, PT-BR, PT-PT, ES, FR).
 
 > 💬 **MCP Prompts** — O GitPR também expõe 7 modelos de mensagem predefinidos (prompts) para fluxos comuns como "Revisar PR", "Gerar Mensagem de Commit" e "Criar Issue a partir do Diff". Consulte o [guia de MCP Prompts](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/mcp-prompts.md) para a lista completa.
 

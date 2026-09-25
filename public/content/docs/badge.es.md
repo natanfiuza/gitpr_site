@@ -114,4 +114,4 @@ La insignia que puedes poner en tu propio proyecto es otra: estática, siempre l
 | `GITPR_BADGE` | `false` (o `0`, `no`, `off`, `n`) publica cuerpos de pull request sin la insignia |
 | `GITPR_LANG` | Idioma de la interfaz. La insignia en sí es siempre en inglés |
 
-> **Nota:** Consulta también la [documentación de Publicación de PR en GitHub](pull-request-publication.es_es.md) para el flujo al que se añade la insignia, y la [documentación del Linter Estático Personalizable](linter-regras-customizadas.es_es.md) para las reglas de donde vienen los recuentos — la insignia no tiene nada que informar mientras esas reglas no existan.
+> **Nota:** Consulta también la [documentación de Publicación de PR en GitHub](/docs/pull-request-publication?lang=es) para el flujo al que se añade la insignia, y la [documentación del Linter Estático Personalizable](/docs/linter-regras-customizadas?lang=es) para las reglas de donde vienen los recuentos — la insignia no tiene nada que informar mientras esas reglas no existan.

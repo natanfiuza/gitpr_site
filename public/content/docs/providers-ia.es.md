@@ -84,4 +84,4 @@ garantizando que un proveedor bloqueado falle rápidamente con un error visible,
 en lugar de congelar la CLI. Los valores no válidos o no positivos vuelven al
 valor predeterminado de 180s.
 
-> **Nota:** Consulta también la [documentación principal (README.md)](../README.md) para instrucciones sobre la configuración inicial de las claves de API.
+> **Nota:** Consulta también la [documentación principal (README.md)](/docs/readme?lang=es) para instrucciones sobre la configuración inicial de las claves de API.

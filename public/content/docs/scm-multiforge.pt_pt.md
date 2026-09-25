@@ -61,7 +61,7 @@ Nada é guardado quando a validação falha. Execute `gitpr --init` novamente a 
 
 ## 3. Configuração Manual (.env)
 
-Alternativa ao wizard: edite o `~/.gitpr/.env` diretamente. Consulte o [guia de integração do GitHub PAT](github-pat-integration.md) para perceber como o GitPR protege os tokens em repouso.
+Alternativa ao wizard: edite o `~/.gitpr/.env` diretamente. Consulte o [guia de integração do GitHub PAT](/docs/github-pat-integration?lang=pt_pt) para perceber como o GitPR protege os tokens em repouso.
 
 | Variável | Forge | Descrição |
 | --- | --- | --- |
@@ -140,6 +140,6 @@ A abstração vive em `src/infrastructure/scm/`: o contrato `ScmProvider` em `ba
 
 O `src/github_api.py` é um **shim obsoleto**: ainda expõe as quatro funções legadas com devoluções em tupla para integrações de terceiros, mas todas as chamadas levantam um `DeprecationWarning`. Código novo e plugins devem usar `resolve_scm_provider()`.
 
-Registo de decisão de arquitetura e vocabulário canónico: [ADR-001 Abstração SCM](plans/ADR-001-scm-abstraction.md) e [Glossário SCM Multi-Forge](plans/glossary-scm-multiforge.md).
+Registo de decisão de arquitetura e vocabulário canónico: [ADR-001 Abstração SCM](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/ADR-001-scm-abstraction.md) e [Glossário SCM Multi-Forge](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/glossary-scm-multiforge.md).
 
-> **Nota:** Consulte também a [documentação de integração do GitHub PAT](github-pat-integration.md) para criar tokens e compreender a encriptação do GitPR (Fernet).
+> **Nota:** Consulte também a [documentação de integração do GitHub PAT](/docs/github-pat-integration?lang=pt_pt) para criar tokens e compreender a encriptação do GitPR (Fernet).

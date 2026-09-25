@@ -148,4 +148,4 @@ La visite n'introduit **aucune configuration nouvelle**. Elle lit ce que le rest
 
 Aucune variable de clé, de jeton, de modèle ou de chemin n'est lue : sur une machine au `~/.gitpr/` vide, `gitpr demo` est la seule commande qui fonctionne encore.
 
-> **Note :** Voir aussi la [documentation de Revue de Code](code-review-ia.fr_fr.md) pour ce que prévisualise la quatrième étape, celle des [Messages de Commit](commit-message-ia.fr_fr.md) pour la troisième, et celle du [Badge](badge.fr_fr.md) pour la marque au bas de la cinquième.
+> **Note :** Voir aussi la [documentation de Revue de Code](/docs/code-review-ia?lang=fr) pour ce que prévisualise la quatrième étape, celle des [Messages de Commit](/docs/commit-message-ia?lang=fr) pour la troisième, et celle du [Badge](/docs/badge?lang=fr) pour la marque au bas de la cinquième.

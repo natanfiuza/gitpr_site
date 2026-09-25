@@ -107,7 +107,7 @@ GitPR checks for unstaged files before **all** AI commands — not just PR gener
 
 Use `--no-unstaged-check` to skip the verification for a single invocation, or set `GITPR_SKIP_UNSTAGED_CHECK=true` to disable it permanently.
 
-Use `gitpr --status` for a quick, no-AI listing of uncommitted files by category (new/modified/deleted). 📖 [Full docs](git-status.md)
+Use `gitpr --status` for a quick, no-AI listing of uncommitted files by category (new/modified/deleted). 📖 [Full docs](/docs/git-status)
 
 ### 4.1 Startup Check Flow
 
@@ -340,7 +340,7 @@ The first time you use `F3` or `--no-edit`, GitPR will:
 - The token is stored as an encrypted hash — never in plain text
 - The master decryption key is located at `~/.gitpr/secret.key`
 - The token is validated via `GET /user` before the TUI opens
-- See the complete guide at [github-pat-integration.md](github-pat-integration.md)
+- See the complete guide at [github-pat-integration.md](/docs/github-pat-integration)
 
 ---
 
@@ -525,4 +525,4 @@ OUTPUT_FILE_NAME=/home/user/prs/my_custom_pr.md
 | `.gitpr/reports/review/` | Default output directory for code review files |
 | `.gitpr/reports/full_review/` | Default output directory for full review files |
 
-> **Note:** See also the [main documentation (README.md)](../README.md) for an overview of all GitPR features and the [PR Description guide](pr-descricao-padrao.md) for the default PR generation flow.
+> **Note:** See also the [main documentation (README.md)](/docs/readme) for an overview of all GitPR features and the [PR Description guide](/docs/pr-descricao-padrao) for the default PR generation flow.

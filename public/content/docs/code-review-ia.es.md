@@ -71,7 +71,7 @@ gitpr review-pr 123 --post-comment
 | **Requiere** | Una forge configurada por `gitpr --init` que sirva un diff unificado — Azure DevOps no sirve |
 | **Ideal para** | Revisión de código de contribuciones de terceros, y para repositorios que nunca clonas |
 
-Ejecuta el mismo motor, la misma skill y la misma caché que `gitpr -r`, así que su informe se lee como un review local del mismo diff. Consulta la [documentación de Review de Pull Request Remoto](review-pr.md) para el contrato completo — los rechazos que no cuestan tokens, el filtro de smart excludes, el ámbito de caché y el pie del comentario.
+Ejecuta el mismo motor, la misma skill y la misma caché que `gitpr -r`, así que su informe se lee como un review local del mismo diff. Consulta la [documentación de Review de Pull Request Remoto](/docs/review-pr?lang=es) para el contrato completo — los rechazos que no cuestan tokens, el filtro de smart excludes, el ámbito de caché y el pie del comentario.
 
 ---
 
@@ -129,4 +129,4 @@ El `-p` / `--provider` del grupo raíz no lo heredan los subcomandos, así que `
 | `OUTPUT_FILE_NAME_FULLREVIEW` | `-f` | `{branch}_{datetime}_PR_FULLREVIEW.txt` |
 | `OUTPUT_FILE_NAME_FILEREVIEW` | `-i` | `{branch}_{datetime}_FILE_REVIEW.txt` |
 
-> **Nota:** Consulta también la [documentación del Linter](linter-regras-customizadas.md) para crear reglas de validación estática.
+> **Nota:** Consulta también la [documentación del Linter](/docs/linter-regras-customizadas?lang=es) para crear reglas de validación estática.

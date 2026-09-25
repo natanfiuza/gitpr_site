@@ -124,7 +124,7 @@ As interfaces visuais vivem em `src/ui/` e seguem padrões comuns: retorno de es
 
 Recursos remotos (traduções, thinking words, smart excludes, presets de linter, scripts de hooks) são re-baixados em bloco quando os marcadores de versão (`__lang_version__`, `__scripts_version__` no `updater.py`) mudam. Os hooks instalados são comparados com `SCRIPTS_VERSION` + `SCRIPTS_INSTALLED_LANG` no `.env` e **auto-sincronizados silenciosamente** a cada execução (respeitando `SCRIPTS_LANG`, o idioma que o usuário escolheu, ou o idioma da interface quando ele estiver vazio).
 
-Os cinco marcadores (`LANG_VERSION`, `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`, `LINTER_PRESETS_VERSION`, `SCRIPTS_VERSION`), o que cada um armazena em cache e a ordem correta para publicar uma alteração estão documentados em **[version-markers.md](version-markers.md)**.
+Os cinco marcadores (`LANG_VERSION`, `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`, `LINTER_PRESETS_VERSION`, `SCRIPTS_VERSION`), o que cada um armazena em cache e a ordem correta para publicar uma alteração estão documentados em **[version-markers.md](/docs/version-markers?lang=pt_br)**.
 
 ### **17. Sistema de Auto-Update**
 
@@ -144,7 +144,7 @@ A publicação de PRs e issues não é mais exclusiva do GitHub (em desenvolvime
 * **Provedores** — um módulo por forge (`github_provider.py`, `gitlab_provider.py`, `bitbucket_provider.py`, `azure_devops_provider.py`), cada um implementando os mesmos verbos REST com autenticação e payloads específicos da forge. Os provedores **lançam** `ScmProviderError` (`http_status` 0 = rede) — as antigas tuplas silenciosas `(ok, data, status)` sobrevivem apenas na camada de UI (`src/github_api.py` agora é um shim depreciado).
 * **`factory.py`** — `resolve_scm_provider()` seleciona o provedor a partir da chave de ambiente `GITPR_SCM_PROVIDER` (padrão `github`, com fallback para o token legado `GITHUB_TOKEN_ENCRYPTED` — zero migração); `detect_provider_from_remote()` descobre a forge a partir da URL do remote origin.
 * **Wizard `--init`** — `core.run_scm_init_wizard()` detecta a forge, coleta extras do provedor (organização/projeto Azure, usuário Bitbucket) e o token de acesso, valida-o via `test_connection()` (3 tentativas, reprompt em 401) e persiste **apenas em caso de sucesso**: `GITPR_SCM_PROVIDER` + `GITPR_SCM_TOKEN_ENCRYPTED` (Fernet) + extras.
-* **Notas de design** — consulte o [Glossário e ADR Multi-Forge](plans/glossary-scm-multiforge.md) em `docs/plans/` para detalhes específicos de cada forge (`api-version` do Azure, `iid` vs `id` no GitLab, App Password do Bitbucket, resumo textual de diff no Azure) e os desvios aprovados.
+* **Notas de design** — consulte o [Glossário e ADR Multi-Forge](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/glossary-scm-multiforge.md) em `docs/plans/` para detalhes específicos de cada forge (`api-version` do Azure, `iid` vs `id` no GitLab, App Password do Bitbucket, resumo textual de diff no Azure) e os desvios aprovados.
 
 ---
 
@@ -215,40 +215,40 @@ docs/               # Documentação técnica (EN canônico + sufixos de idioma)
 
 Cada funcionalidade tem um guia dedicado em `docs/` (inglês canônico + `.pt_br` / `.pt_pt` / `.es_es` / `.fr_fr`):
 
-* [pull-request-publication.md](pull-request-publication.md) — Publicador de PR (TUI, auto-commit, merge)  
-* [pr-descricao-padrao.md](pr-descricao-padrao.md) — Modo de descrição de PR padrão  
-* [understanding_chat_functionality.md](understanding_chat_functionality.md) — Chat de programação em par  
-* [mcp-integration.md](mcp-integration.md) — Integração MCP com editores  
-* [mcp-annotations.md](mcp-annotations.md) — Anotações das tools MCP  
-* [mcp-prompts.md](mcp-prompts.md) — Prompts predefinidos do MCP  
-* [metricas-telemetria.md](metricas-telemetria.md) — Métricas e telemetria local  
-* [plugins-system.md](plugins-system.md) — Sistema de plugins globais  
-* [map-reduce-diff.md](map-reduce-diff.md) — Map-reduce para diffs gigantes  
-* [smart-excludes.md](smart-excludes.md) — Otimização de tokens  
-* [hooks-versioning.md](hooks-versioning.md) — Versionamento e auto-sync dos hooks  
-* [git-hooks-locais.md](git-hooks-locais.md) — Guia de git hooks locais  
-* [linter-regras-customizadas.md](linter-regras-customizadas.md) — Regras de linter e linters externos  
-* [guia-regex-gitpr.md](guia-regex-gitpr.md) — Guia de regex para regras do linter  
-* [github-ci-linter.md](github-ci-linter.md) — Integração do linter com CI  
-* [blame-arqueologo.md](blame-arqueologo.md) — Arqueologia de código (git blame)  
-* [issue-tui-help.md](issue-tui-help.md) — Issues padronizadas e TUI  
-* [gitpr-issue-option.md](gitpr-issue-option.md) — Opções de geração de issues  
-* [commit-message-ia.md](commit-message-ia.md) — Mensagens de commit com IA  
-* [code-review-ia.md](code-review-ia.md) — Code review com IA  
-* [install-wizard.md](install-wizard.md) — Setup wizard  
-* [i18n_explanation.md](i18n_explanation.md) — Motor de i18n  
-* [github-pat-integration.md](github-pat-integration.md) — Segurança do GitHub PAT  
-* [git-status.md](git-status.md) — Listagem do status dos arquivos não commitados  
-* [untracked-files.md](untracked-files.md) — Explicação de arquivos untracked  
-* [auto-update.md](auto-update.md) — Auto-atualizador e bloqueio obrigatório de atualização  
-* [providers-ia.md](providers-ia.md) — Provedores de IA (Gemini, DeepSeek, Ollama)  
-* [skill-template.md](skill-template.md) — Sistema de skills e templates  
+* [pull-request-publication.md](/docs/pull-request-publication?lang=pt_br) — Publicador de PR (TUI, auto-commit, merge)  
+* [pr-descricao-padrao.md](/docs/pr-descricao-padrao?lang=pt_br) — Modo de descrição de PR padrão  
+* [understanding_chat_functionality.md](/docs/understanding_chat_functionality?lang=pt_br) — Chat de programação em par  
+* [mcp-integration.md](/docs/mcp-integration?lang=pt_br) — Integração MCP com editores  
+* [mcp-annotations.md](/docs/mcp-annotations?lang=pt_br) — Anotações das tools MCP  
+* [mcp-prompts.md](/docs/mcp-prompts?lang=pt_br) — Prompts predefinidos do MCP  
+* [metricas-telemetria.md](/docs/metricas-telemetria?lang=pt_br) — Métricas e telemetria local  
+* [plugins-system.md](/docs/plugins-system?lang=pt_br) — Sistema de plugins globais  
+* [map-reduce-diff.md](/docs/map-reduce-diff?lang=pt_br) — Map-reduce para diffs gigantes  
+* [smart-excludes.md](/docs/smart-excludes?lang=pt_br) — Otimização de tokens  
+* [hooks-versioning.md](/docs/hooks-versioning?lang=pt_br) — Versionamento e auto-sync dos hooks  
+* [git-hooks-locais.md](/docs/git-hooks-locais?lang=pt_br) — Guia de git hooks locais  
+* [linter-regras-customizadas.md](/docs/linter-regras-customizadas?lang=pt_br) — Regras de linter e linters externos  
+* [guia-regex-gitpr.md](/docs/guia-regex-gitpr?lang=pt_br) — Guia de regex para regras do linter  
+* [github-ci-linter.md](/docs/github-ci-linter?lang=pt_br) — Integração do linter com CI  
+* [blame-arqueologo.md](/docs/blame-arqueologo?lang=pt_br) — Arqueologia de código (git blame)  
+* [issue-tui-help.md](/docs/issue-tui-help?lang=pt_br) — Issues padronizadas e TUI  
+* [gitpr-issue-option.md](/docs/gitpr-issue-option?lang=pt_br) — Opções de geração de issues  
+* [commit-message-ia.md](/docs/commit-message-ia?lang=pt_br) — Mensagens de commit com IA  
+* [code-review-ia.md](/docs/code-review-ia?lang=pt_br) — Code review com IA  
+* [install-wizard.md](/docs/install-wizard?lang=pt_br) — Setup wizard  
+* [i18n_explanation.md](/docs/i18n_explanation?lang=pt_br) — Motor de i18n  
+* [github-pat-integration.md](/docs/github-pat-integration?lang=pt_br) — Segurança do GitHub PAT  
+* [git-status.md](/docs/git-status?lang=pt_br) — Listagem do status dos arquivos não commitados  
+* [untracked-files.md](/docs/untracked-files?lang=pt_br) — Explicação de arquivos untracked  
+* [auto-update.md](/docs/auto-update?lang=pt_br) — Auto-atualizador e bloqueio obrigatório de atualização  
+* [providers-ia.md](/docs/providers-ia?lang=pt_br) — Provedores de IA (Gemini, DeepSeek, Ollama)  
+* [skill-template.md](/docs/skill-template?lang=pt_br) — Sistema de skills e templates  
 
 Tutoriais (apenas em português):
 
-* [github-issue-prompt-com-gh.md](github-issue-prompt-com-gh.md) — Formatar e atualizar issues via gh CLI  
-* [como_reverter_commit_git_localmente.md](como_reverter_commit_git_localmente.md) — Reverter commits localmente  
-* [testar_sem_usar_pypi.md](testar_sem_usar_pypi.md) — Testar sem gastar uma versão no PyPI  
-* [otimizacao-de-tokens.md](otimizacao-de-tokens.md) — Otimização de tokens nos arquivos de contexto (.gitpr.*.md)  
+* [github-issue-prompt-com-gh.md](/docs/github-issue-prompt-com-gh?lang=pt_br) — Formatar e atualizar issues via gh CLI  
+* [como_reverter_commit_git_localmente.md](/docs/como_reverter_commit_git_localmente?lang=pt_br) — Reverter commits localmente  
+* [testar_sem_usar_pypi.md](/docs/testar_sem_usar_pypi?lang=pt_br) — Testar sem gastar uma versão no PyPI  
+* [otimizacao-de-tokens.md](/docs/otimizacao-de-tokens?lang=pt_br) — Otimização de tokens nos arquivos de contexto (.gitpr.*.md)  
 
 ---

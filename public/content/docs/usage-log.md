@@ -53,7 +53,7 @@ Every invocation is recorded, including `--help` and the ones that fail. For the
 | The file | `GITPR_SHOW_LOGS=false` in `~/.gitpr/.env` |
 | A single run | `GITPR_SHOW_LOGS=false gitpr -c` |
 
-The environment always wins over the file (see [the configuration screen](config-tui.md) §2), so the last row disables that one command without touching anything else.
+The environment always wins over the file (see [the configuration screen](/docs/config-tui) §2), so the last row disables that one command without touching anything else.
 
 Turning it off stops new lines. It does not delete what is already there.
 

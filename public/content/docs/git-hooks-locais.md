@@ -48,7 +48,7 @@ password = "…"                        # reported, does not abort
 A provider key (AWS, GitHub, Slack, Google) or a private key block **blocks**;
 a database URL carrying credentials or a `password = "…"` assignment is
 **reported** without blocking. Section 7 of
-[linter-regras-customizadas.md](linter-regras-customizadas.md) lists the seven
+[linter-regras-customizadas.md](/docs/linter-regras-customizadas) lists the seven
 rules, the placeholder filter that keeps templates from failing, and the two keys
 that turn it off.
 
