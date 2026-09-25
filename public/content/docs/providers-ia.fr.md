@@ -84,4 +84,4 @@ garantissant qu'un fournisseur bloqué échoue rapidement avec une erreur visibl
 au lieu de figer la CLI. Les valeurs invalides ou non positives reviennent à la
 valeur par défaut de 180s.
 
-> **Note :** Consultez également la [documentation principale (README.md)](../README.md) pour les instructions de configuration initiale des clés d'API.
+> **Note :** Consultez également la [documentation principale (README.md)](/docs/readme?lang=fr) pour les instructions de configuration initiale des clés d'API.

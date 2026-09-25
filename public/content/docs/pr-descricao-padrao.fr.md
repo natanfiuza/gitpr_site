@@ -88,7 +88,7 @@ Ignore la TUI : effectue l'auto-commit des modifications en attente (linter + me
 
 Pour publier, GitPR nécessite un **Personal Access Token (PAT)** GitHub avec le scope `repo`, stocké chiffré dans `~/.gitpr/.env`. La branche cible est résolue via la flag `--base` → env `PR_DEFAULT_BASE` → détection automatique.
 
-> **Remarque :** Consultez le [guide complet de publication](pull-request-publication.md) pour le flux détaillé (vérification des unstaged, auto-commit, merge, gestion des erreurs).
+> **Remarque :** Consultez le [guide complet de publication](/docs/pull-request-publication?lang=fr) pour le flux détaillé (vérification des unstaged, auto-commit, merge, gestion des erreurs).
 
 ---
 
@@ -131,4 +131,4 @@ Si aucun fournisseur n'est spécifié, GitPR utilise la valeur par défaut défi
 
 GitPR génère un hash MD5 du diff + des instructions de l'IA. Si vous exécutez `gitpr` à nouveau **sans modifier le code**, la réponse est renvoyée depuis le cache local en quelques millisecondes, sans consommer de quota API.
 
-> **Remarque :** Consultez également la [documentation principale (README.md)](../README.md) pour un aperçu de toutes les fonctionnalités.
+> **Remarque :** Consultez également la [documentation principale (README.md)](/docs/readme?lang=fr) pour un aperçu de toutes les fonctionnalités.

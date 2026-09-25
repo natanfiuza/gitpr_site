@@ -114,4 +114,4 @@ The badge you can put on your own project is a different one: static, always the
 | `GITPR_BADGE` | `false` (or `0`, `no`, `off`, `n`) publishes pull request bodies without the badge |
 | `GITPR_LANG` | Interface language. The badge itself is always English |
 
-> **Note:** See also the [PR Publication documentation](pull-request-publication.md) for the flow the badge is attached to, and the [Customizable Static Linter documentation](linter-regras-customizadas.md) for the rules the counts come from — the badge has nothing to report until those rules exist.
+> **Note:** See also the [PR Publication documentation](/docs/pull-request-publication) for the flow the badge is attached to, and the [Customizable Static Linter documentation](/docs/linter-regras-customizadas) for the rules the counts come from — the badge has nothing to report until those rules exist.

@@ -61,7 +61,7 @@ Um diff vazio aborta com `❌ The working tree has no changes to apply fixes to.
 
 ### 2.3 Uma Chamada de IA, e os Ids que Ela Produz
 
-Uma única chamada pede ao modelo o menor diff unificado por apontamento da revisão, retornando um objeto JSON por apontamento. Ela passa pela infraestrutura padrão do GitPR (provedor configurado, modelo avançado, saída JSON, retry) e pelo cache MD5 padrão em `~/.gitpr/cache/prompts/fix/` — veja a [documentação de Provedores de IA](providers-ia.md).
+Uma única chamada pede ao modelo o menor diff unificado por apontamento da revisão, retornando um objeto JSON por apontamento. Ela passa pela infraestrutura padrão do GitPR (provedor configurado, modelo avançado, saída JSON, retry) e pelo cache MD5 padrão em `~/.gitpr/cache/prompts/fix/` — veja a [documentação de Provedores de IA](/docs/providers-ia?lang=pt_br).
 
 Os ids são atribuídos pelo gitpr, nunca pelo modelo: `FIX-001`, `FIX-002`, ... na ordem em que os apontamentos chegaram. Como o prompt é montado a partir da mesma revisão e do mesmo diff, a resposta em cache é reaproveitada e **os ids permanecem os mesmos entre execuções** — o id que uma listagem mostrou é o id ao qual o `--apply` se refere. Rodar `gitpr -r` de novo produz uma nova revisão, logo um novo prompt, novos apontamentos e novos ids.
 
@@ -212,7 +212,7 @@ O `--rollback` não aceita id de apontamento e não pode ser combinado com `--ap
 
 A chamada de apontamentos usa o arquivo `.gitpr.fix.md` como system instruction da IA (persona: **Engenheiro de Software Sênior**, normalizando a revisão em patches mínimos). O template é baixado por `gitpr --skill` — respeitando o idioma (`gitpr.fix.md` para inglês, `gitpr.fix.pt_br.md` para PT-BR) e nunca sobrescrevendo um arquivo local existente. Sem ele, a persona embutida é usada.
 
-O template enuncia o contrato do qual o pipeline depende: o patch é a fonte da verdade, um hunk em um arquivo, nunca reformatar código não tocado, nunca excluir uma chamada ou uma guarda existente, declarar uma `confidence` honesta e deixar o `diff` vazio quando o apontamento exigir uma decisão humana. Edite-o localmente para mudar como os patches são escritos; o prompt é montado a partir dele, então uma alteração produz um novo prompt e uma nova chamada de IA. Veja a [documentação de Skills e Templates](skill-template.md) para o mecanismo geral.
+O template enuncia o contrato do qual o pipeline depende: o patch é a fonte da verdade, um hunk em um arquivo, nunca reformatar código não tocado, nunca excluir uma chamada ou uma guarda existente, declarar uma `confidence` honesta e deixar o `diff` vazio quando o apontamento exigir uma decisão humana. Edite-o localmente para mudar como os patches são escritos; o prompt é montado a partir dele, então uma alteração produz um novo prompt e uma nova chamada de IA. Veja a [documentação de Skills e Templates](/docs/skill-template?lang=pt_br) para o mecanismo geral.
 
 ---
 
@@ -224,7 +224,7 @@ O template enuncia o contrato do qual o pipeline depende: o patch é a fonte da 
 {"status": "success", "finding_count": 2, "candidates": [ ... ]}
 ```
 
-Cada candidato carrega `finding_id`, `patch_id`, `file_path`, `line_start`, `line_end`, `severity`, `category`, `message`, `safety`, `safety_reason` (o código estável, não uma frase), `confidence`, `suggested_test` e `diff`. O status é `no_data` quando a revisão não apontou nada que pudesse virar um patch, e `error` com uma `message` quando não há revisão para ler ou o pipeline não consegue rodar de jeito nenhum. Veja a [documentação de Integração MCP](mcp-integration.md).
+Cada candidato carrega `finding_id`, `patch_id`, `file_path`, `line_start`, `line_end`, `severity`, `category`, `message`, `safety`, `safety_reason` (o código estável, não uma frase), `confidence`, `suggested_test` e `diff`. O status é `no_data` quando a revisão não apontou nada que pudesse virar um patch, e `error` com uma `message` quando não há revisão para ler ou o pipeline não consegue rodar de jeito nenhum. Veja a [documentação de Integração MCP](/docs/mcp-integration?lang=pt_br).
 
 ---
 
@@ -240,4 +240,4 @@ A configuração do fix é lida do arquivo global `~/.gitpr/.env` (formato doten
 | `GITPR_FIX_CREATE_BRANCH_ON_ALL_SAFE` | `true` | `--all-safe --apply` cria uma branch antes de gravar; `--no-branch` sobrepõe isso para uma execução |
 | `GITPR_FIX_BRANCH_NAME_TEMPLATE` | `fix/gitpr-{datetime}` | Nome dessa branch. Placeholders: `{branch}` (branch atual) e `{datetime}` |
 
-> **Nota:** Consulte também a [documentação de Skills e Templates](skill-template.md) para personalizar os arquivos de template de IA do GitPR.
+> **Nota:** Consulte também a [documentação de Skills e Templates](/docs/skill-template?lang=pt_br) para personalizar os arquivos de template de IA do GitPR.

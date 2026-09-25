@@ -176,11 +176,11 @@ O parágrafo `### Summary` opcional é gerado pela IA a partir dos commits class
 gitpr release
 ```
 
-Na primeira execução em modo markdown, o CLI baixa o template de skill `.gitpr.release.md` dos templates do projeto. O download respeita o idioma atual da interface (variantes remotas como `gitpr.release.pt_br.md` são salvas localmente como `.gitpr.release.md`), nunca sobrescreve um arquivo local existente e nunca falha por erro de rede — a execução prossegue com a persona embutida. O download é totalmente pulado em `--format json`, que é stdout-only. O arquivo é carregado como system instruction da IA (persona: **Release Manager**, contrato estrito de JSON) — edite-o localmente para customizar o resumo executivo. Veja a [documentação de Skills e Templates](skill-template.md) para o mecanismo geral.
+Na primeira execução em modo markdown, o CLI baixa o template de skill `.gitpr.release.md` dos templates do projeto. O download respeita o idioma atual da interface (variantes remotas como `gitpr.release.pt_br.md` são salvas localmente como `.gitpr.release.md`), nunca sobrescreve um arquivo local existente e nunca falha por erro de rede — a execução prossegue com a persona embutida. O download é totalmente pulado em `--format json`, que é stdout-only. O arquivo é carregado como system instruction da IA (persona: **Release Manager**, contrato estrito de JSON) — edite-o localmente para customizar o resumo executivo. Veja a [documentação de Skills e Templates](/docs/skill-template?lang=pt_br) para o mecanismo geral.
 
 ### 4.2 Geração e Degradação Suave
 
-Intervalos com mais de 200 commits são resumidos em lotes (Map-Reduce, com aviso como `📦 Large commit range detected!`), e as respostas passam pelo cache MD5 padrão do GitPR, então execuções inalteradas não repetem chamadas de IA. Duas observações: o cache é chaveado pelo prompt — editar o `.gitpr.release.md` não invalida resumos cacheados — e o resumo usa sempre a mesma infraestrutura de IA dos outros comandos do GitPR (provedor configurado, saída JSON, retry automático). Veja a [documentação de Provedores de IA](providers-ia.md).
+Intervalos com mais de 200 commits são resumidos em lotes (Map-Reduce, com aviso como `📦 Large commit range detected!`), e as respostas passam pelo cache MD5 padrão do GitPR, então execuções inalteradas não repetem chamadas de IA. Duas observações: o cache é chaveado pelo prompt — editar o `.gitpr.release.md` não invalida resumos cacheados — e o resumo usa sempre a mesma infraestrutura de IA dos outros comandos do GitPR (provedor configurado, saída JSON, retry automático). Veja a [documentação de Provedores de IA](/docs/providers-ia?lang=pt_br).
 
 O resumo nunca bloqueia o comando: sem chave de API configurada, ou quando a chamada de IA falha, o comando avisa (`AI summary failed: changelog generated without a summary.`) e gera a seção apenas com as listas classificadas. `GITPR_RELEASE_AI_SUMMARY=false` desliga o resumo por completo.
 
@@ -201,7 +201,7 @@ Salvaguardas: sem um remote git `origin`, o comando se recusa a publicar (`❌ N
 
 ### 5.2 Forges Suportadas
 
-A publicação mira a forge configurada nas definições SCM (`gitpr --init` ou `GITPR_SCM_PROVIDER`). Veja a [documentação Multi-Forge SCM](scm-multiforge.md) para a configuração do provedor.
+A publicação mira a forge configurada nas definições SCM (`gitpr --init` ou `GITPR_SCM_PROVIDER`). Veja a [documentação Multi-Forge SCM](/docs/scm-multiforge?lang=pt_br) para a configuração do provedor.
 
 | Forge | Release | Observações |
 | --- | --- | --- |
@@ -255,4 +255,4 @@ A configuração da release é lida do arquivo global `~/.gitpr/.env` (formato d
 | `GITPR_RELEASE_PUBLISH_DRAFT_BY_DEFAULT` | `true` | GitHub: `--publish` cria a release como rascunho por padrão |
 | `OUTPUT_FILE_NAME_RELEASE` | `{branch}_{datetime}_RELEASE.md` | Template de nome do artefato da execução em `.gitpr/reports/release/` |
 
-> **Nota:** Consulte também a [documentação de Skills e Templates](skill-template.md) para personalizar os arquivos de template de IA do GitPR.
+> **Nota:** Consulte também a [documentação de Skills e Templates](/docs/skill-template?lang=pt_br) para personalizar os arquivos de template de IA do GitPR.

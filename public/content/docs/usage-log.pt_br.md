@@ -53,7 +53,7 @@ Quem controla é a `GITPR_SHOW_LOGS`, e ela vem **ligada** por padrão — toda 
 | No arquivo | `GITPR_SHOW_LOGS=false` em `~/.gitpr/.env` |
 | Em uma única execução | `GITPR_SHOW_LOGS=false gitpr -c` |
 
-O ambiente sempre vence o arquivo (veja [a tela de configuração](config-tui.pt_br.md) §2), então a última linha desliga aquele comando específico sem mexer em mais nada.
+O ambiente sempre vence o arquivo (veja [a tela de configuração](/docs/config-tui?lang=pt_br) §2), então a última linha desliga aquele comando específico sem mexer em mais nada.
 
 Desligar interrompe novas linhas. Não apaga o que já está lá.
 

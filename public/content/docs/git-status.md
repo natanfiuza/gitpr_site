@@ -143,6 +143,6 @@ The existing `analyze_diff` tool has been clarified: it returns the **uncommitte
 
 ## 7. Related Documentation
 
-- [Why did GitPR ignore my new files?](untracked-files.md) — Explains why untracked files are not automatically included in diffs
-- [Pull Request Publication](pull-request-publication.md) — Full PR publication flow including unstaged file management
-- [Git Hooks (Local)](git-hooks-locais.md) — How hooks interact with the unstaged check
+- [Why did GitPR ignore my new files?](/docs/untracked-files) — Explains why untracked files are not automatically included in diffs
+- [Pull Request Publication](/docs/pull-request-publication) — Full PR publication flow including unstaged file management
+- [Git Hooks (Local)](/docs/git-hooks-locais) — How hooks interact with the unstaged check

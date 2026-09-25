@@ -143,6 +143,6 @@ A ferramenta existente `analyze_diff` foi esclarecida: ela retorna o diff **não
 
 ## 7. Documentação Relacionada
 
-- [Por que o GitPR ignorou meus arquivos novos?](untracked-files.pt_br.md) — Explica por que arquivos não rastreados não são incluídos automaticamente nos diffs
-- [Publicação de Pull Request](pull-request-publication.md) — Fluxo completo de publicação de PR incluindo gerenciamento de arquivos unstaged
-- [Git Hooks Locais](git-hooks-locais.md) — Como os hooks interagem com a verificação de unstaged
+- [Por que o GitPR ignorou meus arquivos novos?](/docs/untracked-files?lang=pt_br) — Explica por que arquivos não rastreados não são incluídos automaticamente nos diffs
+- [Publicação de Pull Request](/docs/pull-request-publication?lang=pt_br) — Fluxo completo de publicação de PR incluindo gerenciamento de arquivos unstaged
+- [Git Hooks Locais](/docs/git-hooks-locais?lang=pt_br) — Como os hooks interagem com a verificação de unstaged

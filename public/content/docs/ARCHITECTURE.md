@@ -124,7 +124,7 @@ The visual interfaces live in `src/ui/` and follow common patterns: state return
 
 Remote resources (translations, thinking words, smart excludes, linter presets, hook scripts) are re-downloaded in bulk when the version markers (`__lang_version__`, `__scripts_version__` in `updater.py`) change. The installed hooks are compared against `SCRIPTS_VERSION` + `SCRIPTS_INSTALLED_LANG` in `.env` and **silently auto-synced** on every run (respecting `SCRIPTS_LANG`, the language the user chose, or the interface language when it is empty).
 
-The five markers (`LANG_VERSION`, `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`, `LINTER_PRESETS_VERSION`, `SCRIPTS_VERSION`), what each one caches and the correct order for publishing a change are documented in **[version-markers.md](version-markers.md)**.
+The five markers (`LANG_VERSION`, `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`, `LINTER_PRESETS_VERSION`, `SCRIPTS_VERSION`), what each one caches and the correct order for publishing a change are documented in **[version-markers.md](/docs/version-markers)**.
 
 ### **17. Auto-Update System**
 
@@ -144,7 +144,7 @@ PR and issue publication is no longer GitHub-only (in development after v0.0.37)
 * **Providers** — one module per forge (`github_provider.py`, `gitlab_provider.py`, `bitbucket_provider.py`, `azure_devops_provider.py`), each implementing the same REST verbs with forge-specific auth and payloads. Providers **raise** `ScmProviderError` (`http_status` 0 = network) — the old silent `(ok, data, status)` tuples survive only at the UI boundary (`src/github_api.py` is now a deprecated shim).
 * **`factory.py`** — `resolve_scm_provider()` selects the provider from the `GITPR_SCM_PROVIDER` env key (default `github`, falling back to the legacy `GITHUB_TOKEN_ENCRYPTED` token — zero migration); `detect_provider_from_remote()` guesses the forge from the origin remote URL.
 * **`--init` wizard** — `core.run_scm_init_wizard()` detects the forge, collects provider extras (Azure organization/project, Bitbucket username) and the access token, validates it via `test_connection()` (3 attempts, 401 re-prompt) and persists **only on success**: `GITPR_SCM_PROVIDER` + `GITPR_SCM_TOKEN_ENCRYPTED` (Fernet) + extras.
-* **Design notes** — see the [Multi-Forge glossary and ADR](plans/glossary-scm-multiforge.md) in `docs/plans/` for forge-specific quirks (Azure `api-version`, GitLab `iid` vs `id`, Bitbucket App Password, Azure textual diff summary) and the approved deviations.
+* **Design notes** — see the [Multi-Forge glossary and ADR](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/glossary-scm-multiforge.md) in `docs/plans/` for forge-specific quirks (Azure `api-version`, GitLab `iid` vs `id`, Bitbucket App Password, Azure textual diff summary) and the approved deviations.
 
 ---
 
@@ -215,41 +215,41 @@ docs/               # Technical documentation (EN canonical + language suffixes)
 
 Each feature has a dedicated guide in `docs/` (English canonical + `.pt_br` / `.pt_pt` / `.es_es` / `.fr_fr`):
 
-* [pull-request-publication.md](pull-request-publication.md) — PR Publisher (TUI, auto-commit, merge)  
-* [pr-descricao-padrao.md](pr-descricao-padrao.md) — Default PR description mode  
-* [understanding_chat_functionality.md](understanding_chat_functionality.md) — Pair-programming chat  
-* [mcp-integration.md](mcp-integration.md) — MCP integration with editors  
-* [mcp-annotations.md](mcp-annotations.md) — MCP tool annotations  
-* [mcp-prompts.md](mcp-prompts.md) — MCP predefined prompts  
-* [metricas-telemetria.md](metricas-telemetria.md) — Metrics and local telemetry  
-* [plugins-system.md](plugins-system.md) — Global plugin system  
-* [map-reduce-diff.md](map-reduce-diff.md) — Map-reduce for giant diffs  
-* [smart-excludes.md](smart-excludes.md) — Token optimization  
-* [hooks-versioning.md](hooks-versioning.md) — Hook versioning and auto-sync  
-* [git-hooks-locais.md](git-hooks-locais.md) — Local git hooks guide  
-* [linter-regras-customizadas.md](linter-regras-customizadas.md) — Linter rules and external linters  
-* [guia-regex-gitpr.md](guia-regex-gitpr.md) — Regex guide for linter rules  
-* [github-ci-linter.md](github-ci-linter.md) — CI integration for the linter  
-* [blame-arqueologo.md](blame-arqueologo.md) — Code archaeology (git blame)  
-* [issue-tui-help.md](issue-tui-help.md) — Standardized issues and TUI  
-* [gitpr-issue-option.md](gitpr-issue-option.md) — Issue generation options  
-* [commit-message-ia.md](commit-message-ia.md) — AI commit messages  
-* [code-review-ia.md](code-review-ia.md) — AI code review  
-* [install-wizard.md](install-wizard.md) — Setup wizard  
-* [i18n_explanation.md](i18n_explanation.md) — i18n engine  
-* [github-pat-integration.md](github-pat-integration.md) — GitHub PAT security  
-* [git-status.md](git-status.md) — Uncommitted file status listing  
-* [untracked-files.md](untracked-files.md) — Untracked files explanation  
-* [auto-update.md](auto-update.md) — Auto-updater and mandatory update block  
-* [tutorial/install-from-source.md](tutorial/install-from-source.md) — Installing from source and unblocking the update gate  
-* [providers-ia.md](providers-ia.md) — AI providers (Gemini, DeepSeek, Ollama)  
-* [skill-template.md](skill-template.md) — Skills and templates system  
+* [pull-request-publication.md](/docs/pull-request-publication) — PR Publisher (TUI, auto-commit, merge)  
+* [pr-descricao-padrao.md](/docs/pr-descricao-padrao) — Default PR description mode  
+* [understanding_chat_functionality.md](/docs/understanding_chat_functionality) — Pair-programming chat  
+* [mcp-integration.md](/docs/mcp-integration) — MCP integration with editors  
+* [mcp-annotations.md](/docs/mcp-annotations) — MCP tool annotations  
+* [mcp-prompts.md](/docs/mcp-prompts) — MCP predefined prompts  
+* [metricas-telemetria.md](/docs/metricas-telemetria) — Metrics and local telemetry  
+* [plugins-system.md](/docs/plugins-system) — Global plugin system  
+* [map-reduce-diff.md](/docs/map-reduce-diff) — Map-reduce for giant diffs  
+* [smart-excludes.md](/docs/smart-excludes) — Token optimization  
+* [hooks-versioning.md](/docs/hooks-versioning) — Hook versioning and auto-sync  
+* [git-hooks-locais.md](/docs/git-hooks-locais) — Local git hooks guide  
+* [linter-regras-customizadas.md](/docs/linter-regras-customizadas) — Linter rules and external linters  
+* [guia-regex-gitpr.md](/docs/guia-regex-gitpr) — Regex guide for linter rules  
+* [github-ci-linter.md](/docs/github-ci-linter) — CI integration for the linter  
+* [blame-arqueologo.md](/docs/blame-arqueologo) — Code archaeology (git blame)  
+* [issue-tui-help.md](/docs/issue-tui-help) — Standardized issues and TUI  
+* [gitpr-issue-option.md](/docs/gitpr-issue-option) — Issue generation options  
+* [commit-message-ia.md](/docs/commit-message-ia) — AI commit messages  
+* [code-review-ia.md](/docs/code-review-ia) — AI code review  
+* [install-wizard.md](/docs/install-wizard) — Setup wizard  
+* [i18n_explanation.md](/docs/i18n_explanation) — i18n engine  
+* [github-pat-integration.md](/docs/github-pat-integration) — GitHub PAT security  
+* [git-status.md](/docs/git-status) — Uncommitted file status listing  
+* [untracked-files.md](/docs/untracked-files) — Untracked files explanation  
+* [auto-update.md](/docs/auto-update) — Auto-updater and mandatory update block  
+* [tutorial/install-from-source.md](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/tutorial/install-from-source.md) — Installing from source and unblocking the update gate  
+* [providers-ia.md](/docs/providers-ia) — AI providers (Gemini, DeepSeek, Ollama)  
+* [skill-template.md](/docs/skill-template) — Skills and templates system  
 
 Tutorials (Portuguese only):
 
-* [github-issue-prompt-com-gh.md](github-issue-prompt-com-gh.md) — Formatting and updating issues via gh CLI  
-* [como_reverter_commit_git_localmente.md](como_reverter_commit_git_localmente.md) — Reverting commits locally  
-* [testar_sem_usar_pypi.md](testar_sem_usar_pypi.md) — Testing without spending a PyPI version  
-* [otimizacao-de-tokens.md](otimizacao-de-tokens.md) — Token optimization in context files (.gitpr.*.md)  
+* [github-issue-prompt-com-gh.md](/docs/github-issue-prompt-com-gh) — Formatting and updating issues via gh CLI  
+* [como_reverter_commit_git_localmente.md](/docs/como_reverter_commit_git_localmente) — Reverting commits locally  
+* [testar_sem_usar_pypi.md](/docs/testar_sem_usar_pypi) — Testing without spending a PyPI version  
+* [otimizacao-de-tokens.md](/docs/otimizacao-de-tokens) — Token optimization in context files (.gitpr.*.md)  
 
 ---

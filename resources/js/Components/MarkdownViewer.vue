@@ -15,11 +15,28 @@ const props = defineProps({
     content: {
         type: String,
         required: true
+    },
+    current_lang: {
+        type: String,
+        default: 'en'
     }
 });
 
 const emit = defineEmits(['update_toc']);
 const content_ref = ref(null);
+
+// Gera o id de um heading (usado pelo TOC e pelos links de âncora). Fica no escopo do
+// módulo porque a regra `link_open` abaixo também usa — duas cópias do algoritmo é
+// exatamente a divergência que faz o fragmento parar de casar com o id gerado.
+const slugify = (text) => {
+    return text
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '') // remove accents
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+};
 
 const md_parser = new MarkdownIt({
     html: true,
@@ -75,6 +92,75 @@ md_parser.renderer.rules.fence = function (tokens, idx, options, env, self) {
                 <button class="copy-btn absolute top-2 right-2 bg-gitpr_primary hover:bg-gitpr_cyan_light text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer">Copiar</button>
                 ${orig_rendered}
             </div>`;
+};
+
+// ── Link rewriting (safety net) ──────────────────────────────────
+// Os .md de public/content/docs/ vêm do repo de origem com links relativos entre
+// arquivos (ex.: [texto](commit-message-ia.md)). No site as páginas são servidas pela
+// rota catch-all `/{page}?lang={code}`, então esses href dão 404.
+// O script .claude/skills/sync-docs/rewrite_doc_links.py já reescreve o conteúdo na
+// sincronização; esta regra cobre conteúdo ainda não reescrito (e é no-op no que já
+// foi). Regra equivalente no Python: rewrite_destination() no mesmo script — as duas
+// implementações precisam andar juntas.
+const GH_DOCS_BASE = 'https://github.com/gitpr-cli/gitpr.git/blob/main/docs/';
+
+const lang_query = (lang) => (lang && lang !== 'en') ? `?lang=${lang}` : '';
+
+const rewrite_md_target = (href, page_lang) => {
+    if (!href) return null;
+
+    // markdown-it percent-encoda o destino antes do render (mdurl.encode), então o href
+    // chega como `mcp-integration.md#invoca%C3%A7%C3%A3o-...`. Sem decodificar, o
+    // slugify comeria o '%' e produziria `invocac3a3o-...`, que não casa com id nenhum.
+    let decoded;
+    try { decoded = decodeURIComponent(href); } catch (_) { decoded = href; }
+
+    // URL final, scheme absoluto, raiz ou âncora local -> não mexer. É esta guarda (por
+    // prefixo, não por "termina em .md") que torna a regra no-op no já reescrito.
+    if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|\/|#)/i.test(decoded)) return null;
+
+    const hash_idx = decoded.indexOf('#');
+    const raw_path = hash_idx === -1 ? decoded : decoded.slice(0, hash_idx);
+    const raw_frag = hash_idx === -1 ? '' : decoded.slice(hash_idx + 1);
+
+    let path = raw_path.replace(/^\.\//, '');
+    if (!/\.md$/i.test(path)) return null; // .py, .json, mailto:, {placeholder}, ...
+
+    let out;
+    if (/(?:^|\/)readme\.md$/i.test(path.replace(/^\.\.\//, ''))) {
+        out = '/docs/readme' + lang_query(page_lang);
+    } else {
+        path = path.replace(/^docs\//, '');
+        if (path.includes('/')) {
+            // plans/, tutorial/: não há tópico no site -> repositório de origem. O
+            // sufixo de origem vai preservado e o fragmento verbatim (o slug do GitHub
+            // preserva acentos; o do site remove).
+            return GH_DOCS_BASE + path + (raw_frag ? `#${raw_frag}` : '');
+        }
+        const topic = path.slice(0, -3).replace(/\.(pt_br|pt_pt|es_es|fr_fr|en|es|fr)$/i, '');
+        if (!topic) return null;
+        out = '/docs/' + topic + lang_query(page_lang);
+    }
+
+    const slug = slugify(raw_frag);
+    return slug ? `${out}#${slug}` : out;
+};
+
+const default_link_open = md_parser.renderer.rules.link_open
+    || function (tokens, idx, options, _env, self) {
+        return self.renderToken(tokens, idx, options);
+    };
+
+md_parser.renderer.rules.link_open = function (tokens, idx, options, env, self) {
+    const token = tokens[idx];
+    if (token.attrs) {
+        const href_idx = token.attrIndex('href');
+        if (href_idx >= 0) {
+            const rewritten = rewrite_md_target(token.attrs[href_idx][1], props.current_lang);
+            if (rewritten) token.attrs[href_idx][1] = rewritten;
+        }
+    }
+    return default_link_open(tokens, idx, options, env, self);
 };
 
 // ── Pre-process collaborators blocks ─────────────────────────────
@@ -152,6 +238,24 @@ const scroll_to_first_mark = () => {
     }
 };
 
+// Rola até a âncora da URL. Precisa rodar DEPOIS que os `id` dos headings são
+// atribuídos: o browser tenta rolar no parse do documento, antes de o Vue existir, não
+// encontra o elemento e não repete. Sem isso um link como
+// /docs/mcp-integration?lang=pt_br#invocacao-direta-via-cli para no topo da página.
+const scroll_to_hash = () => {
+    const { hash } = window.location;
+    if (!hash || hash.length < 2) return;
+
+    // ?mark= tem alvo próprio (a primeira ocorrência destacada) — não competir com ele.
+    if (new URLSearchParams(window.location.search).get('mark')) return;
+
+    let target;
+    try { target = decodeURIComponent(hash.slice(1)); } catch (_) { target = hash.slice(1); }
+
+    const el = document.getElementById(target);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 // ── Fetch GitHub collaborator data & replace placeholders ─────────
 const fetch_collaborators = async () => {
     if (!content_ref.value) return;
@@ -207,16 +311,6 @@ watch(parsed_content, async () => {
     const dom_elements = content_ref.value.querySelectorAll('h2, h3');
     const used_slugs = new Set();
 
-    const slugify = (text) => {
-        return text
-            .toLowerCase()
-            .normalize('NFD').replace(/[̀-ͯ]/g, '') // remove accents
-            .replace(/[^a-z0-9\s-]/g, '')
-            .trim()
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-');
-    };
-
     dom_elements.forEach((el) => {
         let slug = slugify(el.innerText);
         // Deduplicate
@@ -235,5 +329,6 @@ watch(parsed_content, async () => {
     });
 
     emit('update_toc', extracted_headers);
+    scroll_to_hash();
 }, { immediate: true });
 </script>

@@ -148,4 +148,4 @@ O tour não introduz **nenhuma configuração nova**. Ele lê o que o resto da f
 
 Nenhuma variável de chave, token, modelo ou caminho é lida: numa máquina com o `~/.gitpr/` vazio, o `gitpr demo` é o único comando que ainda funciona.
 
-> **Nota:** Veja também a [documentação de Revisão de Código](code-review-ia.pt_br.md) para o que a quarta etapa está pré-visualizando, a de [Mensagens de Commit](commit-message-ia.pt_br.md) para a terceira, e a do [Selo](badge.pt_br.md) para a marca no rodapé da quinta.
+> **Nota:** Veja também a [documentação de Revisão de Código](/docs/code-review-ia?lang=pt_br) para o que a quarta etapa está pré-visualizando, a de [Mensagens de Commit](/docs/commit-message-ia?lang=pt_br) para a terceira, e a do [Selo](/docs/badge?lang=pt_br) para a marca no rodapé da quinta.

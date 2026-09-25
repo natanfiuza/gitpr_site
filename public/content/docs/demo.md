@@ -148,4 +148,4 @@ The tour introduces **no new configuration**. It reads what the rest of the tool
 
 No key, token, model or path variable is read: on a machine with an empty `~/.gitpr/`, `gitpr demo` is the one command that still works.
 
-> **Note:** See also the [Code Review documentation](code-review-ia.md) for what the fourth step is previewing, the [Commit Messages documentation](commit-message-ia.md) for the third, and the [Badge documentation](badge.md) for the mark at the foot of the fifth.
+> **Note:** See also the [Code Review documentation](/docs/code-review-ia) for what the fourth step is previewing, the [Commit Messages documentation](/docs/commit-message-ia) for the third, and the [Badge documentation](/docs/badge) for the mark at the foot of the fifth.

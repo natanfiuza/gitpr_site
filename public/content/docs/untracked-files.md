@@ -36,7 +36,7 @@ You can quickly check which files are not staged using the `--status` flag — *
 gitpr --status
 ```
 
-This shows all uncommitted changes in 3 categories: new (untracked), modified, and deleted. See the [Git Status documentation](git-status.md) for more details.
+This shows all uncommitted changes in 3 categories: new (untracked), modified, and deleted. See the [Git Status documentation](/docs/git-status) for more details.
 
 ## 🛑 Skip the unstaged check
 
@@ -48,4 +48,4 @@ gitpr -c --no-unstaged-check
 
 Or set `GITPR_SKIP_UNSTAGED_CHECK=true` in your `~/.gitpr/.env` file to skip it permanently.
 
-> 📖 **Full documentation:** [docs/git-status.md](git-status.md) — covers `--status`, `--no-unstaged-check`, MCP tools, and the unstaged verification that now runs on all commands (`-c`, `-r`, `-f`, `-is`).
+> 📖 **Full documentation:** [docs/git-status.md](/docs/git-status) — covers `--status`, `--no-unstaged-check`, MCP tools, and the unstaged verification that now runs on all commands (`-c`, `-r`, `-f`, `-is`).

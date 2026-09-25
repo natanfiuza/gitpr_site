@@ -127,7 +127,7 @@ Duas dessas entradas não são marcadores e vale a pena conhecê-las:
 
 ### 1.7 A Secção Skills
 
-Em todo o resto, o ecrã edita `~/.gitpr/.env`. **Skills** é a única secção que não o faz: edita os ficheiros de skill do próprio projeto — as instruções de IA lidas de `./.gitpr/skill/` ([Sistema de Skills e Templates](skill-template.pt_pt.md)).
+Em todo o resto, o ecrã edita `~/.gitpr/.env`. **Skills** é a única secção que não o faz: edita os ficheiros de skill do próprio projeto — as instruções de IA lidas de `./.gitpr/skill/` ([Sistema de Skills e Templates](/docs/skill-template?lang=pt_pt)).
 
 A lista tem uma entrada por skill suportada pelo GitPR: **Commit**, **Pull Request**, **Code Review**, **File Review**, **Issue**, **Blame**, **Release**. É a lista das skills que os comandos carregam, e não um espelho da pasta — um ficheiro em `.gitpr/skill/` que nenhum comando lê não é oferecido aqui.
 
@@ -233,6 +233,6 @@ Três atributos de um `ConfigField` determinam o layout: `group` coloca o campo 
 
 **As gravações em disco** passam pelo `set_key()`/`unset_key()` do `python-dotenv`, que escrevem um ficheiro temporário e o renomeiam, preservando comentários e ordem. O ecrã nunca reescreve o ficheiro por inteiro.
 
-Vocabulário de arquitetura: [Glossário da Configuração](plans/glossary-config-tui.md).
+Vocabulário de arquitetura: [Glossário da Configuração](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/glossary-config-tui.md).
 
 > **Nota:** `gitpr -h config` abre o ecrã e ignora o `-h`, porque o callback raiz retorna cedo para todo o subcomando. Use `gitpr config -h` para o texto de ajuda.

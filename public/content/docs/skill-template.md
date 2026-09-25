@@ -81,11 +81,11 @@ The `--skill` command downloads the latest version of each template from the off
 
 ## 5. Editing from the `gitpr config` Screen
 
-`gitpr config` has a **Skills** section that lists these same files and opens each one in an editor, so a rule can be adjusted without leaving the terminal ([Interactive Configuration Screen](config-tui.md), §1.7).
+`gitpr config` has a **Skills** section that lists these same files and opens each one in an editor, so a rule can be adjusted without leaving the terminal ([Interactive Configuration Screen](/docs/config-tui), §1.7).
 
 - One entry per skill GitPR supports — the seven `.gitpr.*.md` files of section 1 above.
 - A skill the project does not have yet is listed as **not in this project**, with a **📥 Download the template** button that fetches the published template for your interface language.
 - `F2` writes the edited skills together with the `.env` settings; `Ctrl+R` inside the pane drops the edit and restores the text on disk.
 - Each file keeps the line endings it already had, so saving never turns an untouched line into a change.
 
-Two things stay out of that list on purpose: `.gitpr.linter.yml`, which no command loads through this mechanism ([Custom Linter Rules](linter-regras-customizadas.md)), and any other file you keep in `.gitpr/skill/` — the screen offers the skills the commands read, not everything the folder holds.
+Two things stay out of that list on purpose: `.gitpr.linter.yml`, which no command loads through this mechanism ([Custom Linter Rules](/docs/linter-regras-customizadas)), and any other file you keep in `.gitpr/skill/` — the screen offers the skills the commands read, not everything the folder holds.

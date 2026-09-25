@@ -106,15 +106,15 @@ puede obtener los mismos resultados desde la terminal usando `--tool`:
 > **Nota:** `--tool` invoca solo herramientas — los prompts (plantillas de mensaje) no
 > son ejecutables. Use `gitpr-mcp --list` para ver todos los recursos y prompts, luego
 > ejecute la herramienta subyacente con `--tool`. Consulte
-> [Integración MCP — Invocación Directa por CLI](mcp-integration.md#invocación-directa-por-cli)
+> [Integración MCP — Invocación Directa por CLI](/docs/mcp-integration?lang=es#invocacion-directa-por-cli)
 > para más detalles.
 
 ## 📚 Documentación Relacionada
 
-- [Integración MCP](mcp-integration.md) — Cómo configurar MCP para tu editor
-- [Code Review con IA](code-review-ia.md) — Guía de modos de revisión de código
-- [Mensajes de Commit con IA](commit-message-ia.md) — Guía de Conventional Commits
-- [Modo de Descripción de PR](pr-descricao-padrao.md) — Flujo de generación de PR
+- [Integración MCP](/docs/mcp-integration?lang=es) — Cómo configurar MCP para tu editor
+- [Code Review con IA](/docs/code-review-ia?lang=es) — Guía de modos de revisión de código
+- [Mensajes de Commit con IA](/docs/commit-message-ia?lang=es) — Guía de Conventional Commits
+- [Modo de Descripción de PR](/docs/pr-descricao-padrao?lang=es) — Flujo de generación de PR
 
 ---
 **Consejo profesional:** Combina prompts con skills (archivos `.gitpr.*.md`) para

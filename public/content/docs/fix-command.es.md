@@ -61,7 +61,7 @@ Un diff vacío aborta con `❌ The working tree has no changes to apply fixes to
 
 ### 2.3 Una Sola Llamada de IA y los Ids que Produce
 
-Una única llamada pide al modelo el diff unificado más pequeño para cada hallazgo de la revisión, devolviendo un objeto JSON por hallazgo. Se ejecuta a través de la infraestructura estándar de GitPR (proveedor configurado, modelo avanzado, salida JSON, reintento) y de la caché MD5 estándar en `~/.gitpr/cache/prompts/fix/` — consulte la [documentación de Proveedores de IA](providers-ia.md).
+Una única llamada pide al modelo el diff unificado más pequeño para cada hallazgo de la revisión, devolviendo un objeto JSON por hallazgo. Se ejecuta a través de la infraestructura estándar de GitPR (proveedor configurado, modelo avanzado, salida JSON, reintento) y de la caché MD5 estándar en `~/.gitpr/cache/prompts/fix/` — consulte la [documentación de Proveedores de IA](/docs/providers-ia?lang=es).
 
 Los ids los asigna gitpr, nunca el modelo: `FIX-001`, `FIX-002`, ... en el orden en que volvieron los hallazgos. Como el prompt se construye a partir de la misma revisión y el mismo diff, la respuesta cacheada se reutiliza y **los ids se mantienen entre ejecuciones** — el id que mostró un listado es el id al que apunta `--apply`. Volver a ejecutar `gitpr -r` produce una revisión nueva, y por tanto un prompt nuevo, hallazgos nuevos e ids nuevos.
 
@@ -212,7 +212,7 @@ El rollback lee el diff guardado y lo reproduce con `git apply --reverse` — si
 
 La llamada de hallazgos usa el archivo `.gitpr.fix.md` como system instruction de la IA (persona: **Senior Software Engineer**, que normaliza la revisión en parches mínimos). La plantilla la descarga `gitpr --skill` — respeta el idioma actual (`gitpr.fix.md` para inglés, `gitpr.fix.pt_br.md` para PT-BR) y nunca sobrescribe un archivo local existente. Sin ella se usa la persona integrada.
 
-La plantilla enuncia el contrato del que depende el pipeline: el parche es la fuente de verdad, un hunk en un archivo, nunca reformatear código no tocado, nunca eliminar una llamada o una guarda existente, declarar una `confidence` honesta y dejar el `diff` vacío cuando el hallazgo necesita una decisión humana. Edítela localmente para cambiar cómo se escriben los parches; el prompt se construye a partir de ella, así que un cambio produce un prompt nuevo y una llamada de IA nueva. Consulte la [documentación de Skills y Templates](skill-template.md) para conocer el mecanismo general.
+La plantilla enuncia el contrato del que depende el pipeline: el parche es la fuente de verdad, un hunk en un archivo, nunca reformatear código no tocado, nunca eliminar una llamada o una guarda existente, declarar una `confidence` honesta y dejar el `diff` vacío cuando el hallazgo necesita una decisión humana. Edítela localmente para cambiar cómo se escriben los parches; el prompt se construye a partir de ella, así que un cambio produce un prompt nuevo y una llamada de IA nueva. Consulte la [documentación de Skills y Templates](/docs/skill-template?lang=es) para conocer el mecanismo general.
 
 ---
 
@@ -224,7 +224,7 @@ La plantilla enuncia el contrato del que depende el pipeline: el parche es la fu
 {"status": "success", "finding_count": 2, "candidates": [ ... ]}
 ```
 
-Cada candidato lleva `finding_id`, `patch_id`, `file_path`, `line_start`, `line_end`, `severity`, `category`, `message`, `safety`, `safety_reason` (el código estable, no una frase), `confidence`, `suggested_test` y `diff`. El estado es `no_data` cuando la revisión no señaló nada que pudiera convertirse en un parche, y `error` con un `message` cuando no hay ninguna revisión que leer o el pipeline no puede ejecutarse en absoluto. Consulte la [documentación de Integración MCP](mcp-integration.md).
+Cada candidato lleva `finding_id`, `patch_id`, `file_path`, `line_start`, `line_end`, `severity`, `category`, `message`, `safety`, `safety_reason` (el código estable, no una frase), `confidence`, `suggested_test` y `diff`. El estado es `no_data` cuando la revisión no señaló nada que pudiera convertirse en un parche, y `error` con un `message` cuando no hay ninguna revisión que leer o el pipeline no puede ejecutarse en absoluto. Consulte la [documentación de Integración MCP](/docs/mcp-integration?lang=es).
 
 ---
 
@@ -240,4 +240,4 @@ La configuración de fix se lee del archivo global `~/.gitpr/.env` (formato dote
 | `GITPR_FIX_CREATE_BRANCH_ON_ALL_SAFE` | `true` | `--all-safe --apply` crea una rama antes de escribir; `--no-branch` lo anula en una ejecución |
 | `GITPR_FIX_BRANCH_NAME_TEMPLATE` | `fix/gitpr-{datetime}` | Nombre de esa rama. Marcadores: `{branch}` (rama actual) y `{datetime}` |
 
-> **Nota:** Consulte también la [documentación de Skills y Templates](skill-template.md) para personalizar los archivos de plantilla de IA de GitPR.
+> **Nota:** Consulte también la [documentación de Skills y Templates](/docs/skill-template?lang=es) para personalizar los archivos de plantilla de IA de GitPR.

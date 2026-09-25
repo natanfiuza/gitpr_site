@@ -127,7 +127,7 @@ Two of those fields are not markers and are worth knowing about:
 
 ### 1.7 The Skills Section
 
-The screen edits `~/.gitpr/.env` everywhere else. **Skills** is the one section that does not: it edits the project's own skill files — the AI instructions read from `./.gitpr/skill/` ([Skills and Templates System](skill-template.md)).
+The screen edits `~/.gitpr/.env` everywhere else. **Skills** is the one section that does not: it edits the project's own skill files — the AI instructions read from `./.gitpr/skill/` ([Skills and Templates System](/docs/skill-template)).
 
 The list holds one entry per skill GitPR supports: **Commit**, **Pull Request**, **Code Review**, **File Review**, **Issue**, **Blame**, **Release**. It is the list of skills the commands load, not a listing of the folder — a file in `.gitpr/skill/` that no command reads is not offered here.
 
@@ -233,6 +233,6 @@ Three attributes of a `ConfigField` carry the layout: `group` puts the field und
 
 **Filesystem writes** go through `python-dotenv`'s `set_key()`/`unset_key()`, which write a temporary file and rename it, and preserve comments and ordering. The screen never rewrites the file wholesale.
 
-Architecture vocabulary: [Configuration Glossary](plans/glossary-config-tui.md).
+Architecture vocabulary: [Configuration Glossary](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/plans/glossary-config-tui.md).
 
 > **Note:** `gitpr -h config` opens the screen and ignores the `-h`, because the root callback returns early for every subcommand. Use `gitpr config -h` for the help text.

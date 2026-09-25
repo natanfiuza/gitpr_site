@@ -114,4 +114,4 @@ O selo que você pode colocar no seu próprio projeto é outro: estático, sempr
 | `GITPR_BADGE` | `false` (ou `0`, `no`, `off`, `n`) publica corpos de pull request sem o selo |
 | `GITPR_LANG` | Idioma da interface. O selo em si é sempre em inglês |
 
-> **Nota:** Veja também a [documentação de Publicação de PR no GitHub](pull-request-publication.pt_br.md) para o fluxo ao qual o selo é anexado, e a [documentação do Linter Estático Customizável](linter-regras-customizadas.pt_br.md) para as regras de onde vêm as contagens — o selo não tem o que relatar enquanto essas regras não existirem.
+> **Nota:** Veja também a [documentação de Publicação de PR no GitHub](/docs/pull-request-publication?lang=pt_br) para o fluxo ao qual o selo é anexado, e a [documentação do Linter Estático Customizável](/docs/linter-regras-customizadas?lang=pt_br) para as regras de onde vêm as contagens — o selo não tem o que relatar enquanto essas regras não existirem.

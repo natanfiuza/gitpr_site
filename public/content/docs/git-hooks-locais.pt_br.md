@@ -48,7 +48,7 @@ password = "…"                        # reportado, não aborta
 Uma chave de provedor (AWS, GitHub, Slack, Google) ou um bloco de chave privada
 **bloqueiam**; uma URL de banco de dados com credenciais ou uma atribuição
 `password = "…"` é **reportada** sem bloquear. A seção 7 do
-[linter-regras-customizadas.pt_br.md](linter-regras-customizadas.pt_br.md) lista as
+[linter-regras-customizadas.pt_br.md](/docs/linter-regras-customizadas?lang=pt_br) lista as
 sete regras, o filtro de placeholders que impede que um template trave o commit e
 as duas chaves que desligam tudo.
 

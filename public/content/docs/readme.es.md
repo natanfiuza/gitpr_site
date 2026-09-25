@@ -102,7 +102,7 @@ Pytest detectará automáticamente los archivos dentro de la carpeta `tests/` y 
 ```
 *Nota: Tu configuración se guardará de forma segura en el archivo `~/.gitpr/.env`.*
 
-*Nota (actualizaciones): GitPR se distribuye exclusivamente a través de PyPI. En cada ejecución comprueba si se ha publicado una versión más nueva y, cuando existe, **bloquea la ejecución** y pide ejecutar `pip install --upgrade gitpr-cli`. Consulta [auto-update.md](docs/auto-update.md).*
+*Nota (actualizaciones): GitPR se distribuye exclusivamente a través de PyPI. En cada ejecución comprueba si se ha publicado una versión más nueva y, cuando existe, **bloquea la ejecución** y pide ejecutar `pip install --upgrade gitpr-cli`. Consulta [auto-update.md](/docs/auto-update?lang=es).*
 
 > **🔒 Nota de Seguridad:** GitPR CLI usa encriptación simétrica (Fernet). Tu clave API se almacena como un hash en el archivo `.env`, y la clave maestra para desencriptación se genera automáticamente en `~/.gitpr/secret.key`. **Nunca compartas tu archivo secret.key.**
 
@@ -120,7 +120,7 @@ pip install -e .
 
 > ¿Prefieres un entorno aislado? Instala las dependencias con `pipenv install google-genai openai python-dotenv click cryptography` y ejecuta `pipenv run python src/main.py`.
 >
-> **Nota sobre el portero de actualización:** una instalación desde el código fuente reporta la versión que está en tu checkout, así que un árbol por detrás de la release publicada se detiene al arrancar. Consulta [Instalar GitPR desde el código fuente](docs/tutorial/install-from-source.es_es.md).
+> **Nota sobre el portero de actualización:** una instalación desde el código fuente reporta la versión que está en tu checkout, así que un árbol por detrás de la release publicada se detiene al arrancar. Consulta [Instalar GitPR desde el código fuente](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/tutorial/install-from-source.es_es.md).
 
 ## **💻 Cómo Usar**
 

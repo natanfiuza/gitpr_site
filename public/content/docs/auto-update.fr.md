@@ -22,7 +22,7 @@ La commande force une vérification immédiate sur PyPI et affiche la commande d
 
 Lorsque la version publiée est plus récente que la version locale, GitPR **bloque l'exécution** : il affiche les deux versions, indique la commande `pip install --upgrade gitpr-cli` et se termine avec un statut non nul, sans effectuer aucun travail.
 
-Il n'existe aucun flag, fallback ou mode de compatibilité maintenant une **release installée** obsolète en fonctionnement — la mise à jour est le seul moyen de continuer. Un checkout utilisé pour le développement local dispose d'une unique variable d'échappement, documentée dans [Installer GitPR depuis les sources](tutorial/install-from-source.fr_fr.md).
+Il n'existe aucun flag, fallback ou mode de compatibilité maintenant une **release installée** obsolète en fonctionnement — la mise à jour est le seul moyen de continuer. Un checkout utilisé pour le développement local dispose d'une unique variable d'échappement, documentée dans [Installer GitPR depuis les sources](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/tutorial/install-from-source.fr_fr.md).
 
 ### Exceptions
 
@@ -68,4 +68,4 @@ Avant toute opération réseau, GitPR vérifie la connectivité via le socket `8
 
 La version locale est définie dans `src/updater.py` (`__version__`) et incrémentée à chaque release.
 
-> **Note :** Consultez également la [documentation principale (README.md)](../README.md) pour les informations d'installation et de configuration initiale.
+> **Note :** Consultez également la [documentation principale (README.md)](/docs/readme?lang=fr) pour les informations d'installation et de configuration initiale.

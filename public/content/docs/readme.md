@@ -103,7 +103,7 @@ Pytest will automatically detect files inside the `tests/` folder and display a 
 ```
 *Note: Your configuration will be securely saved in the `~/.gitpr/.env` file.*
 
-*Note (updates): GitPR is distributed exclusively through PyPI. On every run it checks whether a newer version has been published, and when one exists it **blocks the execution** and asks you to run `pip install --upgrade gitpr-cli`. See [auto-update.md](docs/auto-update.md).*
+*Note (updates): GitPR is distributed exclusively through PyPI. On every run it checks whether a newer version has been published, and when one exists it **blocks the execution** and asks you to run `pip install --upgrade gitpr-cli`. See [auto-update.md](/docs/auto-update).*
 
 > **🔒 Security Note:** GitPR CLI uses symmetric encryption (Fernet). Your API key is stored as a hash in the `.env` file, and the master key for decryption is automatically generated in `~/.gitpr/secret.key`. **Never share your secret.key file.**
 
@@ -121,7 +121,7 @@ pip install -e .
 
 > Prefer an isolated environment? Install the dependencies with `pipenv install google-genai openai python-dotenv click cryptography` and run `pipenv run python src/main.py` instead.
 >
-> **Note on the update gate:** a source install reports the version found in your checkout, so a tree behind the published release is stopped at startup. See [Installing GitPR from Source](docs/tutorial/install-from-source.md).
+> **Note on the update gate:** a source install reports the version found in your checkout, so a tree behind the published release is stopped at startup. See [Installing GitPR from Source](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/tutorial/install-from-source.md).
 
 ## **💻 How to Use**
 

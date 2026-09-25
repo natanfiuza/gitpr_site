@@ -148,4 +148,4 @@ A visita não introduz **nenhuma configuração nova**. Lê o que o resto da fer
 
 Nenhuma variável de chave, token, modelo ou caminho é lida: numa máquina com o `~/.gitpr/` vazio, o `gitpr demo` é o único comando que ainda funciona.
 
-> **Nota:** Veja também a [documentação de Revisão de Código](code-review-ia.pt_pt.md) para o que a quarta etapa está a pré-visualizar, a de [Mensagens de Commit](commit-message-ia.pt_pt.md) para a terceira, e a do [Selo](badge.pt_pt.md) para a marca no rodapé da quinta.
+> **Nota:** Veja também a [documentação de Revisão de Código](/docs/code-review-ia?lang=pt_pt) para o que a quarta etapa está a pré-visualizar, a de [Mensagens de Commit](/docs/commit-message-ia?lang=pt_pt) para a terceira, e a do [Selo](/docs/badge?lang=pt_pt) para a marca no rodapé da quinta.

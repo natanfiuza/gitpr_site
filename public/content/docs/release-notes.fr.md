@@ -176,11 +176,11 @@ Le paragraphe `### Summary` optionnel est généré par l'IA à partir des commi
 gitpr release
 ```
 
-Lors de la première exécution en mode markdown, le CLI télécharge le template Skill `.gitpr.release.md` depuis les modèles du projet. Le téléchargement respecte la langue actuelle de l'interface (les variantes distantes comme `gitpr.release.fr_fr.md` sont enregistrées localement comme `.gitpr.release.md`), ne remplace jamais un fichier local existant et n'échoue jamais sur une erreur réseau — l'exécution continue avec la persona intégrée. Le téléchargement est entièrement ignoré en `--format json`, qui est stdout-only. Le fichier est chargé comme system instruction de l'IA (persona : **Release Manager**, contrat JSON strict) — modifiez-le localement pour personnaliser le résumé exécutif. Consultez la [documentation de Skills et Templates](skill-template.md) pour le mécanisme général.
+Lors de la première exécution en mode markdown, le CLI télécharge le template Skill `.gitpr.release.md` depuis les modèles du projet. Le téléchargement respecte la langue actuelle de l'interface (les variantes distantes comme `gitpr.release.fr_fr.md` sont enregistrées localement comme `.gitpr.release.md`), ne remplace jamais un fichier local existant et n'échoue jamais sur une erreur réseau — l'exécution continue avec la persona intégrée. Le téléchargement est entièrement ignoré en `--format json`, qui est stdout-only. Le fichier est chargé comme system instruction de l'IA (persona : **Release Manager**, contrat JSON strict) — modifiez-le localement pour personnaliser le résumé exécutif. Consultez la [documentation de Skills et Templates](/docs/skill-template?lang=fr) pour le mécanisme général.
 
 ### 4.2 Génération et dégradation contrôlée
 
-Les plages de plus de 200 commits sont résumées par lots (Map-Reduce, avec un avis comme `📦 Large commit range detected!`), et les réponses passent par le cache MD5 standard de GitPR : des exécutions inchangées ne répètent donc pas les appels d'IA. Deux remarques : le cache est indexé par le prompt — modifier `.gitpr.release.md` n'invalide pas les résumés en cache — et le résumé utilise toujours la même infrastructure d'IA que les autres commandes de GitPR (fournisseur configuré, sortie JSON, nouvelle tentative automatique). Consultez la [documentation des Fournisseurs d'IA](providers-ia.md).
+Les plages de plus de 200 commits sont résumées par lots (Map-Reduce, avec un avis comme `📦 Large commit range detected!`), et les réponses passent par le cache MD5 standard de GitPR : des exécutions inchangées ne répètent donc pas les appels d'IA. Deux remarques : le cache est indexé par le prompt — modifier `.gitpr.release.md` n'invalide pas les résumés en cache — et le résumé utilise toujours la même infrastructure d'IA que les autres commandes de GitPR (fournisseur configuré, sortie JSON, nouvelle tentative automatique). Consultez la [documentation des Fournisseurs d'IA](/docs/providers-ia?lang=fr).
 
 Le résumé ne bloque jamais la commande : sans clé d'API configurée, ou quand l'appel d'IA échoue, la commande avertit (`AI summary failed: changelog generated without a summary.`) et génère la section avec les listes classées uniquement. `GITPR_RELEASE_AI_SUMMARY=false` désactive complètement le résumé.
 
@@ -201,7 +201,7 @@ Garde-fous : sans remote git `origin`, la commande refuse de publier (`❌ No gi
 
 ### 5.2 Forges prises en charge
 
-La publication cible la forge configurée dans les paramètres SCM (`gitpr --init` ou `GITPR_SCM_PROVIDER`). Consultez la [documentation Multi-Forge SCM](scm-multiforge.md) pour la configuration du fournisseur.
+La publication cible la forge configurée dans les paramètres SCM (`gitpr --init` ou `GITPR_SCM_PROVIDER`). Consultez la [documentation Multi-Forge SCM](/docs/scm-multiforge?lang=fr) pour la configuration du fournisseur.
 
 | Forge | Release | Notes |
 | --- | --- | --- |
@@ -255,4 +255,4 @@ La configuration de la release est lue depuis le fichier global `~/.gitpr/.env` 
 | `GITPR_RELEASE_PUBLISH_DRAFT_BY_DEFAULT` | `true` | GitHub : `--publish` crée la release comme brouillon par défaut |
 | `OUTPUT_FILE_NAME_RELEASE` | `{branch}_{datetime}_RELEASE.md` | Modèle de nom de l'artefact d'exécution dans `.gitpr/reports/release/` |
 
-> **Note :** Consultez également la [documentation de Skills et Templates](skill-template.md) pour personnaliser les fichiers de modèles d'IA de GitPR.
+> **Note :** Consultez également la [documentation de Skills et Templates](/docs/skill-template?lang=fr) pour personnaliser les fichiers de modèles d'IA de GitPR.

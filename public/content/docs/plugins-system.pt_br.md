@@ -187,6 +187,6 @@ As regras são **aditivas** — plugins globais nunca substituem regras locais; 
 
 ## 📚 Veja Também
 
-- [Regras de Linter Customizadas](linter-regras-customizadas.md) — Como escrever regras `.gitpr.linter.yml`
-- [Sistema de Skills e Templates](skill-template.md) — Prompts e regras de IA locais do projeto
+- [Regras de Linter Customizadas](/docs/linter-regras-customizadas?lang=pt_br) — Como escrever regras `.gitpr.linter.yml`
+- [Sistema de Skills e Templates](/docs/skill-template?lang=pt_br) — Prompts e regras de IA locais do projeto
 - [Integração MCP](https://gitpr.natanfiuza.dev.br/docs/mcp) — Usando GitPR com editores de IA

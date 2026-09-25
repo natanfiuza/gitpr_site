@@ -83,4 +83,4 @@ Each model call is bounded by a **180-second timeout** (configurable via
 visible error instead of freezing the CLI. Invalid or non-positive values fall
 back to the 180s default.
 
-> **Note:** See also the [main documentation (README.md)](../README.md) for initial API key setup instructions.
+> **Note:** See also the [main documentation (README.md)](/docs/readme) for initial API key setup instructions.

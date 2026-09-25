@@ -199,6 +199,6 @@ Les règles sont **additives** — les plugins globaux ne remplacent jamais les 
 
 ## 📚 Voir Aussi
 
-- [Règles de Linter Personnalisées](linter-regras-customizadas.md) — Comment écrire des règles `.gitpr.linter.yml`
-- [Système de Skills et Templates](skill-template.md) — Prompts et règles IA locaux du projet
+- [Règles de Linter Personnalisées](/docs/linter-regras-customizadas?lang=fr) — Comment écrire des règles `.gitpr.linter.yml`
+- [Système de Skills et Templates](/docs/skill-template?lang=fr) — Prompts et règles IA locaux du projet
 - [Intégration MCP](https://gitpr.natanfiuza.dev.br/docs/mcp) — Utiliser GitPR avec des éditeurs IA

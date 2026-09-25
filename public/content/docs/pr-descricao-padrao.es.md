@@ -88,7 +88,7 @@ Omite la TUI: hace auto-commit de los cambios pendientes (linter + mensaje de co
 
 Para publicar, GitPR necesita un **Personal Access Token (PAT)** de GitHub con ámbito `repo`, almacenado cifrado en `~/.gitpr/.env`. La rama de destino se resuelve mediante la flag `--base` → env `PR_DEFAULT_BASE` → detección automática.
 
-> **Nota:** Consulta la [guía completa de publicación](pull-request-publication.md) para el flujo detallado (verificación de unstaged, auto-commit, merge, manejo de errores).
+> **Nota:** Consulta la [guía completa de publicación](/docs/pull-request-publication?lang=es) para el flujo detallado (verificación de unstaged, auto-commit, merge, manejo de errores).
 
 ---
 
@@ -131,4 +131,4 @@ Si no se especifica ningún proveedor, GitPR usa el predeterminado definido en l
 
 GitPR genera un hash MD5 del diff + instrucciones de la IA. Si ejecutas `gitpr` nuevamente **sin cambiar el código**, la respuesta se devuelve desde la caché local en milisegundos, sin consumir cuotas de la API.
 
-> **Nota:** Consulta también la [documentación principal (README.md)](../README.md) para una visión general de todas las funcionalidades.
+> **Nota:** Consulta también la [documentación principal (README.md)](/docs/readme?lang=es) para una visión general de todas las funcionalidades.

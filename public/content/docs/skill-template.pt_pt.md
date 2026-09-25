@@ -77,11 +77,11 @@ O comando `--skill` faz download da versão mais recente de cada template do rep
 
 ## 5. Editar pelo ecrã `gitpr config`
 
-O ecrã `gitpr config` tem uma secção **Skills** que lista estes mesmos ficheiros e abre cada um num editor, para ajustar uma regra sem sair do terminal ([Ecrã de Configuração Interativo](config-tui.pt_pt.md), §1.7).
+O ecrã `gitpr config` tem uma secção **Skills** que lista estes mesmos ficheiros e abre cada um num editor, para ajustar uma regra sem sair do terminal ([Ecrã de Configuração Interativo](/docs/config-tui?lang=pt_pt), §1.7).
 
 - Uma entrada por skill suportada pelo GitPR — os sete ficheiros `.gitpr.*.md` da secção 1 acima.
 - Uma skill que o projeto ainda não tem é listada como **não está neste projeto**, com um botão **📥 Descarregar o template** que vai buscar o template publicado para o seu idioma de interface.
 - O `F2` guarda as skills editadas juntamente com as definições do `.env`; o `Ctrl+R` dentro do painel descarta a edição e devolve o texto do disco.
 - Cada ficheiro mantém o fim de linha que já tinha, por isso guardar nunca transforma uma linha intocada numa alteração.
 
-Duas coisas ficam de fora dessa lista de propósito: o `.gitpr.linter.yml`, que nenhum comando carrega por este mecanismo ([Regras Personalizadas do Linter](linter-regras-customizadas.pt_pt.md)), e qualquer outro ficheiro que guarde em `.gitpr/skill/` — o ecrã oferece as skills que os comandos leem, não tudo o que a pasta contém.
+Duas coisas ficam de fora dessa lista de propósito: o `.gitpr.linter.yml`, que nenhum comando carrega por este mecanismo ([Regras Personalizadas do Linter](/docs/linter-regras-customizadas?lang=pt_pt)), e qualquer outro ficheiro que guarde em `.gitpr/skill/` — o ecrã oferece as skills que os comandos leem, não tudo o que a pasta contém.

@@ -119,6 +119,6 @@ L'outil existant `analyze_diff` a été clarifié : il retourne le diff **non co
 
 ## 7. Documentation Connexe
 
-- [Pourquoi GitPR a-t-il ignoré mes nouveaux fichiers ?](untracked-files.fr_fr.md)
-- [Publication de Pull Request](pull-request-publication.md)
-- [Git Hooks Locaux](git-hooks-locais.md)
+- [Pourquoi GitPR a-t-il ignoré mes nouveaux fichiers ?](/docs/untracked-files?lang=fr)
+- [Publication de Pull Request](/docs/pull-request-publication?lang=fr)
+- [Git Hooks Locaux](/docs/git-hooks-locais?lang=fr)
