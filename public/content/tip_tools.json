@@ -265,7 +265,7 @@
     },
     {
         "id": "tip_23",
-        "used": false,
+        "used": true,
         "source": "docs/untracked-files.md",
         "content": {
             "en": "GitPR deliberately ignores untracked files (it reads `git diff HEAD`), and that's a feature: a forgotten `.env.local` with production passwords is never sent to the AI, and giant cache folders never waste tokens. To include a new file, just `git add` it first.",

@@ -145,6 +145,9 @@ Você pode passar as seguintes *flags* para ações específicas:
 * `gitpr tests generate`: **Geração de suíte de testes com IA.** Analisa seu diff, um arquivo alvo (`--file`) ou um apontamento de revisão (`--finding`) e gera suítes de testes completas e executáveis (suporta pytest, jest, vitest, phpunit, pest). Use `--apply` para gravar em disco.
 * `gitpr explain`: **Gerador do Guia do Revisor.** Gera um resumo conciso explicando o que mudou, por que mudou, onde os revisores devem focar e riscos potenciais de regressão. 📖 [Documentação completa](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/pull-request-publication.pt_br.md)
 * `gitpr review-pr <pr_number>`: **Revisão de Pull Request Remoto.** Busca e revisa um pull request aberto diretamente na forge (GitHub, GitLab, Bitbucket, Azure DevOps) sem precisar fazer checkout local da branch. Use `--post-comment` para publicar a revisão como comentário no PR. 📖 [Documentação completa](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/review-pr.pt_br.md)
+* `gitpr risk`: **Pontuação de Risco Local para Diffs.** Calcula uma pontuação de risco determinística e explicável (0.0 a 100.0) e insígnia (`LOW 🟢`, `MEDIUM 🟡`, `HIGH 🟠`, `CRITICAL 🔴`) usando sinais locais do repositório (caminhos críticos, testes ausentes, migrações, histórico de bugs e apontamentos estáticos). Use `--file <caminho>`, `--format json`, `--base <ref>` ou `--no-history`. Automaticamente incluído em revisões de código (`GITPR_RISK_INCLUDE_IN_REVIEW=true`). 📖 [Documentação completa](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/risk-scoring.pt_br.md)
+* `gitpr policy`: **Política de qualidade compartilhada pelo repositório.** Adota um **Policy Pack** YAML versionável — skills de review, regras de linter, overrides de severidade, caminhos críticos, pesos de risco e convenções de PR/commit — e registra a escolha em `.gitpr/policy.lock.yml`, então o review, o linter e o score de risco passam a rodar sob a mesma política, com um checksum por pack. `list`, `validate`, `show`, `use`, `init`, `install`, `off`. 📖 [Documentação completa](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/policy-packs.pt_br.md)
+* `gitpr baseline`: **Baseline e supressões auditáveis para adoção em legado.** Registra em `.gitpr/baseline.json` os apontamentos que o repositório já tem, então cada execução classifica cada apontamento como `new`, `existing`, `resolved`, `ignored` ou `accepted_debt` — e **só `new` bloqueia**. Toda supressão carrega um motivo, e a dívida aceita carrega um responsável e um prazo opcional. `create`, `show`, `validate`, `update`, `suppress`, `unsuppress`. 📖 [Documentação completa](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/baseline-suppressions.pt_br.md)
 * `-c` ou `--commit`: Executa um `git diff` local e exibe **apenas a mensagem de commit sugerida**.
 * `-r` ou `--review`: Realiza um **Code Review** detalhado das alterações locais.
 * `-f` ou `--fullreview`: Realiza um **Code Review Completo** analisando todas as alterações desde a branch remota.
@@ -216,6 +219,74 @@ gitpr --linter-setup
 O assistente mostra presets pré-configurados (PHPCS, ESLint, Stylelint — controlados remotamente via `templates/gitpr.linter-presets.json`), orienta o comando de instalação nativa (ex.: `npm install --save-dev eslint`) e injeta o bloco `external_linters` correto no seu `.gitpr.linter.yml`.
 
 Cada execução — manual via `--linter` ou automática antes dos commits — consolida as Regras Regex, Regras de Segurança Embutidas e Linters Externos em um único relatório Markdown salvo em `.gitpr/reports/linter/` (personalizável via `OUTPUT_FILE_NAME_LINTER`). O relatório é gerado apenas quando há violações — execuções limpas não criam arquivos.
+
+## ⚡ Pontuação de Risco Local (gitpr risk)
+
+O GitPR calcula uma pontuação de risco local, determinística e explicável (de `0.0` a `100.0`) para arquivos modificados individualmente e para o pull request como um todo. Não requer acesso à rede, consome zero tokens de IA e avalia sinais do repositório e do Git offline:
+
+* **Caminhos Críticos e Segurança (`+25`):** Autenticação, faturamento, credenciais e módulos operacionais sensíveis.
+* **Banco de Dados e Infraestrutura (`+20`):** Migrações, definições de esquema, workflows de CI/CD, Docker e configurações Kubernetes.
+* **Testes Ausentes (`+15`):** Código de produção executável alterado sem atualizações de testes correspondentes no diff.
+* **Sinais de Histórico (`+10` a `+20`):** Arquivos associados a correções recentes de bugs, reversões ou alta rotatividade de commits.
+* **Apontamentos:** Apontamentos bloqueadores (`+25`) ou críticos (`+15`) relatados por linters estáticos ou scanner de segredos.
+* **Presença de Testes (`-10`):** Crédito atenuante quando arquivos de teste são adicionados ou alterados junto com o código.
+
+### Níveis de Risco e Insígnias
+
+| Nível | Faixa de Pontuação | Insígnia | Significado |
+|---|---|---|---|
+| **LOW** | 0.0 – 24.0 | `LOW 🟢` | Alterações de rotina com baixa probabilidade de regressão |
+| **MEDIUM** | 25.0 – 49.0 | `MEDIUM 🟡` | Alterações moderadas exigindo vigilância normal de revisão |
+| **HIGH** | 50.0 – 79.0 | `HIGH 🟠` | Alterações significativas tocando áreas críticas ou sem testes |
+| **CRITICAL** | 80.0 – 100.0 | `CRITICAL 🔴` | Alta exposição a regressões, bloqueadores ou impactos arquiteturais sensíveis |
+
+### Fórmula de Agregação (50 / 30 / 20)
+
+A pontuação agregada do PR combina:
+* **50%**: Pontuação máxima de arquivo individual
+* **30%**: Média ponderada das pontuações dos arquivos por linhas alteradas
+* **20%**: Pontuação de evidências críticas agregadas
+
+### Integração com Revisões
+
+Quando ativado (`GITPR_RISK_INCLUDE_IN_REVIEW=true` em `~/.gitpr/.env`), o GitPR anexa automaticamente uma seção `## ⚡ Avaliação de Risco` aos relatórios de revisão gerados (`-r`, `-f`, `gitpr review-pr`) e direciona o foco do prompt de revisão por IA para áreas críticas.
+
+```bash
+gitpr risk                        # Calcula o risco do diff atual
+gitpr risk --file src/auth.py     # Decompõe o risco de um arquivo específico
+gitpr risk --format json          # Saída JSON para pipelines de CI/CD
+gitpr risk --base main            # Avalia em relação a uma referência git explícita
+```
+
+📖 **Documentação completa:** [docs/risk-scoring.pt_br.md](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/risk-scoring.pt_br.md)
+
+## 🧾 Adoção em legado: baseline e supressões auditáveis (gitpr baseline)
+
+Adotar o GitPR num repositório que já carrega centenas de apontamentos é o momento em que a ferramenta é menos útil: o portão falha em problemas que ninguém nesta mudança introduziu, e as alternativas são desligá-lo ou gastar um sprint corrigindo código que ninguém está mexendo. Um **baseline** é o registro do que o repositório já tem, commitado no Git, para que cada execução classifique o que encontra em vez de partir do zero.
+
+```bash
+gitpr baseline create                    # Registra os apontamentos do diff atual
+gitpr baseline show                      # Os apontamentos, as decisões e as contagens
+gitpr baseline validate                  # Todo defeito do arquivo — exit 1 em qualquer um
+gitpr baseline update                    # Registra o diff de hoje de novo, mantendo as decisões
+gitpr baseline suppress <id> --reason "…"    # Uma decisão sobre um apontamento
+gitpr baseline unsuppress <id>           # Desfaz uma decisão
+```
+
+Uma supressão não é um filtro silencioso: carrega um **motivo**, um autor e uma data, e a dívida aceita carrega um **responsável** e um **prazo** opcional. `--scope finding|line|file|rule` amplia uma decisão para além de um apontamento, e tudo o que é mais amplo do que um apontamento vive em `.gitpr/baseline.overrides.yml`, onde é revisado junto com o código. Um checksum sobre o registro apanha uma edição feita fora do GitPR — o `gitpr baseline validate` nomeia a divergência em vez de aplicar o arquivo. Um **Policy Pack** pode carregar um bloco `baseline:` próprio, aplicado em memória e atribuído ao pack.
+
+Quatro variáveis em `~/.gitpr/.env`, também editáveis pelo `gitpr config` na seção **Baseline**:
+
+| Chave | Padrão | Efeito |
+|---|---|---|
+| `GITPR_BASELINE_ENABLED` | `true` | `false` → nenhuma execução lê o baseline: o comportamento de todas as versões anteriores, byte a byte |
+| `GITPR_BASELINE_PATH` | *(vazio)* | `.gitpr/baseline.json`; um caminho relativo é resolvido a partir da raiz do repositório |
+| `GITPR_BASELINE_REQUIRE_LOCKFILE_CHECKSUM_MATCH` | `true` | Um checksum divergente torna o registro inutilizável: os fluxos que bloqueiam recusam e saem com código diferente de zero |
+| `GITPR_BASELINE_ALLOW_LOCAL_OVERRIDES` | `true` | `false` → `.gitpr/baseline.overrides.yml` não é lido |
+
+Só um apontamento de nível `error` com status `new` sai com código diferente de zero, e só apontamentos `new` pontuam no risco — todo o resto chega ao relatório de risco como evidência de zero pontos com o seu status. O baseline nunca é enviado à IA, e nenhuma entrada guarda código ou segredo: o arquivo é commitado, então só um digest da linha ofensora é mantido.
+
+📖 **Documentação completa:** [docs/baseline-suppressions.pt_br.md](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/baseline-suppressions.pt_br.md)
 
 ## 🤝 Assinatura de Coautoria
 
@@ -471,6 +542,9 @@ Se você deseja implementar o GitPR como uma barreira de qualidade automatizada 
 * [**Notas de Versão e Changelog (gitpr release)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/release-notes.md) — Como o subcomando `gitpr release` gera o changelog / as notas de versão de um repositório, sugere a próxima versão semântica e publica releases na forge.
 * [**Comando Fix (gitpr fix)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/fix-command.md) — Como o subcomando `gitpr fix` transforma os apontamentos da última revisão em patches que você lê antes de tocarem a sua árvore, classifica cada um por segurança e desfaz um patch aplicado sob demanda.
 * [**Comando Split (gitpr split)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/split-command.md) — Como o subcomando `gitpr split` lê uma árvore de trabalho com várias preocupações, agrupa os hunks por intenção com IA e os transforma em commits atômicos ordenados, sem nunca escrever nos seus arquivos.
+* [**Pontuação de Risco Local (gitpr risk)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/risk-scoring.pt_br.md) — Como o comando `gitpr risk` avalia riscos de regressão, decompõe sinais (fórmula 50/30/20) e destaca áreas de alto risco em revisões de código offline.
+* [**Policy Packs (gitpr policy)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/policy-packs.pt_br.md) — Como um repositório adota um Policy Pack versionável que carrega skills, regras de linter, overrides de severidade, caminhos críticos e pesos de risco em conjunto, a escada de precedência que combina os packs, o lockfile que o time commita e as três falhas que abortam em vez de degradar em silêncio.
+* [**Baseline e Supressões Auditáveis (gitpr baseline)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/baseline-suppressions.pt_br.md) — Como um repositório legado registra os apontamentos que já tem, como cada execução os classifica como `new`, `existing`, `resolved`, `ignored` ou `accepted_debt`, por que só `new` bloqueia, o que o fingerprint hasheia e o que deixa de fora de propósito, os quatro escopos de uma supressão, o checksum que apanha uma edição manual e o bloco `baseline:` que um Policy Pack pode carregar.
 
 ### Configuração e Infraestrutura
 
