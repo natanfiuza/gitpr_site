@@ -148,6 +148,7 @@ Você pode passar as seguintes *flags* para ações específicas:
 * `gitpr risk`: **Pontuação de Risco Local para Diffs.** Calcula uma pontuação de risco determinística e explicável (0.0 a 100.0) e insígnia (`LOW 🟢`, `MEDIUM 🟡`, `HIGH 🟠`, `CRITICAL 🔴`) usando sinais locais do repositório (caminhos críticos, testes ausentes, migrações, histórico de bugs e apontamentos estáticos). Use `--file <caminho>`, `--format json`, `--base <ref>` ou `--no-history`. Automaticamente incluído em revisões de código (`GITPR_RISK_INCLUDE_IN_REVIEW=true`). 📖 [Documentação completa](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/risk-scoring.pt_br.md)
 * `gitpr policy`: **Política de qualidade compartilhada pelo repositório.** Adota um **Policy Pack** YAML versionável — skills de review, regras de linter, overrides de severidade, caminhos críticos, pesos de risco e convenções de PR/commit — e registra a escolha em `.gitpr/policy.lock.yml`, então o review, o linter e o score de risco passam a rodar sob a mesma política, com um checksum por pack. `list`, `validate`, `show`, `use`, `init`, `install`, `off`. 📖 [Documentação completa](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/policy-packs.pt_br.md)
 * `gitpr baseline`: **Baseline e supressões auditáveis para adoção em legado.** Registra em `.gitpr/baseline.json` os apontamentos que o repositório já tem, então cada execução classifica cada apontamento como `new`, `existing`, `resolved`, `ignored` ou `accepted_debt` — e **só `new` bloqueia**. Toda supressão carrega um motivo, e a dívida aceita carrega um responsável e um prazo opcional. `create`, `show`, `validate`, `update`, `suppress`, `unsuppress`. 📖 [Documentação completa](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/baseline-suppressions.pt_br.md)
+* `gitpr check`: **Comando unificado de verificação para CI.** Consolida linter estático, varredura de segredos, bridges SAST externos (Semgrep, Gitleaks, Bandit), revisão de código por IA opcional, pontuação de risco e baseline em um único comando de pipeline. Gera artefatos em **SARIF 2.1.0**, **JSON** ou **JUnit XML** com códigos de saída determinísticos (`0`, `1`, `2`). 📖 [Documentação completa](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/check-ci.pt_br.md)
 * `-c` ou `--commit`: Executa um `git diff` local e exibe **apenas a mensagem de commit sugerida**.
 * `-r` ou `--review`: Realiza um **Code Review** detalhado das alterações locais.
 * `-f` ou `--fullreview`: Realiza um **Code Review Completo** analisando todas as alterações desde a branch remota.
@@ -436,6 +437,8 @@ Uma vez configurado, use linguagem natural no chat de IA do seu editor:
 | `analyze_unstaged_diff` | Diff apenas unstaged (working tree vs index) |
 | `list_fix_candidates` | Candidatos de correção da última revisão: patch, classificação, id (somente leitura) |
 | `review_remote_pr` | Revisão por IA de um pull request já aberto na forge, buscado pelo número (somente leitura) |
+| `run_check` | Portão de qualidade estruturado para CI/Editor retornando apontamentos normalizados e status |
+| `publish_pull_request` | Publica ou atualiza um Pull Request na forge remota a partir de título e corpo |
 
 ### Invocação Direta via CLI
 
@@ -455,6 +458,8 @@ gitpr-mcp --tool analyze_blame --tool-args '{"file_path":"src/main.py","start_li
 Ideal para scripts, pipelines de CI/CD e consultas pontuais onde você não precisa de um servidor MCP persistente. A saída JSON vai para stdout; todas as mensagens de diagnóstico vão para stderr — seguro para pipe.
 
 📖 **Documentação completa:** [docs/mcp-integration.pt_br.md](/docs/mcp-integration?lang=pt_br) — disponível em 5 idiomas (EN, PT-BR, PT-PT, ES, FR).
+
+> 🧩 **Extensão Oficial para VS Code e Cursor** — Prefere comandos nativos no editor, botões na barra do Source Control e diagnósticos inline na aba `Problems`? Instale a extensão thin-client em [`extensions/vscode/`](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/editor-extension.pt_br.md), alimentada pelo `gitpr-mcp`.
 
 > 💬 **MCP Prompts** — O GitPR também expõe 7 modelos de mensagem predefinidos (prompts) para fluxos comuns como "Revisar PR", "Gerar Mensagem de Commit" e "Criar Issue a partir do Diff". Consulte o [guia de MCP Prompts](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/mcp-prompts.md) para a lista completa.
 
@@ -548,6 +553,7 @@ Se você deseja implementar o GitPR como uma barreira de qualidade automatizada 
 
 ### Configuração e Infraestrutura
 
+* [**Extensão para Editores (VS Code e Cursor)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/editor-extension.pt_br.md) — Extensão VSIX thin-client que aciona o `gitpr-mcp` via stdio para geração de commits no Source Control, code reviews em Markdown, publicação de PR em duas etapas e diagnósticos inline na aba `Problems`.
 * [**Tela de Configuração Interativa (gitpr config)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/config-tui.pt_br.md) — Interface de terminal master-detail para visualizar, editar e validar configurações no `~/.gitpr/.env`.
 * [**Integração Multi-Forge SCM**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/scm-multiforge.pt_br.md) — Camada unificada de provedores SCM para GitHub, GitLab, Bitbucket Cloud e Azure DevOps com assistente `--init`.
 * [**Revisores Sugeridos**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/suggested-reviewers.pt_br.md) — Sugestão automática de revisores via Git blame das linhas adicionadas mapeadas para logins da forge.

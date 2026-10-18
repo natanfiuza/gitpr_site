@@ -13,7 +13,7 @@
     },
     {
         "id": "tip_2",
-        "used": false,
+        "used": true,
         "source": "docs/map-reduce-diff.md",
         "content": {
             "en": "Diffs bigger than ~90k tokens (estimated at 4 characters per token) are handled automatically: GitPR splits them into batches at file boundaries, summarizes each part (Map) and unifies everything in a final call (Reduce) — no flags needed.",
