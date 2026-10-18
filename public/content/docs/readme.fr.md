@@ -149,6 +149,7 @@ Vous pouvez passer les *flags* suivants pour des actions spécifiques :
 * `gitpr policy` : **Politique qualité partagée par le dépôt.** Adopte un **Policy Pack** YAML versionnable — skills de revue, règles de linter, overrides de sévérité, chemins critiques, poids de risque et conventions de PR/commit — et enregistre le choix dans `.gitpr/policy.lock.yml`, de sorte que la revue, le linter et le score de risque s'exécutent sous la même politique, avec une somme de contrôle par pack. `list`, `validate`, `show`, `use`, `init`, `install`, `off`. 📖 [Documentation complète](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/policy-packs.fr_fr.md)
 * `--init` : **Assistant de configuration de forge SCM.** Guide pas à pas la configuration des identifiants et paramètres pour GitHub, GitLab, Bitbucket Cloud ou Azure DevOps. 📖 [Documentation complète](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/scm-multiforge.fr_fr.md)
 * `gitpr baseline` : **Baseline et suppressions auditables pour l'adoption en legacy.** Enregistre dans `.gitpr/baseline.json` les constats que le dépôt a déjà, donc chaque exécution classe chaque constat comme `new`, `existing`, `resolved`, `ignored` ou `accepted_debt` — et **seul `new` bloque**. Toute suppression porte un motif, et la dette acceptée porte un responsable et une échéance optionnelle. `create`, `show`, `validate`, `update`, `suppress`, `unsuppress`. 📖 [Documentation complète](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/baseline-suppressions.fr_fr.md)
+* `gitpr check` : **Commande unifiée de vérification pour CI.** Consolide le linter statique, la détection des secrets, les bridges SAST externes (Semgrep, Gitleaks, Bandit), la revue de code par IA optionnelle, l'évaluation des risques et la baseline dans une seule commande de pipeline. Produit des artefacts en **SARIF 2.1.0**, **JSON** ou **JUnit XML** avec des codes de sortie déterministes (`0`, `1`, `2`). 📖 [Documentation complète](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/check-ci.fr_fr.md)
 * `-c` ou `--commit` : Exécute un `git diff` local et affiche **uniquement le message de commit suggéré**.
 * `-r` ou `--review` : Effectue un **Code Review** détaillé des modifications locales.
 * `-f` ou `--fullreview` : Effectue un **Code Review Complet** analysant toutes les modifications depuis la branche distante.
@@ -434,6 +435,8 @@ Une fois configuré, utilisez le langage naturel dans le chat IA de votre édite
 | `generate_issue` | Issue structurée à partir du diff, de l'historique ou du blame |
 | `list_unstaged_files` | Modifications non commitées catégorisées (nouveaux/modifiés/supprimés) |
 | `analyze_unstaged_diff` | Diff unstaged uniquement (working tree vs index) |
+| `run_check` | Porte de qualité structurée pour CI/Éditeur renvoyant des constats normalisés et un statut |
+| `publish_pull_request` | Publie ou met à jour une Pull Request sur la forge distante à partir d'un titre et d'un corps |
 
 ### Invocation Directe par CLI
 
@@ -454,6 +457,8 @@ Idéal pour les scripts, les pipelines CI/CD et les requêtes ponctuelles où vo
 
 📖 **Documentation complète :** [docs/mcp-integration.md](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/mcp-integration.md) — disponible en 5 langues (EN, PT-BR, PT-PT, ES, FR).
 
+> 🧩 **Extension Officielle pour VS Code et Cursor** — Vous préférez des commandes natives dans l'éditeur, des boutons dans la barre Source Control et des diagnostics inline dans l'onglet `Problems` ? Installez l'extension thin-client dans [`extensions/vscode/`](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/editor-extension.fr_fr.md), propulsée par `gitpr-mcp`.
+
 > 💬 **MCP Prompts** — GitPR expose également 7 modèles de message prédéfinis (prompts) pour les flux courants comme « Réviser la PR », « Générer un Message de Commit » et « Créer une Issue depuis le Diff ». Consultez le [guide MCP Prompts](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/mcp-prompts.md) pour la liste complète.
 
 ## 🎯 Smart Excludes (Optimisation des Tokens)
@@ -462,7 +467,7 @@ GitPR supprime automatiquement les fichiers non-code de votre `git diff` avant d
 
 **Deux couches d'exclusions :**
 - **Lockfiles et fichiers générés :** `package-lock.json`, `*.min.js`, `*.map`, `*.pyc`, `*.svg` et plus de 30 autres motifs définis dans [`gitpr.smart-excludes.json`](https://github.com/gitpr-cli/gitpr.git/blob/main/templates/gitpr.smart-excludes.json)
-- **Documentation en prose :** `*.md`, `*.txt`, `*.rst`, `*.adoc`, `*.tex` et plus de 20 autres extensions définies dans [`gitpr.docs-smart-excludes.json`](https://github.com/gitpr-cli/gitpr.git/blob/main/templates/gitpr.docs-smart-excludes.json)
+- **Documentation en prose :** `*.md`, `*.txt`, `*.rst`, `*.adoc`, `*.tex` et plus de 20 autres extensions définis dans [`gitpr.docs-smart-excludes.json`](https://github.com/gitpr-cli/gitpr.git/blob/main/templates/gitpr.docs-smart-excludes.json)
 
 **Suivi de la documentation :** Même si le contenu de la documentation est exclu du diff, GitPR indique toujours à l'IA _quels_ fichiers de documentation ont été modifiés en injectant leurs chemins comme métadonnées dans les instructions système. L'IA dispose ainsi du contexte complet sur les mises à jour de documentation sans consommer de tokens sur leur prose.
 
@@ -546,6 +551,7 @@ Si vous souhaitez implémenter GitPR comme une barrière de qualité automatisé
 
 ### Configuration et Infrastructure
 
+* [**Extension pour Éditeurs (VS Code et Cursor)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/editor-extension.fr_fr.md) — Extension VSIX thin-client pilotant `gitpr-mcp` via stdio pour la génération de commits dans Source Control, les code reviews en Markdown, la publication de PR en deux étapes et les diagnostics inline dans l'onglet `Problems`.
 * [**Écran de Configuration Interactif (gitpr config)**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/config-tui.fr_fr.md) — Interface de terminal master-detail pour inspecter, modifier et valider les paramètres dans `~/.gitpr/.env`.
 * [**Intégration Multi-Forge SCM**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/scm-multiforge.fr_fr.md) — Couche unifiée de fournisseurs SCM pour GitHub, GitLab, Bitbucket Cloud et Azure DevOps avec assistant `--init`.
 * [**Réviseurs Suggérés**](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/suggested-reviewers.fr_fr.md) — Suggestion automatique de réviseurs via `git blame` des lignes modifiées mappées aux identifiants de la forge.
