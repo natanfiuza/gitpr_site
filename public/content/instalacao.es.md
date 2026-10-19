@@ -27,34 +27,7 @@ gitpr --install
 
 ---
 
-## Windows: Usando el Ejecutable
-
-1. Descarga `gitpr.exe` desde la página de [GitHub Releases](https://github.com/natafiuza/gitpr/releases)
-2. Muévelo a un directorio en tu `PATH` (ej: tu carpeta de usuario o `C:\Windows\System32`)
-3. Ejecuta el setup guiado:
-
-```bash
-gitpr --install
-```
-
-El asistente te guiará a través de:
-
-```
-🚀 Automatización Inteligente de PR con IA
-
-🔧 Asistente de Configuración Interactiva
-
-📥 Descargando plantillas de skill...
-🪝 Instalando Git Hooks (pre-commit, prepare-commit-msg)...
-🔌 Configurando MCP para editores detectados...
-🔑 Verificando la clave API de tu proveedor IA...
-```
-
-Tu configuración se guarda de forma segura en `~/.gitpr/.env`.
-
----
-
-## Linux / macOS: Vía PyPI (Recomendado)
+## Vía PyPI (Recomendado)
 
 Instala directamente desde [PyPI](https://pypi.org/project/gitpr-cli/):
 
@@ -87,26 +60,6 @@ pipenv install google-genai openai python-dotenv click cryptography
 # 4. Ejecuta el setup guiado
 pipenv run python src/main.py --install
 ```
-
----
-
-## Compilando Tu Propio Ejecutable
-
-Usa **PyInstaller** para generar un binario independiente:
-
-```bash
-# Instala las dependencias de desarrollo
-pipenv install --dev
-
-# Compila
-pipenv run pyinstaller --noconfirm --onefile --icon=icon.ico --name gitpr run.py
-```
-
-El binario estará en la carpeta `dist/`:
-- `gitpr` en Linux/macOS
-- `gitpr.exe` en Windows
-
-La flag `--onefile` empaqueta Python, todas las bibliotecas y dependencias en un solo ejecutable.
 
 ---
 
