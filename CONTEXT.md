@@ -28,6 +28,10 @@ _Avoid_: incompleto, sem tradução
 Uma variante presente no site com sufixo de idioma que não é canônico. É um duplicado obsoleto do ponto de vista do site, mas não é removido sem confirmação.
 _Avoid_: antigo, deprecado
 
+**Órfão**:
+Um tópico presente no site sem origem correspondente na documentação da CLI. Diferente de lacuna (não falta conteúdo) e de legado (o sufixo é canônico): é conteúdo que só existe no site e nunca é removido automaticamente.
+_Avoid_: só-no-site, exclusivo do site
+
 **Link cruzado**:
 Um link de um tópico para outro, ambos dentro da documentação. Distingue-se de um link externo (fora da documentação) e de uma âncora local (dentro do mesmo tópico), que nunca são alterados.
 _Avoid_: referência, link interno
