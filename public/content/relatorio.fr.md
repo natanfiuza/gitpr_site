@@ -1,17 +1,18 @@
-# **🚀 Rapport de Statut du Projet : GitPR CLI — v0.0.19 (2026-10-27)**
+# **🚀 Rapport de Statut du Projet : GitPR CLI — v0.0.20 (2026-10-28)**
 
 ## **📌 Aperçu Général**
 
 **GitPR** est un outil CLI (Command Line Interface) avancé pour l'automatisation des processus Git à l'aide de l'Intelligence Artificielle (Google Gemini / DeepSeek / Ollama). L'objectif principal est d'agir comme un assistant intelligent local qui effectue des Code Reviews, génère des Pull Requests, des messages de commit sémantiques, audite la dette technique et injecte des bonnes pratiques dans le flux de travail du développeur (Shift Left).
 
-**Nouveautés de cette version (v0.0.19) :**
-- **Deux releases clos — 1.4.1 et 1.4.2 :** la v0.0.18 laissait la 1.4.1 « préparée, mais pas encore close ». Cette fenêtre a clos **les deux** : le tag `v1.4.1` a été créé le 2026-10-18 (PR #218) et le `v1.4.2` le 2026-10-27 (PR #222), avec `CHANGELOG.md` commité dans les deux. PyPI sert déjà la **1.4.2** ; `v1.4.0` n'est plus le dernier tag.
-- **Le diff disparaissait dans les dépôts au contenu hérité :** `get_git_full_diff()` décodait la sortie de `git diff` en UTF-8 strict. Un seul octet Latin-1 (`0xFA`) tuait le thread lecteur du subprocess, `stdout` revenait `None` **sans exception** et la CLI annonçait « Aucun nouveau code trouvé » — comme si la branche n'avait aucun changement. Les **10** appels à `subprocess` qui capturent la sortie de git décodent désormais avec `errors="replace"`, et un `None` renvoyé par git **sort avec le code 1** dans PR, review, full review et commit. Un diff réellement vide sort toujours avec **0**, et `--hook` échoue **ouvert**, parce qu'un `prepare-commit-msg` non nul interromprait le commit de l'utilisateur.
-- **`explain` et `tests generate` enfin documentés — et corrigés au passage :** c'étaient les **deux dernières** fonctionnalités sans topic dans `docs/`, héritées comme dette pendant plusieurs fenêtres. Elles ont gagné **5 langues chacune** (`docs/explain-pr.*` et `docs/tests-generate.*`, 10 fichiers). Documenter a révélé **quatre défauts réels** : `parse_explain_payload()` plantait sur le dict déjà parsé du fournisseur (`json.loads(dict)` → `TypeError`) ; `generate_test_file` avait la même incompatibilité ; `gitpr tests generate --finding` lisait `cand.finding.suggested_test` et `cand.diff`, des attributs inexistants ; et `gitpr -h --explain` était cassé par un décalage de `dest` (`explain_flag` × `explain`).
-- **Les README pointent vers le site de documentation officiel :** **342** destinations de documentation dans les 5 README ont quitté `https://github.com/gitpr-cli/gitpr.git/blob/main/docs/*.md` et pointent désormais vers `https://gitpr.natanfiuza.dev.br/docs/*`, avec la langue dans `?lang=` et l'anglais **sans** paramètre — exactement le format que `src/doc_links.py` canonicalise déjà. **217 URLs uniques** vérifiées avec `curl` : **0 échec**.
-- **La dette i18n n'a pas été payée :** les dictionnaires restent à **1620 clés** (×4) et **1618** (`es.json`, `fr.json`), avec **8 clés utilisées dans le code sans traduction** et **2 orphelines** — les mêmes chiffres que le rapport précédent. Ajoutées aux **7 échecs de fixture** de `tests/badge/test_badge_paths.py` et aux **2 échecs connus** de `tests/test_mentor_cli.py`, la suite se referme à **2950 réussis sur 2964** (12 échecs, 2 skips).
+**Nouveautés de cette version (v0.0.20) :**
+- **La barrière de mise à jour a cessé de perdre les releases publiées après la première exécution du jour :** le cache PyPI était indexé par la **date locale**, donc une release publiée à 10h45 restait invisible jusqu'à minuit pour qui avait déjà lancé la CLI à 07h54. Le cache est devenu une **fenêtre glissante de 1 heure** avec un `checked_at` ISO, des écritures atomiques (`os.replace`) et une validation à la lecture — un fichier corrompu, un horodatage dans le futur ou un reste de l'ancien format expire simplement. `gitpr -u`/`--update` **ignore désormais le cache** et interroge PyPI à chaque invocation, comme la documentation le promettait déjà.
+- **La comparaison de versions est passée à PEP 440 :** `packaging.version.Version` a remplacé l'arithmétique de tuples — elle corrige l'ordre des segments à plusieurs chiffres (`1.4.10 > 1.4.9`), empêche une pré-release distante de bloquer une installation stable dans un `pip install --upgrade` qui refuserait de l'installer, et traite une version illisible d'un côté ou de l'autre comme **inconnue** plutôt que comme « plus récente ».
+- **La barrière atteint désormais les sous-commandes — mais seulement quand l'exécution peut demander :** `gitpr release`, `fix`, `review-pr` et les autres passent par la barrière quand il y a un TTY des deux côtés. CI, pipes, hooks, `--quiet`/`--hook`/`--mcp` et `-h`/`--help` ne sont **jamais** bloqués ; l'aide de la sous-commande est détectée dans l'**`argv` brut**, parce que Click vide les arguments du contexte avant le callback du groupe.
+- **Les 7 échecs de `tests/badge/test_badge_paths.py` ont enfin été clos :** la validation du jeton du Provider est passée de l'extérieur à **l'intérieur** du bloc `if check_remote_state:` de `publish_pull_request_use_case` — le flux `--no-edit` ne retourne plus un `auth_required` en faux positif. `pr_url`/`pr_number` sont désormais lus avec un `getattr` défensif, et la fixture a gagné `token="ghp_fake"` et `number=1`. **La suite est passée de 12 à 5 échecs connus** — dette ouverte pendant trois fenêtres consécutives.
+- **La sémantique de l'échappatoire a changé (rupture déclarée) :** `GITPR_SKIP_UPDATE_CHECK` est désormais lue comme un **booléen strict** — seuls `1`, `true`, `yes`, `on` et `y` (insensibles à la casse) désactivent la vérification. `false`, `0`, `no`, `off`, `n` et une valeur vide **gardent** la barrière active.
+- **La dette i18n n'a pas été payée :** les dictionnaires restent à **1620 clés** (×4) et **1618** (`es.json`, `fr.json`), avec **8 clés utilisées dans le code sans traduction** et **2 orphelines** — exactement les mêmes chiffres que la fenêtre précédente.
 
-- **Version actuelle :** 1.4.2 (**publiée sur PyPI** ; tag `v1.4.2` du 2026-10-27 — le `v1.4.1` du 2026-10-18 a aussi été créé dans cette fenêtre)
+- **Version actuelle :** 1.4.3 (**bump commité et mergé dans le PR #228, pas encore publié** — PyPI sert la **1.4.2**, il n'existe pas de tag `v1.4.3` et la section `[1.4.3]` de `CHANGELOG.md` est **dans la working tree**, non commitée)
 - **Version des dictionnaires de langue :** v0.0.35 (inchangée)
 - **Version des scripts de hook :** v0.0.4 (inchangée)
 - **Publication :** PyPI (`pip install gitpr-cli`) — canal binaire supprimé
@@ -25,20 +26,21 @@
 ## **🏗️ Architecture et Bibliothèques de Base**
 
 * **Langage :** Python >= 3.10
-* **CLI Framework :** Click (pour les commandes, flags et formatage du terminal) — **15 sous-commandes** (`badge`, `baseline`, `check`, `config`, `demo`, `explain`, `fix`, `mentor`, `metrics`, `policy`, `release`, `review-pr`, `risk`, `split`, `tests`). Quatre d'entre elles sont des **groupes** : `baseline` (6 sous-commandes), `metrics` (8), `policy` (7) et `tests` (1).
+* **CLI Framework :** Click (pour les commandes, flags et formatage du terminal) — **15 sous-commandes** (`badge`, `baseline`, `check`, `config`, `demo`, `explain`, `fix`, `mentor`, `metrics`, `policy`, `release`, `review-pr`, `risk`, `split`, `tests`). Quatre d'entre elles sont des **groupes** : `baseline` (6 sous-commandes), `metrics` (8), `policy` (7) et `tests` (1). 🆕 **Toutes passent par la barrière de mise à jour quand l'exécution est interactive** (voir §3).
 * **UI/Terminal :** Textual — TUI pour le chat interactif, l'édition d'issues, l'écran d'aide, le tableau de bord de métriques, le PR Publisher (avec la modale de progression réutilisée dans le merge), les erreurs du linter (`LinterApp`), la configuration (`ConfigApp`), le modal `NoticeScreen`, la visite `gitpr demo` (`src/ui/demo/`) et l'assistant de migration du ledger (`src/ui/metrics_migration_app.py`).
 * **Architecture en Couches :** `src/domain/` (règles pures, sans I/O) + `src/application/use_cases/` (orchestration, **15 cas d'usage**) + présentation (CLI/TUI). **9 paquets de domaine** : `baseline`, `check`, `finding`, `linter`, `mentor`, `policy`, `pr`, `risk`, `tests_generation`.
 * **Extension Éditeur :** `extensions/vscode/` — client MCP TypeScript mince pour **VS Code et Cursor** (Node.js 20+, `@modelcontextprotocol/sdk`, VSIX). Il ne contient aucune règle métier.
 * **Cryptographie :** `cryptography.fernet` pour la protection locale des clés API, des jetons GitHub et des jetons SCM des forges.
-* **Configuration :** `python-dotenv`, `pyyaml` (linter statique) + son propre schéma déclaratif (`src/config_schema.py`, **80 `ConfigField`** et **16 catégories**).
+* **Configuration :** `python-dotenv`, `pyyaml` (linter statique) + son propre schéma déclaratif (`src/config_schema.py`, **80 `ConfigField`** et **16 catégories**). 🆕 `packaging` alimente aussi la comparaison de versions de la barrière (PEP 440), en plus de la compatibilité des policy packs.
 * **Fournisseurs IA :** Intégration via le SDK officiel Google GenAI, le SDK OpenAI (DeepSeek) et le SDK OpenAI (Ollama local). Défauts configurés : `gemini-pro-latest` / `gemini-flash-lite-latest` et `deepseek-v4-pro` / `deepseek-v4-flash`.
 * **APIs de Forge :** `requests` (REST) — abstraction multi-forge dans `src/infrastructure/scm/` (GitHub, GitLab, Bitbucket, Azure DevOps) + `web_links.py` ; `src/github_api.py` conservé comme shim déprécié.
 * **Linter / SAST :** Regex YAML + pont Checkstyle + ruleset de secrets intégré (`src/security_ruleset.py`) + 4 ponts dans `src/infrastructure/linter/external/` (base + Semgrep, Gitleaks, Bandit), avec le modèle normalisé dans `src/domain/linter/sast_finding_mapper.py` et le constat canonique dans `src/domain/finding/`.
 * **Infrastructure CI :** `src/infrastructure/ci/` — `sarif_builder.py` (SARIF 2.1.0), `junit_builder.py` (JUnit XML) et `masking.py` (masquage des identifiants avant la sérialisation de tout artefact).
 * **Interne de Git :** `src/infrastructure/git/` — `patch_applier.py`, `selective_stager.py`, `identity.py`, `risk_history_reader.py` et `test_matcher.py`.
 * **Persistance locale :** `src/ledger.py` — SQLite (`~/.gitpr/metrics/telemetry.db`) avec WAL, `PRAGMA user_version`, clés UUID et transport par bundle.
+* **Réseau :** 🆕 la barrière de mise à jour a quitté l'`urllib` brut et utilise désormais `src/net.bounded_urlopen` (`UPDATE_FETCH_HARD_TIMEOUT = 3.0`), qui borne le **temps réel, DNS inclus** — le `timeout` d'`urlopen` ne couvrait pas la résolution de noms, qui sous Windows peut bloquer pendant des minutes.
 * **MCP :** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 — **18 outils annotés**, **19 ressources**, 7 prompts.
-* **Tests :** Pytest + `unittest.mock` (**140 modules de test** 🆕 — 53 à la racine, 12 dans `tests/application/use_cases/`, 10 dans `tests/fix/`, 9 dans `tests/scm/`, 7 dans `tests/badge/`, 6 dans `tests/demo/`, 6 dans `tests/split/`, 5 dans `tests/domain/baseline/`, 4 dans `tests/domain/policy/`, 4 dans `tests/review/`, 4 dans `tests/infrastructure/linter/external/`, 3 dans `tests/domain/check/`, 3 dans `tests/infrastructure/ci/`, 2 dans `tests/domain/risk/`, 2 dans `tests/domain/tests_generation/`, 2 dans `tests/integration/`, 2 dans `tests/infrastructure/git/`, 2 dans `tests/domain/linter/`, 1 dans `tests/domain/finding/`, 1 dans `tests/domain/mentor/`, 1 dans `tests/domain/pr/`, 1 dans `tests/infrastructure/baseline/` —, **2964 scénarios collectés** 🆕) + tests e2e du serveur MCP via un vrai subprocess (JSON-RPC stdio) + fixtures de dépôt git réel (`tests/fix/`, `tests/split/`, `tests/test_full_diff_encoding.py` 🆕) + une garde d'isolation réseau (`tests/demo/conftest.py`, `tests/integration/conftest.py`). L'extension a sa propre suite Mocha (7 tests contre le vrai serveur MCP).
+* **Tests :** Pytest + `unittest.mock` (**140 modules de test** — 53 à la racine, 12 dans `tests/application/use_cases/`, 10 dans `tests/fix/`, 9 dans `tests/scm/`, 7 dans `tests/badge/`, 6 dans `tests/demo/`, 6 dans `tests/split/`, 5 dans `tests/domain/baseline/`, 4 dans `tests/domain/policy/`, 4 dans `tests/review/`, 4 dans `tests/infrastructure/linter/external/`, 3 dans `tests/domain/check/`, 3 dans `tests/infrastructure/ci/`, 2 dans `tests/domain/risk/`, 2 dans `tests/domain/tests_generation/`, 2 dans `tests/integration/`, 2 dans `tests/infrastructure/git/`, 2 dans `tests/domain/linter/`, 1 dans `tests/domain/finding/`, 1 dans `tests/domain/mentor/`, 1 dans `tests/domain/pr/`, 1 dans `tests/infrastructure/baseline/` —, **2996 scénarios collectés** 🆕) + tests e2e du serveur MCP via un vrai subprocess (JSON-RPC stdio) + fixtures de dépôt git réel (`tests/fix/`, `tests/split/`, `tests/test_full_diff_encoding.py`) + une garde d'isolation réseau (`tests/demo/conftest.py`, `tests/integration/conftest.py`). L'extension a sa propre suite Mocha (7 tests contre le vrai serveur MCP).
 * **Empaquetage :** setuptools/build (PyPI) — `version = {attr = "src.updater.__version__"}` ; packs embarqués via `package-data` ; `packaging>=23.0`. L'extension est empaquetée séparément (`vsce package`, VSIX).
 * **CI/CD :** GitHub Actions — `pr-review.yml` + `action.yml` (appelle `gitpr check`) + `tests.yml` (matrice Python 3.10/3.13) + `extension.yml` (build, test et empaquetage du VSIX ; publication vers Marketplace/Open VSX sur les tags `ext-v*`).
 
@@ -64,8 +66,8 @@
 * **Registre de Skills Partagé :** `SKILL_FILES_BY_TYPE` / `SKILL_TYPES` / `DEFAULT_SKILL_TYPE` dans `src/config.py`.
 * **Moteur de Review avec Périmètre de Cache (`generate_pr_content`) :** `cache_scope` et `store_diff` ; le `cache_scope` porte aussi le pack de policy actif.
 * **Trailer de Co-paternité :** `COAUTHOR_TRAILER` + `append_coauthor_trailer()` — idempotent, préserve les trailers de tiers.
-* **🆕 Capture de Sortie Git Blindée :** les **10** appels à `subprocess.run` dans `src/cache.py`, `src/core.py`, `src/issue_engine.py` et `src/main.py` qui capturent la sortie de git (`git config`, `git remote -v`, `git diff`, `git log`, `merge-base`, `symbolic-ref`) utilisent désormais `encoding="utf-8"` **avec** `errors="replace"`. Avant, un seul octet Latin-1 (`0xFA`) tuait le thread lecteur sous Python 3.13/Windows, `stdout` revenait `None` **sans lever d'exception** et l'exécution annonçait « Aucun nouveau code trouvé ». `get_git_full_diff()` a gagné le `text=True` manquant, et `git fetch origin` est sorti du mode bytes — le message d'erreur ne s'affiche plus comme `b'...'`.
-* **🆕 Échec de Git ≠ Diff Vide :** la garde du diff dans `src/main.py` a été scindée en deux chemins. `diff_text is None` (git a échoué : dépôt absent, remote cassé, erreur d'authentification) **sort désormais avec le code 1** ; un diff vide ou uniquement composé d'espaces sort toujours avec **0** et l'avertissement « Aucun nouveau code trouvé ». En mode `--hook`, le chemin est **fail-open** (`return` au lieu de `sys.exit(1)`), parce qu'un `prepare-commit-msg` non nul interromprait le commit de l'utilisateur.
+* **Capture de Sortie Git Blindée :** les **10** appels à `subprocess.run` dans `src/cache.py`, `src/core.py`, `src/issue_engine.py` et `src/main.py` qui capturent la sortie de git utilisent `encoding="utf-8"` **avec** `errors="replace"`.
+* **Échec de Git ≠ Diff Vide :** `diff_text is None` sort avec le code 1 ; un diff réellement vide sort avec **0** ; en `--hook`, le chemin est **fail-open**.
 * **Subprocesses Blindés :** `stdin=subprocess.DEVNULL` + `encoding='utf-8'`/`errors='replace'` sur chaque `subprocess.run` ; vérification de connexion via socket avant les opérations réseau.
 
 ### **2. Système Global de Plugins (`src/plugins.py`)**
@@ -84,14 +86,16 @@
 * **Routage des Commandes :** Gère tous les flags et les **15 sous-commandes** — `release`, `config`, `fix`, `review-pr`, `demo`, `badge`, `split`, `tests`, `explain`, `mentor`, `metrics`, `policy`, `risk`, `baseline` et `check`.
 * **Comportement par Défaut :** Exécuter `gitpr` sans flags ouvre la TUI du PR Publisher.
 * **Flags (32 options Click à la racine — inchangées dans cette fenêtre) :** `--mentor`, `--explain`, `--init`, `--no-suggest-reviewers`, `--no-publish`, `--no-edit`, `--base <branch>`, `--plugins`, `--status`, `--no-unstaged-check`, `--linter-setup`, `--version` etc.
+* **🆕 Barrière de Mise à Jour dans les Sous-commandes :** le callback du groupe revenait avant la barrière racine, donc `gitpr release`, `fix`, `review-pr` et les autres n'étaient **jamais** bloqués par une nouvelle release. La barrière s'exécute désormais avant le `return`, conditionnée par `may_ask and not update and not help_flag and not _subcommand_help_in_argv()`. `_may_ask_the_user()` exige un **TTY des deux côtés** — CI, pipes, cron, hooks et le serveur MCP restent libres.
+* **🆕 Aide de la Sous-commande Lue dans l'`argv` Brut :** `_subcommand_help_in_argv()` existe parce que Click **vide les arguments du contexte** avant que le callback du groupe ne s'exécute : à ce moment, `gitpr release -h` est indistinguable de `gitpr release`. Le balayage échoue ouvert, ne coûtant au plus qu'une barrière sautée.
 * **Sous-commande `check` — 8 options :** `--base <ref>`, `--format sarif|json|junit`, `-o/--output <path>`, `--fail-on …`, `--no-ia`, `--ia-only-high-risk`, `--baseline <path>` et `--policy <name>@<version>`.
 * **Groupe `baseline` — 6 sous-commandes :** `create`, `show`, `validate`, `update`, `suppress` et `unsuppress`.
 * **Groupe `policy` — 7 sous-commandes :** `list`, `show`, `validate`, `use`, `off`, `install` et `init`.
 * **Groupe `metrics` — 8 sous-commandes :** `export`, `bundle`, `merge`, `dashboard`, `migrate`, `prune`, `purge` et le `hook-event` caché.
 * **Sous-commande `risk` — 4 options :** `--file`, `--format text|json`, `--base`, `--no-history`.
 * **Sous-commande `mentor` — 2 options :** `--finding`, `--provider`.
-* **Variables d'Environnement (58 clés dans `DEFAULT_CONFIG`) :** les quatre `GITPR_BASELINE_*`, les deux de mentor, les deux de policy et `GITPR_RISK_INCLUDE_IN_REVIEW`. **Hors `DEFAULT_CONFIG` :** `GITPR_METRICS_PRICE_<MODEL>_INPUT`/`_OUTPUT`, `GITPR_METRICS_CURRENCY` et les **9 `GITPR_CHECK_*`**.
-* **🆕 Aide Contextuelle Corrigée :** `gitpr -h --explain` rend à nouveau — l'option utilisait le dest `explain_flag` alors que le `HELP_MAP` cherchait la clé `explain`. `HELP_MAP["explain"]` et `HELP_PRIORITY["explain"]` pointent désormais vers `docs/explain-pr`, et `gitpr tests` et `gitpr tests generate` ont gagné leur propre `epilog=` avec un lien vers `docs/tests-generate` dans la langue courante.
+* **Variables d'Environnement (58 clés dans `DEFAULT_CONFIG`) :** les quatre `GITPR_BASELINE_*`, les deux de mentor, les deux de policy et `GITPR_RISK_INCLUDE_IN_REVIEW`. **Hors `DEFAULT_CONFIG` :** `GITPR_METRICS_PRICE_<MODEL>_INPUT`/`_OUTPUT`, `GITPR_METRICS_CURRENCY`, les **9 `GITPR_CHECK_*`** et `GITPR_SKIP_UPDATE_CHECK` (🆕 désormais un booléen strict).
+* **Aide Contextuelle :** `gitpr -h --explain` rend ; `HELP_MAP["explain"]` et `HELP_PRIORITY["explain"]` pointent vers `docs/explain-pr`, et `gitpr tests`/`gitpr tests generate` ont leur propre `epilog=`.
 * **Couche d'Écriture du `.env` :** `read_env_file_values()` lit **uniquement le fichier** via `dotenv_values` ; `save_config_values()` avec `set_key` ; `remove_config_value()` avec `unset_key`.
 * **Barrière Baseline dans le Flux :** `main.py` résout la barrière de baseline avant le lint, le review, le full review, l'audit de fichier, le review distant et le risque.
 * **Publication Directe Refactorisée :** `_publish_pr_directly` (`--no-edit`) délègue à **`publish_pull_request_use_case`** — le même chemin que l'outil MCP `publish_pull_request`.
@@ -138,12 +142,17 @@
 
 ### **8. Auto-Updater (`src/updater.py`)**
 
-* **PyPI comme Source Unique :** `get_latest_remote_version()` interroge `https://pypi.org/pypi/gitpr-cli/json` et écrit le cache quotidien.
+* **PyPI comme Source Unique :** `get_latest_remote_version()` interroge `https://pypi.org/pypi/gitpr-cli/json` et écrit le cache. Elle accepte `force=True`, utilisé par `--update` pour aller **toujours** au réseau.
+* **🆕 Fenêtre Glissante de 1 Heure (`UPDATE_CACHE_TTL_SECONDS = 3600`) :** le cache n'est plus « valide tant que la date locale est aujourd'hui ». Le document est désormais `{"checked_at": <ISO>, "version": ...}` ; `_cache_is_fresh()` accepte un âge dans `[0, 3600)` secondes. Une release publiée à 10h45 est désormais vue au plus une heure plus tard — avant, elle restait invisible jusqu'à minuit.
+* **🆕 Validation à la Lecture :** un vrai `dict`, un horodatage analysable, une version chaîne non vide. Un horodatage **dans le futur** (une horloge revenue en arrière) compte comme expiré, et l'ancien format avec `date` est traité comme expiré et réécrit — sans migration manuelle.
+* **🆕 Écriture Atomique :** `tempfile.NamedTemporaryFile` dans le même répertoire + `os.replace`, avec nettoyage du fichier temporaire en cas d'échec. Un `home` en lecture seule ne masque plus la version récupérée.
+* **🆕 Fetch Blindé (`bounded_urlopen`) :** un corps non-JSON et un payload sans version sont **rejetés avant d'entrer dans le cache** — un portail captif ou un mirror malformé n'est pas persisté. Un plafond de 3 s de temps réel, DNS inclus.
+* **🆕 Comparaison PEP 440 :** `_coerce_version()` utilise `packaging.version.Version`, en tolérant le `v` initial et les suffixes PEP 440 ; `parse_version()` conserve le contrat de tuple pour les appelants externes. `_is_newer()` **ignore une pré-release distante** sur une installation stable et traite une version illisible d'un côté ou de l'autre comme inconnue.
 * **Barrière Obligatoire (`enforce_update_required()`) :** Retourne `True` (après avoir affiché les deux versions et la commande pip) lorsque la version publiée est plus récente ; `False` lorsque tout est à jour, lorsque la version distante est **inconnue (hors ligne)** ou lorsque la vérification est désactivée.
+* **🆕 Sémantique Stricte de l'Échappatoire :** `GITPR_SKIP_UPDATE_CHECK` est analysée contre `_SKIP_TRUTHY_VALUES` (`1`, `true`, `yes`, `on`, `y`) ; avant, toute valeur non vide — y compris `false` et `0` — désactivait la vérification.
 * **`check_and_update()` :** Se contente d'interroger et d'**informer**, n'installe jamais.
-* **Échappatoire :** `GITPR_SKIP_UPDATE_CHECK` — elle n'est pas annoncée ; elle existe pour la suite et pour l'automatisation hors ligne.
-* **Versionnage Centralisé :** `__version__` (**1.4.2** 🆕), `__lang_version__` (**v0.0.35**), `__scripts_version__` (**v0.0.4**), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`, `LINTER_PRESETS_VERSION`.
-* **🆕 État de la Release :** les deux releases en attente ont été closes. Le tag **`v1.4.1`** pointe vers le merge du PR #218 (2026-10-18) et le **`v1.4.2`** vers le merge du PR #222 (2026-10-27) ; les sections `[1.4.1]` et `[1.4.2]` de `CHANGELOG.md` sont **commitées**, et PyPI sert la **1.4.2**. `v1.4.0` n'est plus le dernier tag.
+* **Versionnage Centralisé :** `__version__` (**1.4.3** 🆕), `__lang_version__` (**v0.0.35**), `__scripts_version__` (**v0.0.4**), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`, `LINTER_PRESETS_VERSION`.
+* **⚠️ État de la Release :** `__version__` est déjà **1.4.3** et le commit a été mergé (PR #228), mais il n'existe **aucun tag `v1.4.3`**, PyPI sert la **1.4.2** et la section `[1.4.3]` de `CHANGELOG.md` est **dans la working tree**. Les installations en 1.4.1/1.4.2 ne reçoivent le correctif de la barrière que via un `pip install --upgrade gitpr-cli` manuel — leur ancienne logique continue de répondre depuis le cache quotidien.
 
 ### **9. Interface de Chat Interactive (`src/ui/chat_app.py`)**
 
@@ -159,7 +168,7 @@
 * **Détection Automatique :** Détecte la langue du système à la première exécution et l'enregistre dans `GITPR_LANG` ; le répertoire de profil est créé **avant** la persistance.
 * **5 Langues, 6 Dictionnaires :** en_us (défaut/fallback), pt_br, pt_pt, es/es_es, fr/fr_fr.
 * **Fichiers Versionnés :** `__lang_version__` (**v0.0.35**) contrôle la mise à jour des packs (`langs/*.json`).
-* **Couverture — dette inchangée dans cette fenêtre :** **1620 clés** dans `pt_br`, `pt_pt`, `es_es` et `fr_fr`, mais **1618** dans `es.json` et `fr.json`. Le code utilise **1626** clés : **8 n'existent dans aucun dictionnaire** (messages de `publish_pull_request` et descriptions des outils MCP `run_check`/`publish_pull_request`) et **2 anciennes clés sont devenues orphelines** (les deux messages de publication de PR). ❌
+* **Couverture — dette inchangée dans cette fenêtre :** **1620 clés** dans `pt_br`, `pt_pt`, `es_es` et `fr_fr`, mais **1618** dans `es.json` et `fr.json`. Le code utilise **1626** clés : **8 n'existent dans aucun dictionnaire** (messages de `publish_pull_request` et descriptions des outils MCP `run_check`/`publish_pull_request`) et **2 anciennes clés sont devenues orphelines**. ❌
 * **Photo de l'Environnement (`AMBIENT_ENV_KEYS`) :** `frozenset(os.environ)` capturé **immédiatement avant** le `load_dotenv()` au niveau du module.
 * **Cache avec Indexation par Langue :** Les réponses IA en cache incluent la langue courante dans le keying MD5.
 * **Source de Traduction en Phase :** une nouvelle clé doit exister dans le code, dans `langs/pt_br.json` (liste maîtresse), dans les dicts FR/ES de `scripts/sync_all_langs.py` et dans les valeurs curatées de `scripts/fix_mangled_i18n_keys.py`.
@@ -176,7 +185,7 @@
 * **Timeout IA :** défaut de **180s** (`GITPR_AI_TIMEOUT`).
 * **Appels avec `quiet` :** la release et les nouvelles fonctionnalités transmettent `quiet` jusqu'à la couche IA, pour que le spinner ne corrompe jamais une sortie `--format json`.
 * **Un appel à la fois, avec cache :** mentor et explain réutilisent le cache MD5 par prompt.
-* **🆕 Payload Déjà Parsé :** `parse_explain_payload()` et `generate_test_file` acceptent désormais le **dict** livré par le fournisseur (ils appelaient `json.loads()` sur un dict, ce qui levait `TypeError` puis `AttributeError` sur `.strip()`) ; le chemin de chaîne JSON brute reste accepté pour les anciennes réponses du cache.
+* **Payload Déjà Parsé :** `parse_explain_payload()` et `generate_test_file` acceptent le **dict** livré par le fournisseur, avec un fallback vers la chaîne JSON brute (anciennes réponses du cache).
 
 ### **13. Cache Intelligent (`src/cache.py`)**
 
@@ -186,7 +195,7 @@
 * **Télémétrie et Durée :** Persistance de `duration_ms` et `meta_raw`.
 * **Lecture pour le Dashboard :** `scan_cache_files_for_dashboard()` est un **pont de pré-migration**.
 * **Effet de l'Assainissement du Skill :** comme `get_skill_context()` supprime le fragment corrompu du prompt de PR, la clé MD5 change et les anciennes réponses contaminées ne sont plus réutilisées.
-* **🆕 `git config` Décodé en Sécurité :** les lectures de `user.name`/`user.email` utilisent désormais `encoding="utf-8"` + `errors="replace"`.
+* **`git config` Décodé en Sécurité :** les lectures de `user.name`/`user.email` utilisent `encoding="utf-8"` + `errors="replace"`.
 
 ### **14. Moteur d'Issues et TUI (`src/issue_engine.py`, `src/tui_issue.py`, `src/ui/issue_app.py`)**
 
@@ -194,7 +203,7 @@
 * **Publication Multi-Forge :** F3 crée l'issue sur la forge **configurée** (`GITPR_SCM_PROVIDER`) via `provider.create_issue` — Azure DevOps lève `ScmNotSupportedError`.
 * **Map-Reduce pour les Issues :** Le contexte au-dessus de ~90k tokens est découpé et unifié.
 * **Gestion du 401 :** Signalisation de réauthentification sans fermer l'application.
-* **🆕 `git remote -v` Décodé en Sécurité :** l'appel utilise `encoding="utf-8"` + `errors="replace"`, fermant le dernier chemin qui pouvait casser la lecture de la sortie de git.
+* **`git remote -v` Décodé en Sécurité :** l'appel utilise `encoding="utf-8"` + `errors="replace"`.
 
 ### **15. Archéologue de Code (`src/blame_engine.py`)**
 
@@ -213,6 +222,7 @@
 * **Offload de l'Event Loop :** Décorateur `_offload` (`anyio.to_thread.run_sync`) sur chaque outil — l'ordre des décorateurs compte (`@mcp.tool` **au-dessus** de `@_offload`).
 * **Échecs comme Erreurs Structurées :** les nouveaux outils retournent un échec **comme donnée** au lieu de lever.
 * **Métriques MCP :** `run_check` et `publish_pull_request` écrivent des lignes locales (`mcp:check`, `mcp:publish_pr`).
+* **Le serveur MCP n'est jamais bloqué par la barrière :** `--mcp`/`gitpr-mcp` figure sur la liste d'exemptions depuis la première version de la barrière.
 
 ### **17. Tableau de Bord de Métriques TUI (`src/ui/metrics_app.py`)**
 
@@ -224,7 +234,6 @@
 
 ### **18. Système de Métriques et Télémétrie (`src/metrics.py`)**
 
-* **Réécrit dans la fenêtre v0.0.17 — voir §36.** `src/metrics.py` opère sur des **lignes du ledger**.
 * **Périmètre par Dépôt :** tous les événements indexés par `repo_name`, résolu par `src/infrastructure/git/identity.py`.
 * **Événements de Hook, Linter et Blame :** `log_hook_event()`, `log_linter_metric()`, `log_blame_metric()`. `gitpr check` écrit `command="check"` avec `findings_total`/`findings_errors` et le code de sortie.
 * **Export et Nettoyage :** `gitpr metrics export` (CSV/JSON), `prune`, `purge` avec confirmation interactive, `bundle`/`merge` pour transporter et fusionner des fenêtres.
@@ -237,6 +246,7 @@
 * **Choix vs. État (`SCRIPTS_LANG` / `SCRIPTS_INSTALLED_LANG`) :** permet de **détecter un changement de langue**.
 * **`effective_hook_lang()` :** résout la langue effective ; `--lang` n'est plus ignoré sur ce chemin.
 * **Saut de la Source de Merge :** `prepare-commit-msg` saute les sources `message|merge|squash|commit`.
+* **Les hooks s'exécutent avec `--quiet` et `--hook`, donc ils ne sont jamais bloqués par la barrière de mise à jour.**
 
 ### **20. Pont de Linters Externes et Assistant Interactif (`src/linter_wizard.py`, `src/ui/linter_app.py`)**
 
@@ -260,7 +270,7 @@
 * **Helpers GitHub en Lecture Seule :** `get_commit_author_login` et `get_user_login`.
 * **Fail-Fast par Forge :** Azure exige `GITPR_SCM_ORGANIZATION`/`GITPR_SCM_PROJECT` ; Bitbucket exige `GITPR_SCM_USERNAME` ; `create_issue` sur Azure lève `ScmNotSupportedError`.
 * **Publication de Release :** `provider.create_release()` utilisé par `gitpr release --publish`.
-* **Publication de PR Partagée :** `src/application/use_cases/publish_pull_request.py`, utilisé par `--no-edit` et par l'outil MCP. Il valide le titre/le corps, exige `provider.token`, vérifie optionnellement l'existence d'un PR et d'une branche non poussée, masque les messages d'erreur et retourne `PublishPrOutcome`.
+* **Publication de PR Partagée :** `src/application/use_cases/publish_pull_request.py`, utilisé par `--no-edit` et par l'outil MCP. Il valide le titre/le corps, **exige `provider.token` uniquement quand `check_remote_state=True`** 🆕, vérifie optionnellement l'existence d'un PR et d'une branche non poussée, masque les messages d'erreur et retourne `PublishPrOutcome`. Les champs `url`/`number` du résultat sont lus avec un `getattr` défensif 🆕.
 * **Artefacts :** Glossaire + ADR-001/ADR-005 ; la famille `docs/scm-multiforge.*.md` en 5 langues ; 9 fichiers de test, **307 scénarios**.
 
 ### **22. Sous-commande `gitpr release` — Changelog / Release Notes (`src/release_engine.py`)**
@@ -274,7 +284,8 @@
 * **La Frontière de Section était un Bug Latent :** `upsert_changelog(force=True)` remplace de la ligne `## [x.y.z]` jusqu'au prochain en-tête de **niveau 2**.
 * **Classifier (`src/commit_classifier.py`)** et **Builder avec Sections Traduisibles (`src/changelog_builder.py`)**.
 * **Bump Sémantique (`src/version_bump.py`)** et **Publication** (`--publish`, `--draft`, `--format markdown|json`, `--force`). **6 options sur la sous-commande.**
-* **🆕 État de la release :** la section `[1.4.1]` est commitée depuis `fafe24b` et la `[1.4.2]` depuis `4d980e2` ; les tags `v1.4.1` et `v1.4.2` existent et PyPI sert la **1.4.2**. **La dette du rapport précédent est close.**
+* **🆕 État de la release :** la section `## [1.4.3] - 2026-10-27` a été générée et se trouve **dans la working tree**, pas encore commitée. Les tags `v1.4.1` et `v1.4.2` existent ; **il n'existe pas de `v1.4.3`** et PyPI sert la **1.4.2**.
+* **🆕 La sous-commande passe désormais par la barrière de mise à jour** lorsqu'elle est lancée dans un terminal interactif.
 * **Artefacts :** `docs/release-notes.*.md` en 5 langues, ADR et `tests/test_web_links.py`.
 
 ### **23. Sous-commande `gitpr config` — TUI de Configuration**
@@ -291,7 +302,7 @@
 * **Téléchargements Forcés :** boutons qui forcent le re-téléchargement des smart-excludes, des traductions, des presets et des thinking words via `force=`.
 * **Module de Liens Léger (`src/doc_links.py`) :** `doc_url()` a quitté `core.py` pour que l'UI puisse obtenir le lien sans importer les SDK d'IA.
 * **Tests :** 5 fichiers — `test_config_app.py` (78), `test_config_schema.py` (42), `test_config_validation.py` (40), `test_config_store.py` (22), `test_config_cli.py` (9).
-* **Dette connue :** `gitpr -h config` ouvre la TUI et ignore `-h` — la barrière `if ctx.invoked_subcommand is not None: return` (main.py:678) s'exécute avant le bloc `help_flag`.
+* **Dette connue :** `gitpr -h config` ouvre la TUI et ignore `-h` — la barrière `if ctx.invoked_subcommand is not None: return` (main.py) s'exécute avant le bloc `help_flag`. 🆕 La barrière de mise à jour vit désormais aussi à cet endroit, mais avec `not help_flag` et le balayage de l'`argv` brut comme garde.
 
 ### **24. Journal Général d'Utilisation (`src/usage_log.py`)**
 
@@ -351,7 +362,7 @@
 * **Commande `gitpr badge` :** `--readme` et `--style`. **Elle imprime seulement** — le README n'est jamais modifié.
 * **Configuration :** `GITPR_BADGE` (défaut `true`) — opt-out **en lecture seule**.
 * **Tests :** 7 fichiers dans `tests/badge/` (**83 scénarios**).
-* ⚠️ **Les 7 échecs de `tests/badge/test_badge_paths.py` restent ouverts :** le faux fournisseur du test (`SimpleNamespace(name=..., create_pull_request=...)`) ne déclare pas `token`, donc `publish_pull_request_use_case` retourne `auth_required` et `create_pull_request` ne s'exécute jamais — `captured["request"]` lève `KeyError`. **Rien n'a été corrigé dans cette fenêtre.** Le comportement du produit est correct (le vrai fournisseur porte toujours le jeton) ; c'est la fixture qui doit déclarer `token="ghp_fake"`.
+* **✅ Les 7 échecs de `tests/badge/test_badge_paths.py` ont été clos dans cette fenêtre :** le cas d'usage partagé n'exige désormais `token` **que** lorsque `check_remote_state=True` — le contrat documenté — et lit `url`/`number` avec `getattr`. La fixture a gagné `token="ghp_fake"` et `number=1`, et le test asynchrone Textual a gagné `await pilot.exit(None)`. **Les 10 scénarios passent.**
 * **Artefacts :** `docs/badge.*.md` en 5 langues et le survey dédié.
 
 ### **30. Sous-commande `gitpr split` — Commits Atomiques par Hunk (`src/split/`)**
@@ -391,20 +402,20 @@
 * **Couche de Domaine :** `TestFramework` (enum) et les dataclasses `TestGenerationTarget`, `TestScaffold`, `GeneratedTest` ; `detect_test_framework()` détecte depuis les fichiers de configuration, les manifests et le contenu des répertoires de test ; `build_test_scaffold()` calcule le chemin de destination conventionnel par framework.
 * **Couche d'Application (`generate_test_file.py`) :** orchestre la détection, la résolution du scaffold, le prompt, l'IA, le parsing JSON et l'écriture optionnelle. `validate_test_syntax()` exécute la toolchain locale (`php -l`, `node --check`, `python -m py_compile`) — un échec de validation est un **avertissement**, pas une erreur.
 * **Présentation :** groupe `tests` avec `generate` (`--file`, `--finding`, `--framework`, `--apply`, `--provider`) ; le dry run est le défaut et l'écrasement d'un test existant demande confirmation avec **No** présélectionné.
-* **🆕 Documenté en 5 langues :** `docs/tests-generate.*.md` (5 fichiers), avec un lien dans `gitpr tests generate` (epilog) et dans le README. **La dette du rapport précédent est close.**
-* **🆕 Deux Défauts Corrigés :** le cas d'usage accepte désormais le **dict** déjà parsé du fournisseur (avec un fallback vers la chaîne JSON brute, préservant les anciennes réponses du cache) ; et `--finding` ne lit plus `cand.finding.suggested_test`/`cand.diff` — des attributs inexistants — et utilise `cand.suggested_test`/`cand.diff_unified`.
+* **Documenté en 5 langues :** `docs/tests-generate.*.md` (5 fichiers), avec un lien dans `gitpr tests generate` (epilog) et dans le README.
+* **Deux Défauts Corrigés (fenêtre v0.0.19) :** le cas d'usage accepte le **dict** déjà parsé du fournisseur, et `--finding` utilise `cand.suggested_test`/`cand.diff_unified`.
 * **Skill :** `.gitpr.tests.md` dans `SKILL_LABELS`, `mcp_server.SKILL_FILES` et `SKILL_FILES_BY_TYPE`.
 
 ### **34. Sous-commande `gitpr explain` et le Flag `--explain` — Guide du Reviewer (`src/domain/pr/`)**
 
 * **Ce Que C'est :** un guide centré sur celui qui va **réviser** — ce qui change, pourquoi ça change, où se concentrer et quel est le risque de régression.
 * **Couche de Domaine (`explain_section_builder.py`) :** `PrExplanation` / `ReviewerFocusPoint`, le renderer `build_explain_markdown()` et `parse_explain_payload()`, qui tolère une sortie non-JSON et **détecte les placeholders** `[FILL]`/`[TODO]`.
-* **🆕 `parse_explain_payload()` Accepte `dict | str | None` :** le fournisseur livre le JSON **déjà parsé** ; la fonction appelait `json.loads()` sur un dict (`TypeError`) puis `.strip()` (`AttributeError`). Elle accepte désormais les trois formes et normalise les champs `None`.
-* **🆕 Branche de Clé Manquante :** `generate_pr_explanation` imprime désormais l'erreur standard de clé manquante et sort avec **1**, au lieu de lever une exception.
+* **`parse_explain_payload()` Accepte `dict | str | None` :** le fournisseur livre le JSON **déjà parsé** ; la fonction accepte les trois formes et normalise les champs `None`.
+* **Branche de Clé Manquante :** `generate_pr_explanation` imprime l'erreur standard de clé manquante et sort avec **1**.
 * **Couche d'Application (`generate_pr_explanation.py`) :** résolution du fournisseur, validation de la clé, chargement du contexte de skill (`explain`), prompt, invocation et parsing.
 * **Deux Points d'Entrée :** `gitpr explain` (`--provider`, détection de diff manquant avant toute IA) et le flag `--explain` de la CLI racine. L'extension expose le même chemin dans `GitPR: Generate PR Draft (with Reviewer Guide)`.
-* **🆕 `-h --explain` Corrigé :** l'option utilisait le dest `explain_flag`, mais le `HELP_MAP` cherchait `explain` — l'aide contextuelle rend à nouveau.
-* **🆕 Documenté en 5 langues :** `docs/explain-pr.*.md` (5 fichiers), avec un lien dans `HELP_MAP["explain"]`, dans l'epilog de la commande et dans le README. **La dette du rapport précédent est close.**
+* **`-h --explain` Corrigé :** l'option utilisait le dest `explain_flag`, mais le `HELP_MAP` cherchait `explain` — l'aide contextuelle rend à nouveau.
+* **Documenté en 5 langues :** `docs/explain-pr.*.md` (5 fichiers), avec un lien dans `HELP_MAP["explain"]`, dans l'epilog de la commande et dans le README.
 * **Configuration :** `GITPR_EXPLAIN_BY_DEFAULT` (défaut `false`).
 
 ### **35. Suite Déterministe et CI (`.github/workflows/tests.yml`)**
@@ -414,7 +425,7 @@
 * **L'Ordre Compte :** `src.updater` est importé **avant** que les variables de langue soient définies.
 * **Stabilité des Tests de Worker :** `test_config_app.py` et `test_metrics.py` attendent `workers.wait_for_complete()` avant d'asserter.
 * **Dépendance du Workflow :** le runner propre n'a pas de `~/.gitpr`, et `test_demo_isolation.py` affirme que le profil existe — le job crée le répertoire et le `.env` vide explicitement.
-* **🆕 Dans cette fenêtre la suite a grossi de 12 scénarios et les échecs n'ont pas changé :** `tests/test_diff_failure_cli.py` (3) et `tests/test_full_diff_encoding.py` (1) sont entrés, plus 8 régressions réparties dans cinq fichiers existants. Les **12 échecs** sont exactement les mêmes.
+* **🆕 Dans cette fenêtre la suite a grossi de 32 scénarios et perdu 7 échecs :** `tests/test_updater.py` est passé de **23 à 55** scénarios (TTL, bords, cache hérité, JSON corrompu, `force`, échec d'écriture, timeouts, comparateur PEP 440, pré-release, interrupteur strict et barrière des sous-commandes) et les 10 scénarios de `tests/badge/test_badge_paths.py` sont passés au vert. **Aucun module nouveau** — le total reste à 140 fichiers.
 * **Workflow de l'Extension :** `.github/workflows/extension.yml` exécute `npm install`, build, test et package le VSIX ; sur les tags `ext-v*`, publie vers le VS Code Marketplace et Open VSX, en sautant chaque étape quand `VSCE_PAT`/`OVSX_PAT` est vide.
 
 ### **36. Ledger de Télémétrie SQLite (`src/ledger.py`, `src/infrastructure/git/identity.py`)**
@@ -540,11 +551,11 @@
 | `tests/test_config_suggest_reviewers.py` | 8 | Configuration des reviewers suggérés (clés et défauts) |
 | `tests/test_config_validation.py` | 40 | Types, enums, templates, `validate_ai_key()` avec SDK mocké (401 vs. réseau vs. ollama) |
 | `tests/test_core.py` | 49 | Flux principaux, git diff, génération de PR, timing, staging, co-paternité, langue des hooks |
-| `tests/test_diff_failure_cli.py` | 3 🆕 | Code de sortie 1 sur échec de git, 0 sur diff vide, fail-open en `--hook` |
+| `tests/test_diff_failure_cli.py` | 3 | Code de sortie 1 sur échec de git, 0 sur diff vide, fail-open en `--hook` |
 | `tests/test_diff_parser.py` | 26 | Parser de diff par lignes/hunks + `summarize_patch()` et `split_patch_sections()` |
-| `tests/test_explain_command.py` | 4 ⬆️ | CLI `explain` : succès, clé manquante, diff vide, aide contextuelle |
+| `tests/test_explain_command.py` | 4 | CLI `explain` : succès, clé manquante, diff vide, aide contextuelle |
 | `tests/test_external_linters.py` | 33 | Pont Checkstyle : parser XML, subprocess, intersection de diff, rapport |
-| `tests/test_full_diff_encoding.py` | 1 🆕 | Dépôt réel avec un fichier Latin-1 : l'octet `0xFA` devient `U+FFFD` et le fichier apparaît dans le diff |
+| `tests/test_full_diff_encoding.py` | 1 | Dépôt réel avec un fichier Latin-1 : l'octet `0xFA` devient `U+FFFD` et le fichier apparaît dans le diff |
 | `tests/test_i18n.py` | 20 | Parité entre langues, clés manquantes/orphelines, identité — **3 échecs** ❌ |
 | `tests/test_install_wizard.py` | 3 | Assistant d'installation interactif |
 | `tests/test_issue_engine.py` | 4 | Brouillon d'issue structuré |
@@ -573,9 +584,9 @@
 | `tests/test_skill_templates.py` | 99 | Scan paramétré de **chaque template publié** contre les références embarquées |
 | `tests/test_smart_excludes.py` | 15 | Filtre pathspec intelligent et re-téléchargement forcé |
 | `tests/test_suggest_reviewers.py` | 17 | Reviewers suggérés dans le flux de PR (intégration, hint `no_login`) |
-| `tests/test_tests_command.py` | 4 ⬆️ | Groupe `tests` et CLI `generate`, `--finding` et epilog avec lien |
+| `tests/test_tests_command.py` | 4 | Groupe `tests` et CLI `generate`, `--finding` et epilog avec lien |
 | `tests/test_thinking_words.py` | 5 | Chargement, parsing avec séparateur `;` et rechargement forcé |
-| `tests/test_updater.py` | 23 | Barrière PyPI : parsing de version, cache quotidien, fetch, décisions de barrière, câblage CLI |
+| `tests/test_updater.py` | 55 ⬆️ | **Barrière PyPI** : TTL glissant, cache hérité/corrompu, écriture atomique, `force`, `bounded_urlopen`, comparateur PEP 440, pré-release, interrupteur strict et barrière des sous-commandes |
 | `tests/test_usage_log.py` | 27 | Journal d'usage : nom dérivé de la date, écriture synchrone, silence, `_repo_label()` multi-forge |
 | `tests/test_version_bump.py` | 17 | Bump sémantique : major/minor/patch, cibles et validation |
 | `tests/test_web_links.py` | 26 | Normalisation de remote (https/ssh/scp/credentials/port) et motifs d'URL par forge |
@@ -585,8 +596,8 @@
 | `tests/application/use_cases/test_calculate_risk.py` | 5 | Corrélation diff/constats/tests/historique, dégradation |
 | `tests/application/use_cases/test_create_baseline.py` | 30 | Création/mise à jour avec provenance et préservation des décisions |
 | `tests/application/use_cases/test_generate_mentor_explanation.py` | 5 | Lots, sévérité, cache hit, clé manquante |
-| `tests/application/use_cases/test_generate_pr_explanation.py` | 3 ⬆️ | Cas d'usage explain : dict du fournisseur et clé manquante |
-| `tests/application/use_cases/test_generate_test_file.py` | 5 ⬆️ | Cas d'usage de génération de tests : dict du fournisseur et chaîne brute |
+| `tests/application/use_cases/test_generate_pr_explanation.py` | 3 | Cas d'usage explain : dict du fournisseur et clé manquante |
+| `tests/application/use_cases/test_generate_test_file.py` | 5 | Cas d'usage de génération de tests : dict du fournisseur et chaîne brute |
 | `tests/application/use_cases/test_install_policy_pack.py` | 10 | Installation de pack, origines et conflits |
 | `tests/application/use_cases/test_run_check.py` | 8 | Orchestration du check : ordre, dégradation, codes de sortie |
 | `tests/application/use_cases/test_suppress_finding.py` | 29 | Suppression/retrait dans les quatre portées |
@@ -597,7 +608,7 @@
 | `tests/badge/test_badge_data.py` | 7 | Comptage des alertes ; `None` sans règles configurées |
 | `tests/badge/test_badge_offline.py` | 6 | Garde hors ligne (réseau interdit, sauf loopback) |
 | `tests/badge/test_badge_optout.py` | 17 | `GITPR_BADGE=false` sur chaque chemin de publication |
-| `tests/badge/test_badge_paths.py` | 10 | Point d'injection unique dans les deux publishers — **7 échecs** ❌ |
+| `tests/badge/test_badge_paths.py` | 10 ✅ | Point d'injection unique dans les deux publishers — **les 7 échecs ont été clos** |
 | `tests/demo/test_demo_app.py` | 22 | TUI de la visite : navigation, écrans, modal d'aide |
 | `tests/demo/test_demo_isolation.py` | 14 | La visite ne touche ni `~/.gitpr` ni le réseau |
 | `tests/demo/test_demo_runner.py` | 33 | Machine d'état `DemoState` : avancer, reculer, terminé, mode texte |
@@ -620,7 +631,7 @@
 | `tests/domain/policy/test_policy_compatibility.py` | 22 | Compatibilité de version et de credentials |
 | `tests/domain/policy/test_policy_manifest.py` | 42 | Schéma fermé, bloc `baseline:`, erreurs de manifest |
 | `tests/domain/policy/test_policy_resolver.py` | 47 | Précédence, composition en couches, pack actif × base |
-| `tests/domain/pr/test_explain_section_builder.py` | 6 ⬆️ | Rendu Markdown, parsing tolérant, `[FILL]`, payload dict et `None` |
+| `tests/domain/pr/test_explain_section_builder.py` | 6 | Rendu Markdown, parsing tolérant, `[FILL]`, payload dict et `None` |
 | `tests/domain/risk/test_risk_calculator.py` | 5 | Formule 50/30/20, clamp 0–100, élévation obligatoire |
 | `tests/domain/risk/test_risk_rules.py` | 5 | Poids, seuils, glob de chemin critique, YAML d'override |
 | `tests/domain/tests_generation/test_framework_detector.py` | 11 | Détection par config, manifest et répertoire ; override ; échec averti |
@@ -668,44 +679,47 @@
 | `tests/split/test_split_cli.py` | 31 | CLI split : options, dry run par défaut, `--apply` |
 | `tests/sync_i18n.py` | — | Script de vérification de couverture i18n (échafaudage ; jamais exécuté) |
 
-**Total :** **2964 scénarios collectés dans 140 modules de test** (53 à la racine + 12 dans `tests/application/use_cases/` + 10 dans `tests/fix/` + 9 dans `tests/scm/` + 7 dans `tests/badge/` + 6 dans `tests/demo/` + 6 dans `tests/split/` + 5 dans `tests/domain/baseline/` + 4 dans `tests/domain/policy/` + 4 dans `tests/review/` + 4 dans `tests/infrastructure/linter/external/` + 3 dans `tests/domain/check/` + 3 dans `tests/infrastructure/ci/` + 2 dans `tests/domain/risk/` + 2 dans `tests/domain/tests_generation/` + 2 dans `tests/integration/` + 2 dans `tests/infrastructure/git/` + 2 dans `tests/domain/linter/` + 1 dans `tests/domain/finding/` + 1 dans `tests/domain/mentor/` + 1 dans `tests/domain/pr/` + 1 dans `tests/infrastructure/baseline/` ; **+12 scénarios et +2 fichiers** depuis le rapport précédent).
+**Total :** **2996 scénarios collectés dans 140 modules de test** (53 à la racine + 12 dans `tests/application/use_cases/` + 10 dans `tests/fix/` + 9 dans `tests/scm/` + 7 dans `tests/badge/` + 6 dans `tests/demo/` + 6 dans `tests/split/` + 5 dans `tests/domain/baseline/` + 4 dans `tests/domain/policy/` + 4 dans `tests/review/` + 4 dans `tests/infrastructure/linter/external/` + 3 dans `tests/domain/check/` + 3 dans `tests/infrastructure/ci/` + 2 dans `tests/domain/risk/` + 2 dans `tests/domain/tests_generation/` + 2 dans `tests/integration/` + 2 dans `tests/infrastructure/git/` + 2 dans `tests/domain/linter/` + 1 dans `tests/domain/finding/` + 1 dans `tests/domain/mentor/` + 1 dans `tests/domain/pr/` + 1 dans `tests/infrastructure/baseline/` ; **+32 scénarios, +0 fichier** depuis le rapport précédent).
 
 **Notes de qualité pour cette version :**
-- **Exécution complète sur cette machine : `12 failed, 2950 passed, 2 skipped, 138 subtests passed in 401.46s (6min41s)`.** Le nombre de scénarios a crû de **12** (+0,4 %) et le nombre d'échecs **n'a pas changé** : ce sont exactement les mêmes 12 que dans le rapport précédent. La suite est aussi devenue **plus rapide** (401 s contre 723 s), probablement parce que `git fetch` est sorti du mode bytes et que les appels à git cessent d'exploser sur les fixtures au contenu hérité.
-- **Les 7 échecs de `tests/badge/test_badge_paths.py` restent non corrigés.** Le faux fournisseur du test (`SimpleNamespace(name=..., create_pull_request=...)`) n'a pas de `.token` ; `publish_pull_request_use_case` retourne `auth_required` (401) et `create_pull_request` ne s'exécute jamais — `captured["request"]` lève `KeyError`. **Le produit est correct** (le vrai fournisseur porte le jeton) ; **c'est la fixture qui doit déclarer `token="ghp_fake"`**.
-- **Les 3 échecs i18n sont de la vraie dette de traduction et n'ont pas été touchés dans cette fenêtre :** `test_key_parity_and_count` (es/fr à 1618), `test_no_missing_keys` (8 clés utilisées dans le code sans dictionnaire) et `test_no_orphan_keys` (2 anciennes clés). Les dictionnaires restent aux mêmes 1620/1618 que dans le rapport précédent.
-- **Les 2 échecs de `tests/test_mentor_cli.py` sont toujours le même bug d'isolation :** `@patch("src.core.get_git_diff")` n'atteint pas la liaison importée par valeur dans `src/main.py`. Sur un arbre dont le seul changement est un `.md` (filtré par `:(exclude)*.md` dans les smart excludes), le vrai diff revient vide, le flux retourne avant le renderer et l'assertion échoue. **Avec le patch sur `src.main.get_git_diff`, les deux scénarios passent.** C'est un correctif de deux lignes, toujours en attente.
-- **Du côté positif, les 12 nouveaux scénarios couvrent exactement ce qui a changé :** 3 dans `test_diff_failure_cli.py` (contrat du code de sortie), 1 dans `test_full_diff_encoding.py` (dépôt réel avec Latin-1), 2 dans `test_explain_command.py`, 2 dans `test_tests_command.py`, 2 dans `test_explain_section_builder.py`, 1 dans `test_generate_pr_explanation.py` et 1 dans `test_generate_test_file.py`. La CI tourne sur Python 3.10 et 3.13 avec `fail-fast: false`.
+- **Exécution complète sur cette machine :** **5 failed, 2989 passed, 2 skipped, 138 subtests passed in 461.76 s (7m41s)** — les 5 échecs sont exactement les dettes héritées : 3 i18n et 2 mentor. **12 échecs → 5.**
+- **Les 7 échecs de `tests/badge/test_badge_paths.py` ont été résolus.** `publish_pull_request_use_case` n'exige désormais `token` **que** dans le bloc `check_remote_state` — c'était le contrat documenté, et la vérification inconditionnelle transformait une fixture sans jeton en `auth_required` (401), qui empêchait `create_pull_request` de s'exécuter. `pr_url`/`pr_number` utilisent maintenant `getattr` avec un défaut, la fixture a gagné `token="ghp_fake"` et `number=1`, et le test Textual a gagné `await pilot.exit(None)`. **Les 10 scénarios passent en ~6 s.**
+- **Les 3 échecs i18n sont toujours de la vraie dette de traduction et n'ont pas été touchés dans cette fenêtre :** `test_key_parity_and_count` (es/fr à 1618), `test_no_missing_keys` (8 clés utilisées dans le code sans dictionnaire) et `test_no_orphan_keys` (2 anciennes clés). Les dictionnaires restent aux mêmes 1620/1618 que dans le rapport précédent.
+- **Les 2 échecs de `tests/test_mentor_cli.py` sont toujours le même bug d'isolation :** `@patch("src.core.get_git_diff")` n'atteint pas la liaison importée par valeur dans `src/main.py`. Sur un arbre dont le seul changement est un `.md` (filtré par `:(exclude)*.md` dans les smart excludes), le vrai diff revient vide, le flux retourne avant le renderer et l'assertion échoue. **Avec le patch sur `src.main.get_git_diff`, les deux scénarios passent.** C'est toujours un correctif de deux lignes.
+- **Du côté positif, les 32 nouveaux scénarios couvrent exactement ce qui a changé :** `tests/test_updater.py` est passé de 23 à **55** scénarios — TTL frais/bord/expiré, horodatage futur ou timezone-aware, cache hérité `date`, JSON corrompu, `force`, échec d'écriture, absence de `.tmp`, timeouts et user-agent, comparateur PEP 440, pré-release distante, interrupteur strict et barrière des sous-commandes (blocage sur un TTY, exemption sans TTY, exemption avec `-h`).
+- **La suite dépend de l'état de l'arbre pour les tests de mentor :** avec seuls des fichiers `.md` modifiés, les deux scénarios échouent ; avec un `.py` quelconque modifié, ils passent. Cela explique la différence entre l'exécution consignée dans le rapport de la tâche (4 échecs) et celle de cette fenêtre.
 - **`tests/conftest.py` reste hermétique :** `GITPR_SHOW_LOGS=false`, `GITPR_SKIP_UPDATE_CHECK=true`, `GITPR_LANG=en_us`, `GITPR_LINTER_SECURITY=false` et `LANG_VERSION` sur la version du code.
 - **Garde réseau à deux endroits :** `tests/demo/conftest.py` et `tests/integration/conftest.py`.
-- **Fixtures git réelles :** `tests/fix/git_fixture.py`, `tests/split/git_fixture.py` et, désormais, `tests/test_full_diff_encoding.py` — qui crée un origin bare temporaire et commite un vrai fichier Latin-1.
+- **Fixtures git réelles :** `tests/fix/git_fixture.py`, `tests/split/git_fixture.py` et `tests/test_full_diff_encoding.py`.
 - **La suite de l'extension est séparée :** 7 scénarios Mocha dans `extensions/vscode/src/test/mcp_client.test.ts`, dont 1 s'intègre vraiment au serveur MCP Python via stdio ; elle ne compte pas dans pytest.
+- **La CI tourne sur Python 3.10 et 3.13** avec `fail-fast: false`.
 
 ---
 
 ## **🌐 Internationalisation et Documentation**
 
 * **Couverture i18n — dette inchangée :** **1620 clés** dans `pt_br.json`, `pt_pt.json`, `es_es.json` et `fr_fr.json`, mais **1618** dans `es.json` et `fr.json`. Le code utilise **1626** clés : **8 non traduites** (les messages de `publish_pull_request` et les descriptions des outils MCP `run_check`/`publish_pull_request`) et **2 orphelines** (`Cannot publish a Pull Request from a detached HEAD or empty branch.` et `Current branch has not been pushed to the remote…`). Aucune nouvelle clé n'a été ajoutée dans cette fenêtre — et aucune dette n'a été payée. ❌
-* **`__lang_version__` reste à v0.0.35** (aucun bump dans cette fenêtre).
+* **`__lang_version__` reste à v0.0.35** (aucun bump dans cette fenêtre) — la barrière de mise à jour n'a introduit **aucune** nouvelle chaîne d'interface : les messages existants continuent d'être réutilisés.
 * **Sources de traduction en phase :** une nouvelle clé doit exister dans le code (source), dans `langs/pt_br.json` (**liste maîtresse**), dans les dicts FR/ES de `scripts/sync_all_langs.py` et dans les valeurs curatées de `scripts/fix_mangled_i18n_keys.py` ; l'assertion `len(CLEAN_KEYS)` reste à 49.
-* **🆕 Nouveaux topics (2, tous deux en 5 langues) :**
-  - `docs/explain-pr.md` — le Guide du Reviewer : ce qui a changé, pourquoi, où concentrer l'attention et le risque de régression, avec la section `⚡ Risk Assessment` et la détection de placeholders.
-  - `docs/tests-generate.md` — génération de suites par IA : détection de framework (Pest, PHPUnit, Jest, Vitest, Pytest), le scaffold conventionnel, la validation syntaxique et le dry run.
-* **Topics mis à jour dans cette fenêtre :** `README.*` (5) — les liens de documentation ont quitté GitHub et pointent désormais vers `gitpr.natanfiuza.dev.br/docs/*`, avec `?lang=` par langue (**342 destinations** ; **217 URLs uniques** vérifiées, **0 échec**).
-* **Documentation en 5 langues :** **50 topics canoniques** dans `docs/` (+2) — **47 avec couverture complète dans les 5 langues** et seulement **3 topics partiels** (`github-issue-prompt-com-gh`, `version-markers`, `review-pr`), les mêmes 3 qu'avant.
-* **🆕 La lacune de documentation est close :** `explain` et `tests` étaient les **dernières** fonctionnalités sans topic dans `docs/`. Désormais **aucune fonctionnalité n'est sans documentation**.
+* **Nouveaux topics :** **aucun** dans cette fenêtre — la lacune de documentation avait déjà été close en v0.0.19 et le reste.
+* **🆕 Topics mis à jour dans cette fenêtre :**
+  - `docs/auto-update.*` (**5 fichiers**) — une fenêtre de 1 heure au lieu de 24, `-u` ignorant le cache, le tableau des exemptions avec les deux nouvelles lignes (sous-commande sans terminal et sous-commande avec `-h`), la règle PEP 440 pour les pré-releases et le comportement hors ligne réécrit.
+  - `docs/tutorial/install-from-source.*` (**5 fichiers**) — un cache de 1 h dans le diagramme des versions, le parser strict de `GITPR_SKIP_UPDATE_CHECK` (avec l'exemple `=false` qui désormais **ne** désactive **pas** la vérification) et une note indiquant que la surface des flags reste bloquée sans TTY.
+  - `README.es_es.md` et `README.fr_fr.md` — les liens de documentation sont passés de `?lang=es_es`/`?lang=fr_fr` à `?lang=es`/`?lang=fr`, le format que le site sert réellement.
+* **`CONTEXT.md` (nouveau, à la racine) :** le glossaire du domaine de la barrière de mise à jour — **update gate**, **update check**, **release cache**, **freshness window** et **interactive run**, chacun avec les synonymes à éviter. Il vient de la session de grill qui a précédé le correctif.
+* **Documentation en 5 langues :** **50 topics canoniques** dans `docs/` (inchangé) — **47 avec couverture complète dans les 5 langues** et **3 topics partiels** (`github-issue-prompt-com-gh`, `version-markers`, `review-pr`), les mêmes 3 qu'avant.
 * **Skills locaux de Claude Code :** `.claude/skills/` avec **29 skills** (compte inchangé).
 * **Index de Mémoire :** `.claude/memory/MEMORY.md` avec **40 patterns** (compte inchangé).
-* **Rapports de tâche :** `docs/claude-code/reports/develop_natan/` (**112** au total ; **+4** — `2026-10-18_docs_explain_tests.md`, `2026-10-18_status_report_v0_0_18.md`, `2026-10-27_git_diff_non_utf8.md`, `2026-10-27_readme_docs_site_links.md`) et `docs/gemini/reports/develop_natan/` (**16** ; inchangé).
-* **Rapports de statut :** `docs/reports/` — c'est le **19e rapport** (v0.0.19) ; v0.0.18 n'est jamais écrasé.
-* **Plans de développement :** 146 fichiers dans `docs/plans/` (**+3** — `20261018_docs_explain_tests_plansfacts.md`, `20261027_git_diff_non_utf8_plansfacts.md`, `20261027_readme_docs_site_links_plansfacts.md`) + **20 fichiers dans `docs/survey/`** (+3).
+* **Rapports de tâche :** `docs/claude-code/reports/develop_natan/` (**114** au total ; **+2** — `2026-10-27_update_check_stale_cache.md` et ce rapport de statut lui-même) et `docs/gemini/reports/develop_natan/` (**17** ; **+1** — `2026-10-27_fix_badge_paths_tests.md`).
+* **Rapports de statut :** `docs/reports/` — c'est le **20e rapport** (v0.0.20) ; v0.0.19 n'est jamais écrasé.
+* **Plans de développement :** 148 fichiers dans `docs/plans/` (**+2** — `20261027_update_check_stale_cache_plansfacts.md` et `docs/gemini/plans/.../2026-10-27_develop_natan_fix_badge_paths_tests.md`) + **21 fichiers dans `docs/survey/`** (+1 — `20261027_update_check_stale_cache_surveyfacts.md`).
 
 ---
 
 ## **🔄 Pipeline de Distribution**
 
 1. **PyPI (canal unique) :** `python -m build` → `twine upload dist/*` → `pip install gitpr-cli`
-2. **Mise à jour obligatoire :** l'exécution vérifie PyPI au démarrage et **bloque avec le code de sortie 1** s'il existe une version plus récente, en imprimant `pip install --upgrade gitpr-cli` ; la vérification est cachée par jour et `--update` ne fait que rapporter
+2. **🆕 Mise à jour obligatoire avec fenêtre glissante :** l'exécution vérifie PyPI au démarrage et **bloque avec le code de sortie 1** s'il existe une version plus récente, en imprimant `pip install --upgrade gitpr-cli`. La réponse est cachée pendant **1 heure** (plus jusqu'à minuit) et `--update` interroge **toujours** le réseau. La comparaison est PEP 440 : une pré-release distante ne bloque pas une installation stable, et une version illisible compte comme inconnue. **La barrière couvre désormais les sous-commandes** quand il y a un TTY ; CI, pipes, hooks, MCP et `-h` restent exemptés.
 3. **GitHub Releases :** supprimé — pas de PyInstaller, pas d'asset `.exe`, pas de hot-swap
 4. **GitHub Actions :** workflow `pr-review.yml` + `action.yml` (installe via pip) + `tests.yml` (matrice Python 3.10 et 3.13) + `extension.yml` (VSIX ; publication vers Marketplace/Open VSX sur `ext-v*`). `action.yml` appelle une seule étape `gitpr check` — **rupture déclarée** pour ceux qui utilisent `--linter` + `--fullreview`.
 5. **Serveur MCP :** point d'entrée `gitpr-mcp` via `pyproject.toml`
@@ -713,83 +727,84 @@
 7. **Templates et langues OTA :** `templates/` et `langs/*.json` servis depuis GitHub (main) — `__lang_version__` **v0.0.35** renouvelle les copies locales dans `~/.gitpr/langs/` ; `__scripts_version__` **v0.0.4** renouvelle les hooks
 8. **Version dérivée du code :** `pyproject.toml` utilise `version = {attr = "src.updater.__version__"}` — `__version__` est la **seule** source
 9. **`package-data` compte :** les quatre packs embarqués (`src/policy_packs/*`) voyagent dans le wheel
-10. **🆕 État de la release :** **les deux** releases en attente ont été closes et publiées. **`v1.4.1`** (tag du 2026-10-18, merge du PR #218) et **`v1.4.2`** (tag du 2026-10-27, merge du PR #222) existent ; PyPI sert la **1.4.2**. `develop_natan` est un commit en avance sur le tag avec la migration des liens des README (intégrée dans `main` par le PR #223), qui entre dans la **prochaine** release. Le pipeline de release reste manuel.
+10. **🆕 État de la release :** `__version__` est à **1.4.3** et le commit est sur `main` (PR #228), mais la release **n'a pas été coupée** : il n'existe pas de tag `v1.4.3`, PyPI sert la **1.4.2** et la section `[1.4.3]` de `CHANGELOG.md` est **dans la working tree**. Le pipeline de release reste manuel.
 
 ---
 
-## **📈 Évolution depuis le Rapport Précédent (v0.0.18)**
+## **📈 Évolution depuis le Rapport Précédent (v0.0.19)**
 
-| Domaine | v0.0.18 (précédent) | v0.0.19 (actuel) |
+| Domaine | v0.0.19 (précédent) | v0.0.20 (actuel) |
 |------|-------------------|-----------------|
-| **Version de GitPR** | 1.4.1 (bump commité ; **tag pas encore créé**) | **1.4.2** — tag `v1.4.2` créé et **publié sur PyPI** ; le `v1.4.1` a aussi été taggé dans cette fenêtre |
+| **Version de GitPR** | 1.4.2 (publiée, tag `v1.4.2`) | **1.4.3** — mergée dans le PR #228, **pas encore publiée** (PyPI sert 1.4.2, pas de tag, changelog dans la working tree) |
 | **Version des Langues** | v0.0.35 | v0.0.35 (inchangé) |
 | **Version des Scripts de Hook** | v0.0.4 | v0.0.4 (inchangée) |
-| **Fournisseurs IA** | Gemini + DeepSeek + Ollama | Gemini + DeepSeek + Ollama (inchangés) |
-| **Langues** | 5 langues, 6 dictionnaires | 5 langues, 6 dictionnaires |
+| **Fournisseurs IA** | Gemini + DeepSeek + Ollama | Inchangé |
+| **Langues** | 5 langues, 6 dictionnaires | Inchangé |
 | **Sous-commandes** | 15 | 15 (inchangé) — 4 groupes (baseline 6, metrics 8, policy 7, tests 1) |
-| **Interface** | CLI + TUIs + wizards + 15 sous-commandes | Inchangé ; **README migrés vers le site de docs** |
-| **Couches** | 9 paquets de domaine, 15 cas d'usage | 9 et 15 (inchangé) |
-| **Infrastructure CI** | `src/infrastructure/ci/` — SARIF, JUnit, masking | Inchangé |
-| **Outils MCP** | 18 outils / 19 ressources / 7 prompts | 18 / 19 / 7 (inchangé) |
-| **Flags CLI** | 32 à la racine + 15 sous-commandes | 32 + 15 (inchangé) |
-| **Variables d'Environnement** | 58 dans `DEFAULT_CONFIG` + prix/devise + 9 `GITPR_CHECK_*` | Inchangé |
-| **Schéma de Config** | 80 `ConfigField` / 16 catégories | 80 / 16 (inchangé) |
-| **Robustesse Git 🆕** | Décodage UTF-8 strict dans 10 appels ; un échec de git devenait « diff vide » | **`errors="replace"` dans les 10 appels** et **code de sortie 1** quand git échoue (0 seulement pour un diff réellement vide ; `--hook` fail-open) |
+| **Couches** | 9 paquets de domaine, 15 cas d'usage | Inchangé |
+| **Outils MCP** | 18 outils / 19 ressources / 7 prompts | Inchangé |
+| **Flags CLI** | 32 à la racine + 15 sous-commandes | Inchangé |
+| **Variables d'Environnement** | 58 dans `DEFAULT_CONFIG` + prix/devise + 9 `GITPR_CHECK_*` | Inchangé — mais `GITPR_SKIP_UPDATE_CHECK` a changé de **sémantique** |
+| **Schéma de Config** | 80 `ConfigField` / 16 catégories | Inchangé |
+| **Barrière de Mise à Jour 🆕** | Cache quotidien par date locale ; sous-commandes sans barrière ; `=false` la désactivait ; comparaison par tuples | **TTL glissant de 1 h**, `-u` toujours en ligne, **PEP 440**, `bounded_urlopen` (3 s), sémantique booléenne stricte et barrière des sous-commandes seulement sur un TTY |
+| **Aide des Sous-commandes 🆕** | — | `_subcommand_help_in_argv()` lit l'`argv` brut parce que Click vide `ctx.args` avant le callback |
+| **Publication de PR 🆕** | Jeton exigé inconditionnellement ; `result.url`/`.number` accédés directement | Jeton exigé **uniquement** avec `check_remote_state=True` ; `getattr` défensif |
 | **Linter** | Regex + secrets + SAST + `findings_out` + sensible à la baseline | Inchangé |
 | **Git Hooks** | post-checkout/post-merge/pre-push dans le ledger | Inchangé |
 | **Couche SCM** | 4 forges, pagination, `web_links.py` | Inchangé |
-| **Moteur de release** | Section 1.4.1 générée (non commitée, sans tag) | **1.4.1 et 1.4.2 commitées, taggées et publiées** |
+| **Moteur de release** | 1.4.1 et 1.4.2 commitées, taggées et publiées | Section `[1.4.3]` générée **dans la working tree** ; sans tag et sans publication |
 | **i18n (clés par fichier)** | 1620 × 4 et 1618 × 2 — 8 non traduites et 2 orphelines | **Inchangé** ❌ |
-| **Documentation** | 48 topics (45 complets + 3 partiels) | **50 topics (47 complets + 3 partiels)** — `explain-pr` et `tests-generate` en 5 langues |
-| **Liens des README 🆕** | `github.com/.../blob/main/docs/*.md` | **`gitpr.natanfiuza.dev.br/docs/*` avec `?lang=`** — 342 destinations, 217 URLs vérifiées |
+| **Documentation** | 50 topics (47 complets + 3 partiels) | 50 topics (47 + 3) — **aucun topic nouveau** ; `auto-update` et `tutorial/install-from-source` mis à jour dans les 5 langues |
+| **Glossaire du Domaine 🆕** | — | `CONTEXT.md` à la racine avec 5 termes de la barrière de mise à jour |
 | **CI** | `tests.yml` (3.10 + 3.13) + `action.yml` + `extension.yml` | Inchangé |
-| **Suite de Tests** | 2952 scénarios (138 fichiers) | **2964 scénarios (140 fichiers) — +12 scénarios, +2 fichiers** |
-| **Échecs Connus** | 12 | **12 — exactement les mêmes** (7 badge + 3 i18n + 2 mentor) |
-| **Dépendances** | Aucune nouvelle dépendance Python | Inchangé |
-| **Commits depuis le rapport** | 6 commits | **4 commits** (`fafe24b`, `f52cdad`, `4d980e2`, `5ee6025`) |
-| **PRs Mergés** | 6 PRs (#208, #210, #212, #214, #216, #217) | **4 PRs (#218, #220, #222, #223)** ; 1 issue fermée (#221) |
+| **Suite de Tests** | 2964 scénarios (140 fichiers) | **2996 scénarios (140 fichiers) — +32 scénarios, +0 fichier** |
+| **Échecs Connus** | 12 (7 badge + 3 i18n + 2 mentor) | **5** (3 i18n + 2 mentor) — **les 7 du badge ont été clos** |
+| **Dépendances** | Aucune nouvelle dépendance Python | Aucune nouvelle — `packaging` était déjà une dépendance (policy packs) |
+| **Commits depuis le rapport** | 4 commits | **2 commits** (`68df9ae`, `145cbac`) |
+| **PRs Mergés** | 4 PRs (#218, #220, #222, #223) ; 1 issue (#221) | **3 PRs (#224, #226, #228)** ; 2 issues fermées (#225, #227) |
 | **Index de Mémoire** | 40 patterns | 40 patterns (inchangé) |
-| **Rapports de tâche** | 108 claude-code, 16 gemini | **112 claude-code (+4) et 16 gemini** |
-| **Plans de développement** | 144 plans, 17 surveys | **146 plans (+3), 20 surveys (+3)** |
+| **Rapports de tâche** | 112 claude-code, 16 gemini | **114 claude-code (+2) et 17 gemini (+1)** |
+| **Plans de développement** | 146 plans, 20 surveys | **148 plans (+2), 21 surveys (+1)** |
 
 ---
 
 ## **🚧 Prochaines Étapes**
 
-* **Corriger les 7 échecs de `tests/badge/test_badge_paths.py` :** le faux fournisseur du test n'a pas de `.token`, et le cas d'usage partagé exige l'attribut. Ajouter `token="ghp_fake"` au `SimpleNamespace` (ou permettre de sauter la vérification quand `check_remote_state=False`) restaure les 7 scénarios. **Élément hérité, toujours ouvert — troisième fenêtre consécutive.**
+* **Publier la 1.4.3 sur PyPI :** `__version__` est déjà à 1.4.3 et le commit est sur `main` (PR #228), mais il manque encore : **commiter la section `[1.4.3]` de `CHANGELOG.md`** (elle est dans la working tree), créer le tag `v1.4.3` et téléverser le paquet. D'ici là, les installations en 1.4.1/1.4.2 **ne voient pas le correctif** — leur ancienne logique répond depuis le cache quotidien. 🆕
 * **Payer la dette i18n :** 8 clés utilisées sans traduction (messages de `publish_pull_request` et descriptions MCP) + 2 orphelines + les 2 clés manquantes dans `es.json`/`fr.json`. Clore cela débloque d'un coup `test_key_parity_and_count`, `test_no_missing_keys` et `test_no_orphan_keys`. **Élément hérité, toujours ouvert.**
-* **Corriger l'isolation de `tests/test_mentor_cli.py` :** ce sont les **deux plus anciens échecs** de la suite. Le patch vise `src.core.get_git_diff`, mais `src/main.py` importe le nom **par valeur**. Changer la cible vers `src.main.get_git_diff` clôt la suite sans toucher au produit. **Élément hérité, toujours ouvert.**
+* **Corriger l'isolation de `tests/test_mentor_cli.py` :** ce sont les **deux plus anciens échecs** de la suite et les **seuls** restants en dehors de l'i18n. Le patch vise `src.core.get_git_diff`, mais `src/main.py` importe le nom **par valeur**. Changer la cible vers `src.main.get_git_diff` clôt la suite sans toucher au produit. **Élément hérité, toujours ouvert.**
 * **Automatiser la release dans GitHub Actions :** la CI de test a quatre workflows, mais le build + l'upload vers PyPI restent manuels — et `extension.yml` montre déjà le motif (déclencheur sur tag) qu'un `release.yml` peut suivre. **Élément hérité, toujours ouvert.**
 * **Étendre la couverture du ruleset de secrets :** les trois lacunes restent ouvertes — affectation sans guillemets (`API_KEY=abc123`), préfixes `ASIA…`, `github_pat_…` et `xoxc-`/`xoxd-`, et absence de frontière gauche sur le nom de la clé. **Élément hérité, toujours ouvert.**
 * **Traduire `docs/review-pr.*.md` :** c'est la **dernière** famille de fonctionnalités avec une couverture partielle (2 langues sur 5). **Élément hérité, toujours ouvert.**
 * **Désuivre les artéfacts de `.gitpr/metrics/export/` :** **34 fichiers restent suivis**, parce que `gitignore` ne désuit pas. Il manque un simple `git rm --cached`. **Élément hérité, toujours ouvert.**
 * **Documenter la rupture de contrat de `request_pull_request_reviewers` :** elle est passée de `None` à `list[str]` ; les sous-classes tierces de `ScmProvider` doivent être mises à jour. **Élément hérité, toujours ouvert.**
+* **Documenter le changement de sémantique de `GITPR_SKIP_UPDATE_CHECK` comme note de migration :** le `docs/tutorial/install-from-source` décrit déjà le parser strict, mais les automatisations qui positionnaient `=false` en attendant de faire taire la vérification la voient désormais s'exécuter. Une ligne dans `auto-update` et dans le changelog de la prochaine release vaut la peine. 🆕
 * **Cartographier le rayon d'action de la baseline sur le code de sortie :** une baseline qui ne peut pas être appliquée avorte six flux avec le code de sortie 1, et `check` utilise **2**. Il vaut la peine d'expliciter le contrat complet dans `docs/baseline-suppressions`/`docs/check-ci`. **Élément hérité, partiellement couvert par check.**
-* **Réconcilier la version du projet :** `CLAUDE.md` dit encore `Current version: 0.0.37` alors que `__version__` est à **1.4.2**. Définir une convention unique. **Élément hérité, toujours ouvert.**
-* **`gitpr -h config` ignore `-h` :** la sous-commande ouvre la TUI au lieu d'afficher l'aide — la barrière `if ctx.invoked_subcommand is not None: return` s'exécute avant le bloc `help_flag`. **Élément hérité, toujours ouvert.**
+* **Réconcilier la version du projet :** `CLAUDE.md` dit encore `Current version: 0.0.37` alors que `__version__` est à **1.4.3**. Définir une convention unique. **Élément hérité, toujours ouvert.**
+* **`gitpr -h config` ignore `-h` :** la sous-commande ouvre la TUI au lieu d'afficher l'aide — la barrière `if ctx.invoked_subcommand is not None: return` s'exécute avant le bloc `help_flag`. **Élément hérité, toujours ouvert** (et partageant désormais le même point que la barrière de mise à jour).
 * **Migrer l'extracteur de `sync_i18n.py` vers AST :** la regex tronque les littéraux avec concaténation implicite (`__("a " "b")`). `tests/test_i18n.py` utilise déjà AST ; le script de sync reste sur regex. **Élément hérité, toujours ouvert.**
 * **Section Smart Exclude dans la TUI :** l'item 10 du survey de la TUI de configuration reste non commencé, et les champs `GITPR_SMART_EXCLUDES_*` restent sous `diff`, sans catégorie propre. **Élément hérité, toujours ouvert.**
 * **Dettes consignées dans le plan de la TUI de config :** `DEFAULT_CONFIG` est devenu redondant avec le schéma ; la bannière d'ouverture ne liste pas `--init`, `--base` ni `--plugins` ; `LinterApp` est la **seule** app Textual qui ne désactive toujours pas la palette de commandes ; et les **9 `GITPR_CHECK_*`** n'ont toujours **aucune** catégorie dans le schéma. **Élément hérité, toujours ouvert.**
 * **Créer une note de migration pour `action.yml` :** remplacer `--linter` + `--fullreview` par `gitpr check` est une rupture de contrat pour les workflows existants ; `docs/check-ci` documente la nouvelle commande, mais pas un « avant et après ». **Élément hérité, toujours ouvert.**
 * **Publier l'extension sur les marketplaces :** le workflow est prêt, mais il dépend de `VSCE_PAT`/`OVSX_PAT` ; d'ici là, l'installation se fait via un VSIX local. **Élément hérité, toujours ouvert.**
-* **🆕 Revoir `git diff` dans les dépôts avec de gros fichiers binaires :** le décodage avec `errors="replace"` résout le contenu hérité, mais les octets binaires du diff arrivent désormais au modèle comme une séquence de `U+FFFD`. Il vaut la peine de confirmer que les smart excludes couvrent les cas réels.
-* **🆕 Publier une release avec la migration des README :** le commit `5ee6025` est déjà dans `main` (PR #223), mais il n'y a pas de tag. La prochaine release devrait l'inclure.
-* **🆕 Surveiller le fallback ES/FR sur le site :** les liens des README portent déjà `?lang=es_es` et `?lang=fr_fr`, mais le site sert encore l'anglais pour ces deux langues. Publier les traductions rend les liens corrects sans toucher aux README.
+* **Revoir `git diff` dans les dépôts avec de gros fichiers binaires :** le décodage avec `errors="replace"` résout le contenu hérité, mais les octets binaires du diff arrivent désormais au modèle comme une séquence de `U+FFFD`. Il vaut la peine de confirmer que les smart excludes couvrent les cas réels. **Élément hérité, toujours ouvert.**
+* **🆕 Revalider la barrière réelle après la release :** avec la 1.4.3 publiée, une installation 1.4.3 ne doit **pas** bloquer, et une 1.4.2 doit bloquer dans l'heure suivant la mise en ligne du paquet — le scénario qui a donné naissance au correctif.
+* **🆕 Surveiller le fallback ES/FR sur le site :** les liens des README utilisent déjà `?lang=es` et `?lang=fr` (le format correct), mais le site peut encore servir l'anglais pour ces langues. Publier les traductions honore la promesse des liens.
 * **Fournisseur Anthropic Claude :** support direct de l'API Claude (`claude-sonnet-5`).
 * **Graphiques ASCII/Textual dans le Dashboard :** histogrammes temporels et tendances de tokens dans la TUI de métriques.
 * **Seed local de `.gitpr/conf/` :** le seed des templates de configuration locale (smart-excludes, linter) reste en attente comme sous-commande propre ou étape de wizard.
 * **Plus de fournisseurs :** OpenAI direct, fournisseurs locaux supplémentaires.
 
-### ✅ Terminé dans cette fenêtre (2026-10-18 → 2026-10-27)
+### ✅ Terminé dans cette fenêtre (2026-10-27 → 2026-10-28)
 
-* ~~**Clore la release 1.4.1**~~ — tag `v1.4.1` créé le 2026-10-18 (PR #218), `CHANGELOG.md` commité dans `fafe24b` et paquet publié. **Élément de la fenêtre précédente clos.**
-* ~~**Documenter `explain` et `tests`**~~ — `docs/explain-pr.*` et `docs/tests-generate.*` en 5 langues, avec des liens dans le README, dans les epilogs et dans le `HELP_MAP`. **Élément de la fenêtre précédente clos** — et la documentation a révélé quatre défauts qui ont aussi été corrigés.
-* ~~**Clore une nouvelle release avec le correctif d'encodage**~~ 🆕 — `4d980e2` (PR #222) : décodage tolérant, code de sortie 1 sur échec de git, `--hook` fail-open, `__version__` 1.4.2, section `[1.4.2]` dans le changelog et tag `v1.4.2`.
-* ~~**Migrer les liens de documentation des README vers le site**~~ 🆕 — 342 destinations dans 5 fichiers, `?lang=` par langue, 217 URLs vérifiées avec 0 échec (PR #223).
-* ~~**Clore le bug de `gitpr -h --explain`**~~ 🆕 — dest `explain_flag` → `explain`, avec une régression dans `test_explain_command.py`.
+* ~~**Corriger les 7 échecs de `tests/badge/test_badge_paths.py`**~~ — PR #226 (`68df9ae`) : la validation du jeton est passée dans `check_remote_state`, `url`/`number` utilisent désormais `getattr`, la fixture a gagné `token="ghp_fake"`/`number=1` et le test Textual a gagné `pilot.exit(None)`. **Élément hérité pendant trois fenêtres consécutives — clos.**
+* ~~**La barrière de mise à jour ne détectait pas une release publiée le même jour**~~ 🆕 — PR #228 (`145cbac`) : TTL glissant de 1 h, `-u` sans cache, PEP 440, `bounded_urlopen`, écriture atomique, interrupteur strict et barrière des sous-commandes uniquement en exécution interactive. **32 scénarios nouveaux dans `tests/test_updater.py`.**
+* ~~**Les sous-commandes échappaient à la barrière**~~ 🆕 — `gitpr release`, `fix`, `review-pr` et les autres sont désormais bloqués dans un terminal, avec exemption pour la CI/les pipes/les hooks et pour `-h` lu dans l'`argv` brut.
+* ~~**Les liens ES/FR des README pointaient vers un paramètre de langue inexistant**~~ 🆕 — `?lang=es_es`/`?lang=fr_fr` sont devenus `?lang=es`/`?lang=fr` (PR #226).
+* ~~**Documenter l'auto-update avec la fenêtre de 24 h**~~ 🆕 — les 5 variantes de `docs/auto-update.*` et les 5 de `docs/tutorial/install-from-source.*` ont été réécrites pour la fenêtre de 1 h, les nouvelles exemptions et la règle PEP 440.
 
 ---
 
-**Rapport généré le :** 2026-10-27  
+**Rapport généré le :** 2026-10-28  
 **Branche :** `develop_natan`  
 **Auteur :** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))
