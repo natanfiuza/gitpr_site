@@ -313,7 +313,7 @@
     },
     {
         "id": "tip_27",
-        "used": false,
+        "used": true,
         "source": "docs/check-ci.md",
         "content": {
             "en": "`gitpr check` is one CI entry point: it runs the static linter, secret scanners, risk scoring, optional AI review and baseline classification, and emits SARIF 2.1.0, JSON or JUnit XML for GitHub Code Scanning, GitLab SAST and Jenkins. `--no-ia` makes it free and offline, `--ia-only-high-risk` spends AI tokens only on risky files, and the exit codes are deterministic: 0 pass, 1 findings at or above `--fail-on`, 2 configuration or execution error.",
