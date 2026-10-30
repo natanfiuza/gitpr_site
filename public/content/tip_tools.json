@@ -361,7 +361,7 @@
     },
     {
         "id": "tip_31",
-        "used": false,
+        "used": true,
         "source": "docs/split-command.md",
         "content": {
             "en": "A bug fix, a refactor and a config tweak in the same `git diff`? `gitpr split` groups the hunks by intent and proposes one atomic commit per concern, each with a message written for that subset alone. Reading is the default — it prints the plan and asks; `--dry-run` prints and stops, `--apply` stages and commits group by group, `--max-groups 3` caps the plan. Untracked files are named in a warning, never silently dropped.",

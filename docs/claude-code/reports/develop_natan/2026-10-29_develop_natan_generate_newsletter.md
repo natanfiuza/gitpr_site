@@ -1,75 +1,56 @@
-# Geração da Newsletter — GitPR 1.4.3
+# Geração do corpo da newsletter — 2026-10-29
 
-**Data:** 2026-10-29
-**Branch:** `develop_natan`
-**Skill:** `generate-newsletter-body`
-
-## Versão
-
-- **Versão do CLI:** `1.4.3` — extraída de `Current version` em [relatorio.md](../../../../public/content/relatorio.md#L15).
-- **Decisão de escopo:** o relatório registra que a 1.4.3 ainda **não está publicada** (PyPI serve 1.4.2, sem tag `v1.4.3`). O usuário optou por gerar a edição 1.4.3 agora; o envio deve ocorrer após a publicação da release.
-- **Versão do relatório (H1):** v0.0.20 — não usada, conforme a skill.
+- **Branch:** `develop_natan`
+- **Skill:** `generate-newsletter-body`
+- **Versão:** GitPR CLI **1.4.4** (extraída do campo `- **Current version:**` de `public/content/relatorio.md`; a versão do relatório é v0.0.21)
+- **Entrada:** as 5 variantes de `public/content/relatorio.*.md` + `public/content/tip_tools.json`
 
 ## Arquivos gerados
 
-Em `public/content/newsletter/1.4.3/`:
+Diretório novo — `public/content/newsletter/1.4.4/` não existia, nada foi sobrescrito.
 
-| Arquivo | Idioma |
-| --- | --- |
-| `newsletter_body.md` | en |
-| `newsletter_body.pt_br.md` | pt_br |
-| `newsletter_body.pt_pt.md` | pt_pt |
-| `newsletter_body.es.md` | es |
-| `newsletter_body.fr.md` | fr |
+| Arquivo | Idioma | Linhas |
+|---|---|---|
+| `newsletter_body.md` | EN | 27 |
+| `newsletter_body.pt_br.md` | PT-BR | 27 |
+| `newsletter_body.pt_pt.md` | PT-PT | 27 |
+| `newsletter_body.es.md` | ES | 27 |
+| `newsletter_body.fr.md` | FR | 27 |
 
-### Estrutura
+Todos com a mesma estrutura: H1 da versão, três seções (`What's New in This Version` / `How to Use` / `Useful Tips` e os equivalentes `Novidades desta versão` + `Como usar` + `Dicas úteis`, `Novedades de esta versión` + `Cómo usar` + `Consejos útiles`, `Nouveautés de cette version` + `Comment l'utiliser` + `Astuces utiles`) e 6 bullets de novidades.
 
-Cada arquivo tem exatamente quatro seções, nos títulos equivalentes da edição anterior (1.4.2):
+## Conteúdo
 
-1. `# GitPR 1.4.3 — …`
-2. Novidades da versão (6 bullets)
-3. Como usar
-4. Dicas úteis
+Novidades desta versão (fonte: as 5 bullets do "What's New in This Version (v0.0.21)" do relatório):
 
-### Origem das novidades
+1. `gitpr -c` como TUI de 4 etapas (`CommitApp`, Seletor de Stage, geração em background, revisão/edição, execução animada).
+2. Mensagem gerada sobre `git diff --cached` via `get_git_staged_diff()`, com fallback para a working tree só com índice vazio.
+3. Auto-fechamento do modal no sucesso (`mark_finished(False)` + `set_timer(0.6, self.exit)`), **Close** preservado no erro.
+4. 1.4.3 e 1.4.4 publicadas na mesma janela, com resumo do fix do gate de atualização.
+5. Quebra declarada: fora de `--hook`, `gitpr -c` sempre abre a TUI.
+6. Dívida de i18n 8 → 11 chaves, `__lang_version__` em v0.0.36 sem mudança de dicionário.
 
-Os bullets são **fatias verbatim** do relatório de **cada idioma** — não foram retraduzidos do inglês. A fatia vai do cabeçalho de "Novidades" até a linha de versão atual, com remoção do ponteiro `§` (não havia nenhum nesta janela). Verificação por hash MD5 da fatia:
-
-| Idioma | Bullets | MD5 (12 primeiros) |
-| --- | --- | --- |
-| en | 6 | `80d415aaf6fa` |
-| pt_br | 6 | `8ace5381ccc9` |
-| pt_pt | 6 | `538ef59b936a` |
-| es | 6 | `1ea235da6675` |
-| fr | 6 | `7da919888a34` |
-
-### "Como usar" (autorado)
-
-Bloco novo, escrito por idioma, sem tirar do relatório. Cobre apenas o que mudou nesta versão:
-
-- `pip install --upgrade gitpr-cli` (sem afirmar que a 1.4.3 já está no PyPI).
-- Portão de atualização agora alcança subcomandos interativos; CI, pipes, hooks, MCP, `--quiet` e `-h` nunca são bloqueados.
-- `gitpr -u`/`--update` consulta o PyPI em toda execução.
-- `GITPR_SKIP_UPDATE_CHECK` como booleano estrito.
+"Como usar" cobre atualização via `pip`, o fluxo do `gitpr -c`, os rótulos do Seletor de Stage (mantidos em inglês em PT-BR/PT-PT/ES, traduzidos com aspas francesas em FR, seguindo a convenção já usada no relatório), o caminho `--hook` para automação e as duas variáveis (`GITPR_SKIP_UNSTAGED_CHECK`, `GITPR_AUTO_STAGE`).
 
 ## Dica consumida
 
-- **`tip_27`** — `docs/check-ci.md` (`gitpr check` como entrada única de CI: SARIF/JUnit, `--no-ia`, `--ia-only-high-risk`, exit codes 0/1/2).
-- Marcada com `used = true` em [tip_tools.json](../../../../public/content/tip_tools.json).
-- **Auditoria:** conteúdo conferido contra `public/content/docs/check-ci.md` (SARIF 2.1.0, JUnit, flags e tabela de exit codes presentes).
-- **Dica descartada:** `tip_9` (`docs/auto-update.md`) ficou **desatualizada por esta própria release** — afirma cache de 24h, enquanto a 1.4.3 passa a janela corrida de 1h e estende o portão aos subcomandos. Não foi consumida; recomenda-se corrigi-la numa próxima execução de `/update-tip-tools`.
+| id | Fonte | Motivo da escolha |
+|---|---|---|
+| `tip_31` | `docs/split-command.md` | Complementa a TUI de commit: escolher arquivos resolve "o que entra"; `gitpr split` resolve "um diff com três intenções". |
 
-## Verificações
+Marcada `used=true` em `public/content/tip_tools.json` (diff de 1 linha; o arquivo continua LF). Free tips: 29 → 28.
 
-- [x] 5 arquivos com a mesma estrutura de seções, cada um no seu idioma.
-- [x] Bullets byte-idênticos à fatia do relatório de cada idioma (hash conferido).
-- [x] Dica presente verbatim no idioma correspondente em cada arquivo.
-- [x] Nenhum ponteiro `§` remanescente.
-- [x] `public/content/menu.json` **não alterado** (newsletter fica fora do menu por design).
-- [x] `tip_tools.json` válido após a marcação; `tip_27` com `used = true`.
-- [x] `public/content/newsletter/1.4.3/` não existia antes; nada foi sobrescrito.
+## Auditoria do banco de dicas
 
-## Observações
+Conferi as 29 dicas livres contra `gitpr/docs/` antes de escolher. Uma está **desatualizada e não foi consumida**:
 
-- O `NewsletterContent::version_from_relatorio()` resolve a versão pelo mesmo campo `Current version` do relatório, portanto `newsletter:send` sem `--version` já aponta para `1.4.3`.
-- Envio pendente: publicar a 1.4.3 no PyPI (tag + CHANGELOG + upload) e só então rodar `php artisan newsletter:send`.
+- **`tip_9` (`docs/auto-update.md`)** — descreve o gate como "cached for 24h", diz que "there is no compatibility mode" e que `--quiet`/`--hook`/`--mcp`/`-h` são isentos. Desde 1.4.3 o cache é uma **janela móvel de 1 hora**, `gitpr -u` ignora o cache e subcomandos passam pelo gate quando há TTY. As outras 28 continuam coerentes com a documentação atual. Recomendo `update-tip-tools` para reescrever a `tip_9` (ou aposentá-la) antes da próxima edição.
+
+`tip_31` foi validada contra `gitpr/docs/split-command.md`: `--dry-run` imprime e para, `--apply` confirma uma vez e commita grupo a grupo, `--max-groups` limita o plano e arquivos não rastreados aparecem num aviso.
+
+## Verificação
+
+- Os 5 arquivos têm 27 linhas, 3 seções `##` e 6 bullets; cabeçalho correto por idioma; sem HTML embutido nem links externos.
+- `public/content/menu.json` **não foi alterado** (`git status` limpo para o arquivo) — a newsletter fica fora do menu por design.
+- `NewsletterContent::body_markdown()` resolve `public/content/newsletter/{version}/newsletter_body.{lang}.md` com fallback para inglês — caminho e nomes conferem.
+- `tip_tools.json` continua JSON válido (40 dicas, 12 usadas).
