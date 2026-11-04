@@ -109,7 +109,7 @@
     },
     {
         "id": "tip_10",
-        "used": false,
+        "used": true,
         "source": "docs/pull-request-publication.md",
         "content": {
             "en": "Re-run `gitpr` on the same branch and you won't get duplicate PRs: GitPR detects the existing PR and offers \"Push to existing PR\", which updates only the body (the title stays untouched). Bonus: a failed `git push` with \"no upstream\" is auto-retried with `--set-upstream`.",
