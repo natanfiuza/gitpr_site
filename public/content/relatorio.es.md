@@ -1,19 +1,20 @@
-# **🚀 Informe de Estado del Proyecto: GitPR CLI — v0.0.22 (2026-11-04)**
+# **🚀 Informe de Estado del Proyecto: GitPR CLI — v0.0.23 (2026-11-08)**
 
 ## **📌 Visión General**
 
 **GitPR** es una herramienta CLI (Command Line Interface) avanzada para la automatización de procesos Git mediante Inteligencia Artificial (Google Gemini / DeepSeek / Ollama). Su objetivo principal es actuar como un asistente inteligente local que realiza Code Reviews, genera Pull Requests, mensajes de commit semánticos, audita la deuda técnica e inyecta buenas prácticas en el flujo de trabajo del desarrollador (Shift Left).
 
-**Novedades de esta versión (v0.0.22):**
-- **El ciclo issue → PR → merge ahora se cierra solo:** todo issue creado con `gitpr -is` ahora se registra en `.gitpr/conf/github.yml` (un registro local que se auto-ignora en el `.gitignore`), y el siguiente `gitpr` verifica que siga abierto antes de ofrecer la línea `close #N` en el cuerpo del Pull Request. `--close-issue` acepta sin preguntar, `--no-close-issue` omite la comprobación, y `GITPR_ISSUE_AUTOCLOSE=false` desactiva la funcionalidad. El paquete nuevo `src/issue_autoclose/` tiene **5 archivos** y una serie de decisiones registradas en las ADRs 001–007 en `docs/specs/issue-autoclose/`.
-- **La base del PR dejó de vivir solo en la máquina de quien ejecuta:** `.gitpr/conf/gitpr.config.yml` se versiona con el proyecto y carga la rama de destino; `src/project_config.py` resuelve `--base` → archivo del proyecto → `PR_DEFAULT_BASE` → `origin/HEAD` → `main`, y el destino debe existir en `origin` y diferir de la rama actual. Un destino igual a la rama actual se rechaza y, en la ejecución interactiva, se repara mediante un modal dedicado (`src/ui/pr_base_app.py`) que escribe el nuevo valor en el archivo del proyecto ([ADR-015](docs/plans/ADR-015-project-local-pr-base.md)).
-- **La deuda de i18n se pagó:** los seis diccionarios tienen ahora **1698 claves** cada uno, `__lang_version__` subió a **v0.0.38**, y `tests/test_i18n.py` cierra **22 en verde** — sin claves faltantes, sin huérfanas, sin identidad por encima de la allowlist. El extractor de `sync_i18n.py` cambió el regex por **AST**, lo que eliminó los 21 falsos negativos de concatenación implícita.
-- **El ruleset de secretos cubrió las tres brechas que estaban abiertas:** claves STS `ASIA…`, PATs `github_pat_…`, cookies `xoxc-`/`xoxd-`, asignaciones **sin comillas** (`API_KEY=abc123`), frontera a la izquierda en el nombre de la clave y menos falsos positivos (`bypassword`, `os.getenv(...)`). Son **7 reglas** con regexes más amplias, cubiertas por **77 escenarios**.
-- **Contratos que solo estaban en la cabeza se volvieron pruebas:** la versión del paquete tiene **SSOT único** en `src/updater.py` (ADR-014) y una prueba que falla si `pyproject.toml`, `CLAUDE.md` o `GEMINI.md` divergen; el contrato de exit code del baseline ganó 8 escenarios de integración; el read-back de revisores legado (`None`) dejó de imprimir `attached None`; y `-h` antes del subcomando volvió a renderizar la ayuda en lugar de abrir la TUI.
-- **La 1.5.0 está tagueada, pero aún no publicada:** la tag `v1.5.0` apunta al merge del PR #260 (2026-11-04), pero el PyPI todavía sirve **1.4.4** — el release workflow existe (`.github/workflows/release.yml`), pero la publicación debe confirmarse.
-
-- **Versión actual:** 1.5.0 (**tagueada como `v1.5.0`; el PyPI todavía sirve 1.4.4**)
-- **Versión de los diccionarios de idioma:** v0.0.38 (🆕 +2 desde v0.0.36, ahora con los diccionarios realmente modificados)
+**Novedades de esta versión (v0.0.23):**
+- **El proveedor SCM pasó a ser propiedad del repositorio, no de la máquina:** `src/scm_settings.py` resuelve, en una sola función, **qué proveedor, qué token y qué base URL** valen en ese repositorio — override del proyecto → remote `origin` → `github`. Cada proveedor ganó su propio slot de credencial en `~/.gitpr/.env` (`GITHUB_/GITLAB_/BITBUCKET_/AZURE_DEVOPS_TOKEN_ENCRYPTED` + `*_BASE_URL`), y las claves heredadas `GITPR_SCM_PROVIDER`/`GITPR_SCM_TOKEN_ENCRYPTED`/`GITPR_SCM_BASE_URL` se migran **una sola vez, de forma idempotente** ([ADR-016](docs/plans/ADR-016-per-provider-scm-settings.md)).
+- **El cierre automático de issue dejó de ser exclusivo de GitHub:** GitLab y Bitbucket implementan la lectura de vuelta del contrato (`get_issue`, `get_default_branch`, `closing_line`) y Azure DevOps degrada a `not-supported` en vez de ignorar la funcionalidad. El registro local cambió a `.gitpr/conf/issue.yml`, con lectura transparente del `github.yml` heredado e `IssueInfo.is_open` ([ADR-010](docs/adr/0010-multiforge-issue-autoclose.md)).
+- **El bootstrap de la configuración local se convirtió en un comando:** `gitpr seed` (y el flag `-sd/--seed`) siembra `.gitpr/conf/gitpr.config.yml`, `.gitpr/conf/gitpr.smart-excludes.json` y `.gitpr/skill/.gitpr.linter.yml`, con `--force` para sobrescribir y `--all` para incluir todas las skills de IA. El asistente de instalación se reorganizó en **5 etapas**, empezando por la configuración local del proyecto.
+- **La TUI de configuración ganó dos superficies nuevas:** la categoría **Smart Excludes** (lista de fuentes + editor de archivo del proyecto) y la categoría **check** (las 9 `GITPR_CHECK_*`). Y el `DEFAULT_CONFIG` dejó de ser una copia manual — ahora se **deriva del schema** vía `ConfigField.seeded`, por lo que código y schema ya no pueden divergir.
+- **El dashboard ganó tendencia y latencia:** el `metrics` pasó a renderizar **Token Trend** (sparkline + barras por día, tope de 14 días) y **Latency Histogram** (media, mediana y P95) en el CLI, en la TUI y en la tool MCP `get_usage_metrics`; el ledger dejó de descartar el `duration_ms` enviado solo en el `meta` del evento.
+- **El prompt dejó de recibir basura binaria:** `collapse_binary_hunks()` detecta hunks con una avalancha de `U+FFFD` y los reescribe como `Binary files … differ`, con una ruta rápida O(1) que preserva archivos Latin-1 legítimos; el catálogo de smart excludes ganó **100+ patrones** en 8 familias binarias.
+- **La deuda de estabilidad de la suite quedó saldada:** el `-c` solo abre la `CommitApp` cuando existe TTY de verdad (`_may_ask_the_user()`), lo que **desbloqueó** el escenario que congelaba la ejecución completa en ~33%, y la prueba headless del commit se estabilizó (clic semántico + timeout mayor). La suite corre ahora hasta el final.
+- **La 1.5.0 fue publicada en PyPI:** la deuda de release de la ventana anterior está cerrada. La **1.6.0** está en el `CHANGELOG.md` y en la rama `develop_natan`, pero **aún no tiene tag ni publicación**.
+- **Versión actual:** 1.6.0 (**sin tag `v1.6.0`; el PyPI sirve la 1.5.0**)
+- **Versión de los diccionarios de idioma:** v0.0.41 (🆕 +3 desde la v0.0.38)
 - **Versión de los scripts de hook:** v0.0.4 (sin cambios)
 - **Publicación:** PyPI (`pip install gitpr-cli`) — canal binario eliminado
 - **Sitio web:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
@@ -26,23 +27,23 @@
 ## **🏗️ Arquitectura y Bibliotecas Base**
 
 * **Lenguaje:** Python >= 3.10
-* **CLI Framework:** Click (para comandos, flags y formato de terminal) — **15 subcomandos** (`badge`, `baseline`, `check`, `config`, `demo`, `explain`, `fix`, `mentor`, `metrics`, `policy`, `release`, `review-pr`, `risk`, `split`, `tests`). Cuatro de ellos son **grupos**: `baseline` (6 subcomandos), `metrics` (8), `policy` (7) y `tests` (1). **33 opciones Click en la raíz** — 🆕 `--close-issue` y `--no-close-issue`.
-* **UI/Terminal:** Textual — TUI para chat interactivo, edición de issues, pantalla de ayuda, dashboard de métricas, PR Publisher, **CommitApp** (`src/ui/commit_app.py`, 220 líneas), errores del linter (`LinterApp`), configuración (`ConfigApp`), modal `NoticeScreen`, el recorrido `gitpr demo` (`src/ui/demo/`), el asistente de migración del ledger (`src/ui/metrics_migration_app.py`) y 🆕 **`PrBaseApp`** (`src/ui/pr_base_app.py`, 98 líneas), el modal que cambia la base del PR cuando es igual a la rama actual.
-* **Arquitectura en Capas:** `src/domain/` (regla pura, sin I/O) + `src/application/use_cases/` (orquestación, **15 casos de uso**) + presentación (CLI/TUI). **9 paquetes de dominio**: `baseline`, `check`, `finding`, `linter`, `mentor`, `policy`, `pr`, `risk`, `tests_generation`. 🆕 **Fuera del dominio:** `src/issue_autoclose/` (flujo de cierre de issue sobre `ScmProvider` y el registro local) y `src/project_config.py` (resolución de path/YAML y validación contra el remoto) — ambos son orquestación y borde, no regla pura.
-* **Extensión de Editor:** `extensions/vscode/` — cliente MCP fino en TypeScript para **VS Code y Cursor** (Node.js 20+, `@modelcontextprotocol/sdk`, VSIX). No contiene lógica de negocio.
+* **CLI Framework:** Click (para comandos, flags y formato de terminal) — **16 subcomandos** (`badge`, `baseline`, `check`, `config`, `demo`, `explain`, `fix`, `mentor`, `metrics`, `policy`, `release`, `review-pr`, `risk`, `seed` 🆕, `split`, `tests`). Cuatro de ellos son **grupos**: `baseline` (6 subcomandos), `metrics` (8), `policy` (7) y `tests` (1). **34 opciones Click en la raíz** — 🆕 `-sd/--seed`.
+* **UI/Terminal:** Textual — TUI para chat interactivo, edición de issues, help screen, dashboard de métricas, PR Publisher, **CommitApp** (`src/ui/commit_app.py`, 220 líneas), errores del linter (`LinterApp`), configuración (`ConfigApp`), modal `NoticeScreen`, el tour del `gitpr demo` (`src/ui/demo/`), el asistente de migración del ledger (`src/ui/metrics_migration_app.py`) y el `PrBaseApp` (`src/ui/pr_base_app.py`). 🆕 La `ConfigApp` ganó el panel **Smart Excludes** (lista de fuentes + `TextArea` + botón de creación) y el `LinterApp` pasó a desactivar la command palette.
+* **Arquitectura en Capas:** `src/domain/` (regla pura, sin I/O) + `src/application/use_cases/` (orquestación, **15 casos de uso**) + presentación (CLI/TUI). **9 paquetes de dominio**: `baseline`, `check`, `finding`, `linter`, `mentor`, `policy`, `pr`, `risk`, `tests_generation`. 🆕 Fuera del dominio: `src/issue_autoclose/` (flujo de cierre de issue sobre `ScmProvider` y el registro local), `src/project_config.py` (configuración versionada) y `src/scm_settings.py` (resolución de proveedor y credencial por repositorio).
+* **Extensión de Editor:** `extensions/vscode/` — cliente TypeScript fino del MCP para **VS Code y Cursor** (Node.js 20+, `@modelcontextprotocol/sdk`, VSIX). No contiene regla de negocio. 🆕 El paquete transporta `icon.png`, `LICENSE` (LGPL-2.1), `homepage` y `bugs.url` para el listing en los marketplaces.
 * **Criptografía:** `cryptography.fernet` para protección local de claves de API, tokens de GitHub y tokens SCM de los forges.
-* **Configuración:** `python-dotenv`, `pyyaml` (linter estático y configuración del proyecto) + schema declarativo propio (`src/config_schema.py`, **85 `ConfigField`** y **17 categorías** — 🆕 la categoría `project`). `packaging` alimenta la comparación de versiones de la puerta (PEP 440) y la compatibilidad de los policy packs.
+* **Configuración:** `python-dotenv`, `pyyaml` (linter estático y configuración del proyecto) + schema declarativo propio (`src/config_schema.py`, **100 `ConfigField`** y **18 categorías** — 🆕 `smart_excludes` y `check`). 🆕 El `DEFAULT_CONFIG` se **deriva** de los campos con `seeded=True` (**55 claves**); las tres heredadas de SCM (`GITPR_SCM_PROVIDER`, `GITPR_SCM_TOKEN_ENCRYPTED`, `GITPR_SCM_BASE_URL`) salieron. El `packaging` alimenta la comparación de versiones de la puerta (PEP 440) y la compatibilidad de los policy packs.
 * **Proveedores de IA:** Integración vía SDK oficial de Google GenAI, OpenAI SDK (DeepSeek) y OpenAI SDK (Ollama local). Predeterminados configurados: `gemini-pro-latest` / `gemini-flash-lite-latest` y `deepseek-v4-pro` / `deepseek-v4-flash`.
-* **APIs de Forge:** `requests` (REST) — abstracción multi-forge en `src/infrastructure/scm/` (GitHub, GitLab, Bitbucket, Azure DevOps) + `web_links.py`; `src/github_api.py` se mantiene como shim obsoleto. 🆕 `IssueInfo` y las tres operaciones de issue (`get_issue`, `get_default_branch`, `closing_line`) entraron en el contrato de `ScmProvider`.
-* **Linter / SAST:** YAML regex + bridge Checkstyle + ruleset de secretos integrado (`src/security_ruleset.py`) + 4 puentes en `src/infrastructure/linter/external/` (base + Semgrep, Gitleaks, Bandit), con el modelo normalizado en `src/domain/linter/sast_finding_mapper.py` y el hallazgo canónico en `src/domain/finding/`. 🆕 El ruleset mantuvo las 7 reglas y **amplió la cobertura** de cada regex.
+* **Forge APIs:** `requests` (REST) — abstracción multi-forge en `src/infrastructure/scm/` (GitHub, GitLab, Bitbucket, Azure DevOps) + `web_links.py`; `src/github_api.py` mantenido como shim deprecado. 🆕 El contrato de issue (`get_issue`, `get_default_branch`, `closing_line`) lo implementan los **cuatro** proveedores cuando tiene sentido.
+* **Linter / SAST:** regex YAML + bridge Checkstyle + ruleset de secretos embebido (`src/security_ruleset.py`) + 4 bridges en `src/infrastructure/linter/external/` (base + Semgrep, Gitleaks, Bandit), con modelo normalizado en `src/domain/linter/sast_finding_mapper.py` y el hallazgo canónico en `src/domain/finding/`.
 * **Infraestructura de CI:** `src/infrastructure/ci/` — `sarif_builder.py` (SARIF 2.1.0), `junit_builder.py` (JUnit XML) y `masking.py` (enmascarado de credenciales antes de serializar cualquier artefacto).
 * **Internals de Git:** `src/infrastructure/git/` — `patch_applier.py`, `selective_stager.py`, `identity.py`, `risk_history_reader.py` y `test_matcher.py`.
-* **Persistencia local:** `src/ledger.py` — SQLite (`~/.gitpr/metrics/telemetry.db`) con WAL, `PRAGMA user_version`, claves UUID y transporte por bundle. 🆕 El evento `issue_autoclose` entra en el mismo ledger, con `asked`/`accepted`/`skipped_reason` en el `meta`.
-* **Red:** `src/net.bounded_urlopen` (`UPDATE_FETCH_HARD_TIMEOUT = 3.0`) acota el **tiempo de reloj incluyendo el DNS** en la puerta de actualización. 🆕 `get_issue()`/`get_default_branch()` usan un timeout de **5 s** (`GITPR_ISSUE_AUTOCLOSE_TIMEOUT`), porque el flujo de PR solo necesita un sí/no.
-* **MCP:** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 — **18 herramientas anotadas**, **19 recursos**, 7 prompts. 🆕 El cierre de issue **no** expuso ninguna herramienta nueva: es comportamiento del flujo de PR; `publish_pull_request` pasó a compartir el resolvedor de base y a devolver `warnings`.
-* **Pruebas:** Pytest + `unittest.mock` (**153 módulos de prueba** — 59 en la raíz, 12 en `tests/application/use_cases/`, 10 en `tests/fix/`, 9 en `tests/scm/`, 7 en `tests/badge/`, 6 en `tests/split/`, 6 en `tests/demo/`, 5 en `tests/domain/baseline/`, 5 en `tests/issue_autoclose/`, 4 en `tests/domain/policy/`, 4 en `tests/review/`, 4 en `tests/infrastructure/linter/external/`, 3 en `tests/domain/check/`, 3 en `tests/infrastructure/ci/`, 3 en `tests/integration/`, 2 en `tests/domain/risk/`, 2 en `tests/domain/tests_generation/`, 2 en `tests/infrastructure/git/`, 2 en `tests/domain/linter/`, 1 en `tests/domain/finding/`, 1 en `tests/domain/mentor/`, 1 en `tests/domain/pr/`, 1 en `tests/infrastructure/baseline/`, 1 en `tests/unit/` —, **3276 escenarios recolectados**) + pruebas e2e del servidor MCP sobre un subproceso real (JSON-RPC stdio) + fixtures de repositorio git real (`tests/fix/`, `tests/split/`, `tests/test_full_diff_encoding.py`) + guardia de aislamiento de red (`tests/demo/conftest.py`, `tests/integration/conftest.py`). La extensión tiene su propia suite Mocha (7 pruebas contra el servidor MCP real).
+* **Persistencia local:** `src/ledger.py` — SQLite (`~/.gitpr/metrics/telemetry.db`) con WAL, `PRAGMA user_version`, claves UUID y transporte por bundle. 🆕 El `duration_ms` cae a `meta["duration_ms"]` antes de asumir `0`.
+* **Red:** `src/net.bounded_urlopen` (`UPDATE_FETCH_HARD_TIMEOUT = 3.0`) limita el **wall clock incluyendo DNS** en la puerta de actualización. `get_issue()`/`get_default_branch()` usan timeout de **5 s** (`GITPR_ISSUE_AUTOCLOSE_TIMEOUT`).
+* **MCP:** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 — **18 herramientas anotadas**, **19 recursos**, 7 prompts (conteo sin cambios). 🆕 `get_usage_metrics` devuelve `token_trend` y `latency`, y la resolución de proveedor/credencial pasa por `src.scm_settings`.
+* **Pruebas:** Pytest + `unittest.mock` (**159 módulos de prueba** — 63 en la raíz, 12 en `tests/application/use_cases/`, 10 en `tests/fix/`, 10 en `tests/scm/`, 10 en `tests/infrastructure/` (baseline 1, ci 3, git 2, linter 4), 21 en `tests/domain/` (baseline 5, check 3, finding 1, linter 2, mentor 1, policy 4, pr 1, risk 2, tests_generation 2), 7 en `tests/badge/`, 6 en `tests/demo/`, 6 en `tests/split/`, 5 en `tests/issue_autoclose/`, 4 en `tests/review/`, 3 en `tests/integration/`, 2 en `tests/unit/` —, **3422 escenarios recolectados**) + pruebas e2e del servidor MCP vía subprocess real (JSON-RPC stdio) + fixtures de repositorio git real (`tests/fix/`, `tests/split/`, `tests/test_full_diff_encoding.py`) + guarda de aislamiento de red (`tests/demo/conftest.py`, `tests/badge/conftest.py`, `tests/integration/conftest.py`, `tests/split/conftest.py`). La extensión tiene suite Mocha propia (7 pruebas contra el servidor MCP real).
 * **Empaquetado:** setuptools/build (PyPI) — `version = {attr = "src.updater.__version__"}`; packs embebidos vía `package-data`; `packaging>=23.0`. La extensión se empaqueta aparte (`vsce package`, VSIX).
-* **CI/CD:** GitHub Actions — `pr-review.yml` + `action.yml` (llama a `gitpr check`) + `tests.yml` (matriz Python 3.10/3.13) + `extension.yml` (build, prueba y empaquetado del VSIX; publicación en el Marketplace/Open VSX en tags `ext-v*`) + 🆕 `release.yml` (pruebas, verificación tag/versión vía SSOT, build sdist/wheel, `twine check --strict`, Trusted Publishing OIDC en PyPI y creación de GitHub Release en tags `v*`).
+* **CI/CD:** GitHub Actions — `pr-review.yml` + `action.yml` (llama a `gitpr check`) + `tests.yml` (matriz Python 3.10/3.13) + `extension.yml` (build, prueba y empaquetado del VSIX; publicación en Marketplace/Open VSX en tags `ext-v*`) + `release.yml` (pruebas, verificación tag/versión vía SSOT, build sdist/wheel, `twine check --strict`, Trusted Publishing OIDC en PyPI y creación de GitHub Release en tags `v*`). 🆕 El `extension.yml` ganó `workflow_dispatch` con `dry_run`, guarda de tag ↔ versión y falla de forma explícita cuando falta credencial.
 
 ---
 
@@ -57,19 +58,22 @@
 * **Optimización Git Nativa:** Flags `-U1`, `-w`, `-M`, `-B` en los comandos `get_git_diff` y `get_git_full_diff`.
 * **`get_git_staged_diff()`:** ejecuta `git diff --cached -U1 -w -M -B -- <SMART_EXCLUDES>` con `encoding="utf-8"`/`errors="replace"` y `stdin=DEVNULL`, devolviendo `None` cuando git falla (nunca una cadena vacía disfrazada). Es la fuente preferida del mensaje de commit: lo que no está preparado no entra en el prompt.
 * **`get_split_diff()`:** diff propio de `split`, con `SPLIT_DIFF_ARGS` (`--binary -M -U3`), **deliberadamente sin** reutilizar `get_git_diff()`.
-* **🆕 Seed de la Configuración del Proyecto:** el callback raíz y `--install` llaman a `ensure_project_config()` (`src/project_config.py`) en cada invocación dentro de un repositorio, excepto en los caminos de ayuda. Un archivo existente **nunca** se sobrescribe; la creación se anuncia solo en el camino interactivo de la raíz y puede desactivarse con `GITPR_SKIP_PROJECT_CONFIG_SEED` (escape hatch de la suite de pruebas).
-* **🆕 `get_base_branch(quiet=)`: ** la resolución de la base dejó de ser improvisada y pasó a delegar en `resolve_pull_request_base()`; `quiet` evita que el aviso de fallback corrompa la TUI o el stream JSON-RPC.
+* **🆕 Guarda de Hunk Binario:** todos los puntos de entrada de diff (`get_git_diff`, `get_git_staged_diff`, `get_unstaged_diff`, `get_git_full_diff`, `current_diff`, `get_check_diff`, `tests_generate`, `risk`) aplican `collapse_binary_hunks()` — los hunks con corridas contiguas de ≥8 `U+FFFD` (o ≥32 con densidad ≥10%) pasan a `Binary files … differ`. La ruta rápida O(1) devuelve el diff intacto cuando no hay `U+FFFD`, preservando Latin-1/Windows-1252 legítimos.
+* **🆕 Seed de la Configuración Local (`seed_project_configuration()`):** crea `.gitpr/conf/gitpr.config.yml`, `.gitpr/conf/gitpr.smart-excludes.json` y `.gitpr/skill/.gitpr.linter.yml`, devolviendo un resumen estructurado (`config`, `smart_excludes`, `linter`, `skills_downloaded`). Nunca sobrescribe sin `force=True`.
+* **Seed de la Configuración del Proyecto:** el callback raíz y el `--install` llaman a `ensure_project_config()` (`src/project_config.py`) en cada invocación dentro de un repositorio, excepto en las rutas de ayuda. Un archivo existente **nunca** se sobrescribe; la creación se anuncia solo en la ruta interactiva de la raíz y puede desactivarse con `GITPR_SKIP_PROJECT_CONFIG_SEED` (escape hatch de la suite de pruebas).
+* **`get_base_branch(quiet=)`:** la resolución de la base delega en `resolve_pull_request_base()`; el `quiet` evita que el aviso de fallback corrompa la TUI o el stream JSON-RPC.
 * **Pre-Grabado (`--pre-save`):** Flag de depuración oculta que guarda el payload completo (instrucción de sistema + prompt) como JSON antes de cada llamada a la IA.
-* **Smart Excludes con Dos Capas:** Capa global (`~/.gitpr/conf/`) + capa local del proyecto (`./.gitpr/conf/`), fusionadas en runtime. Auto-seed del archivo local en la primera ejecución. `_load_smart_excludes()` acepta `force=`.
+* **Smart Excludes con Dos Capas:** Capa global (`~/.gitpr/conf/`) + local del proyecto (`./.gitpr/conf/`), unidas en runtime. 🆕 Los loaders globales y locales quedaron blindados contra `.env` corrupto y paths ilegibles — un archivo malo nunca tumba un diff ni un lint.
 * **Métricas con Seguimiento Temporal:** `log_command_metric()` en todos los flujos, con `meta`, `modules` y `duration_ms`.
 * **Resolución Centralizada de Salida:** `resolve_output_path()` — por defecto en `.gitpr/reports/{type}/`.
-* **Wizard SCM (`run_scm_init_wizard()`)**: `gitpr --init` — detecta el forge desde el remote de origen, pide los extras por forge, valida el token y persiste **solo si tiene éxito**.
+* **Wizard SCM (`run_scm_init_wizard()`)**: `gitpr --init` — detecta el proveedor por el remote origin, pide los extras por proveedor, valida el token y persiste **solo en caso de éxito**; 🆕 graba en el slot del proveedor elegido y solo crea override en el proyecto cuando este difiere del detectado.
 * **Plantilla de Skill de Release (`ensure_release_skill_template()`)**: Descarga `templates/gitpr.release.*.md` en el primer uso de `gitpr release`.
 * **Guarda de Skill Corrupta:** `_CORRUPTED_PR_SKILL_ARTIFACT` documenta el fragmento JSON que se pegó a la plantilla `pt_br`, y `get_skill_context()` lo elimina **en memoria** cuando `action_type == "pr"`.
 * **Registro Compartido de Skills:** `SKILL_FILES_BY_TYPE` / `SKILL_TYPES` / `DEFAULT_SKILL_TYPE` en `src/config.py`.
 * **Motor de Review con Ámbito de Caché (`generate_pr_content`):** `cache_scope` y `store_diff`; el `cache_scope` transporta también el policy pack activo.
 * **Trailer de Coautoría:** `COAUTHOR_TRAILER` + `append_coauthor_trailer()` — idempotente, preserva trailers de terceros. Es este trailer el que la TUI de commit aplica al mensaje editado antes de `execute_git_commit()`.
 * **Captura de Salida de Git Blindada:** las llamadas a `subprocess.run` en `src/cache.py`, `src/core.py`, `src/issue_engine.py` y `src/main.py` que capturan salida de git usan `encoding="utf-8"` **con** `errors="replace"` — incluida `get_git_staged_diff()`.
+* **🆕 Carga de `.env` Resiliente:** el `load_dotenv()` en `core.py`, `i18n.py` y `spinner.py` corre dentro de `try/except` — un `.env` ausente, ilegible o en un directorio de solo lectura no impide la inicialización.
 * **Fallo de Git ≠ Diff Vacío:** `diff_text is None` sale con código 1; un diff genuinamente vacío sale con **0**; en `--hook` el camino es fail-open.
 * **Subprocesos Blindados:** `stdin=subprocess.DEVNULL` + `encoding='utf-8'`/`errors='replace'` en todos los `subprocess.run`; verificación de conexión por socket antes de las operaciones de red.
 
@@ -86,22 +90,24 @@
 ### **3. Interfaz CLI y Configuración (`src/main.py` y `src/config.py`)**
 
 * **Configuración Inicial:** Detecta la primera ejecución, crea `~/.gitpr/` y pide interactivamente claves, preferencias e idioma.
-* **Enrutamiento de Comandos:** Gestiona todas las flags y los **15 subcomandos** — `release`, `config`, `fix`, `review-pr`, `demo`, `badge`, `split`, `tests`, `explain`, `mentor`, `metrics`, `policy`, `risk`, `baseline` y `check`.
+* **Routing de Comandos:** Gestiona todos los flags y los **16 subcomandos** — `release`, `config`, `fix`, `review-pr`, `demo`, `badge`, `split`, `tests`, `explain`, `mentor`, `metrics`, `policy`, `risk`, `baseline`, `check` y 🆕 `seed`.
 * **Comportamiento Predeterminado:** Ejecutar `gitpr` sin flags abre la TUI del PR Publisher.
-* **Flags (33 opciones Click en la raíz):** 🆕 `--close-issue` y `--no-close-issue` — mutuamente excluyentes, rechazadas con exit code 1 antes de cualquier prompt o escritura, y con la regla de que `-h` vence al conflicto. Las demás (`--mentor`, `--explain`, `--init`, `--no-suggest-reviewers`, `--no-publish`, `--no-edit`, `--base <branch>`, `--plugins`, `--status`, `--no-unstaged-check`, `--linter-setup`, `--version`, etc.) siguen sin cambios.
-* **Rama de `-c`/`--commit`:** `--hook` → comportamiento silencioso y merge-aware; sin hook → `CommitApp`. **El camino sin hook sigue sin guarda de TTY** — abrir `gitpr -c` en un script todavía entra en la TUI.
-* **🆕 Flujo de Cierre de Issue:** `_prepare_close_issue(flags, base, may_ask)` corre **antes** del Stage Selector, reutiliza el contexto SCM resuelto y devuelve la decisión (línea de cierre + issue) más el registro. La línea entra con `insert_close_line(pr_desc_body, decision)` en el punto único de montaje del cuerpo. `_publish_pr_directly` ahora devuelve **bool** para que el registro solo se limpie después de una publicación real (ADR-007).
-* **🆕 Resolución de la Base del PR:** la rama `--base` pasa por `_resolve_pr_target()`, que corrige un valor obsoleto del archivo del proyecto cuando la ejecución es interactiva y, fuera de ella, informa el rechazo. El archivo `.gitpr/conf/gitpr.config.yml` se siembra en toda invocación dentro de un repositorio, excepto en los caminos de ayuda.
+* **Flags (34 opciones Click en la raíz):** 🆕 `-sd/--seed` — siembra la configuración local del proyecto y sale, guardando la métrica `seed`. `--close-issue`/`--no-close-issue` siguen siendo mutuamente excluyentes, rechazadas con exit code 1 antes de cualquier prompt o escritura, con la regla de que el `-h` vence el conflicto. El resto (`--mentor`, `--explain`, `--init`, `--no-suggest-reviewers`, `--no-publish`, `--no-edit`, `--base <branch>`, `--plugins`, `--status`, `--no-unstaged-check`, `--linter-setup`, `--version` etc.) sigue sin cambios.
+* **Rama del `-c`/`--commit`:** `--hook` → comportamiento silencioso y merge-aware; sin hook → `CommitApp`. 🆕 **La ruta sin hook pasó a exigir TTY:** el routing consulta `_may_ask_the_user()` y, en un script/CI/pipe, cae en el flujo de consola en vez de abrir la TUI.
+* **Flujo de Cierre de Issue:** `_prepare_close_issue(flags, base, may_ask)` corre **antes** del Stage Selector, reutiliza el contexto SCM resuelto y devuelve la decisión (línea de cierre + issue) más el registro. La línea entra en `insert_close_line(pr_desc_body, decision)` en el punto único de montaje del cuerpo. `_publish_pr_directly` devuelve **bool** para que el registro solo se limpie tras una publicación real (ADR-007).
+* **Resolución de la Base del PR:** la rama `--base` pasa por `_resolve_pr_target()`, que corrige un valor obsoleto del archivo del proyecto cuando la ejecución es interactiva y, fuera de ella, reporta el rechazo. El archivo `.gitpr/conf/gitpr.config.yml` se siembra en cada invocación dentro de un repositorio, excepto en las rutas de ayuda.
 * **Puerta de Actualización en los Subcomandos:** el callback del grupo corría antes de la puerta raíz, así que `gitpr release`, `fix`, `review-pr` y los demás **nunca** se bloqueaban por un release nuevo. La puerta corre antes del `return`, condicionada a `may_ask and not update and not help_flag and not _subcommand_help_in_argv()`. `_may_ask_the_user()` exige un **TTY en ambos extremos** — CI, pipes, cron, hooks y el servidor MCP quedan libres.
-* **🆕 `-h` Antes del Subcomando Corregido:** `_subcommand_help_in_argv()` existe porque Click **limpia los argumentos del contexto** antes de que corra el callback del grupo. El escaneo del `argv` en bruto pasó a tratar el caso `gitpr -h config`, que antes abría la TUI de configuración en vez de la ayuda. Cubierto por `tests/test_cli_help.py`.
+* **`-h` Antes del Subcomando Corregido:** `_subcommand_help_in_argv()` existe porque Click **limpia los argumentos del contexto** antes de que corra el callback del grupo. El barrido del `argv` crudo pasó a tratar el caso `gitpr -h config`, que antes abría la TUI de configuración en vez de la ayuda. Cubierto por `tests/test_cli_help.py`.
 * **Subcomando `check` — 8 opciones:** `--base <ref>`, `--format sarif|json|junit`, `-o/--output <path>`, `--fail-on …`, `--no-ia`, `--ia-only-high-risk`, `--baseline <path>` y `--policy <name>@<version>`.
+* **🆕 Subcomando `seed` — 2 opciones:** `--force/-f` (sobrescribe archivos existentes) y `--all/-a` (también transfiere todas las skills de IA).
 * **Grupo `baseline` — 6 subcomandos:** `create`, `show`, `validate`, `update`, `suppress` y `unsuppress`.
 * **Grupo `policy` — 7 subcomandos:** `list`, `show`, `validate`, `use`, `off`, `install` e `init`.
 * **Grupo `metrics` — 8 subcomandos:** `export`, `bundle`, `merge`, `dashboard`, `migrate`, `prune`, `purge` y el oculto `hook-event`.
 * **Subcomando `risk` — 4 opciones:** `--file`, `--format text|json`, `--base`, `--no-history`.
 * **Subcomando `mentor` — 2 opciones:** `--finding`, `--provider`.
-* **Variables de Entorno (58 claves en `DEFAULT_CONFIG`):** las cuatro `GITPR_BASELINE_*`, las dos del mentor, las dos de policy y `GITPR_RISK_INCLUDE_IN_REVIEW`. **Fuera de `DEFAULT_CONFIG`:** `GITPR_METRICS_PRICE_<MODEL>_INPUT`/`_OUTPUT`, `GITPR_METRICS_CURRENCY`, las **9 `GITPR_CHECK_*`**, `GITPR_SKIP_UPDATE_CHECK` (booleano estricto) y 🆕 `GITPR_ISSUE_AUTOCLOSE`, `GITPR_ISSUE_AUTOCLOSE_TIMEOUT` y `GITPR_SKIP_PROJECT_CONFIG_SEED`. Las dos primeras aparecen en el schema de la TUI (categoría `issue`); las demás son defaults read-only deliberadamente **no** sembrados en `~/.gitpr/.env`.
-* **Ayuda Contextual:** `gitpr -h --explain` renderiza; `HELP_MAP["explain"]` y `HELP_PRIORITY["explain"]` apuntan a `docs/explain-pr`, y `gitpr tests`/`gitpr tests generate` tienen su propio `epilog=`. 🆕 `HELP_MAP` ganó `close_issue` y `no_close_issue`.
+* **🆕 `DEFAULT_CONFIG` Derivado:** `src/config.py` importa el `DEFAULT_CONFIG` de `src/config_schema.py`, montado como `{field.key: field.default for field in FIELDS if field.seeded}` — **55 claves**. El drift entre código y schema dejó de ser posible; las tres claves heredadas de SCM salieron en la misma ventana.
+* **Variables de Entorno:** las cuatro `GITPR_BASELINE_*`, las dos de mentor, las dos de policy y `GITPR_RISK_INCLUDE_IN_REVIEW`. **Fuera del `DEFAULT_CONFIG`:** `GITPR_METRICS_PRICE_<MODEL>_INPUT`/`_OUTPUT`, `GITPR_METRICS_CURRENCY`, las **9 `GITPR_CHECK_*`** (ahora con categoría en el schema), `GITPR_SKIP_UPDATE_CHECK` (booleano estricto) y `GITPR_ISSUE_AUTOCLOSE`, `GITPR_ISSUE_AUTOCLOSE_TIMEOUT` y `GITPR_SKIP_PROJECT_CONFIG_SEED`.
+* **Ayuda Contextual:** `gitpr -h --explain` renderiza; `HELP_MAP["explain"]` y `HELP_PRIORITY["explain"]` apuntan a `docs/explain-pr`, y `gitpr tests`/`gitpr tests generate` tienen `epilog=` propio. 🆕 El `HELP_MAP` ganó `seed` y los links de `close_issue`/`no_close_issue` pasaron a apuntar a `docs/issue-autoclose`.
 * **Capa de Escritura del `.env`:** `read_env_file_values()` lee **solo el archivo** vía `dotenv_values`; `save_config_values()` con `set_key`; `remove_config_value()` con `unset_key`.
 * **Puerta del Baseline en el Flujo:** `main.py` resuelve la puerta del baseline antes del lint, del review, del full review, de la auditoría de archivos, del review remoto y del riesgo.
 * **Publicación Directa Refactorizada:** `_publish_pr_directly` (`--no-edit`) delega en el **`publish_pull_request_use_case`** — el mismo camino que la herramienta MCP `publish_pull_request` — y devuelve si la forge creó el PR.
@@ -111,9 +117,9 @@
 * **Interfaz Interactiva Completa:** TUI construida con Textual para revisar, editar y publicar Pull Requests directamente en el terminal.
 * **7 Pantallas Modales:** `StageFilesScreen`, `CommitConfirmScreen`, `CommitProgressScreen`, `CommitMessageScreen`, `LinterErrorScreen`, `ErrorScreen` y `NoticeScreen`.
 * **Tres de Ellas También Sirven al Commit:** `StageFilesScreen`, `CommitMessageScreen` y `CommitProgressScreen` son importadas por `CommitApp` — no se duplicó ningún widget, y el helper `_with_suppressed_stdout` también se comparte.
-* **🆕 `body_published` Distingue Crear de Abrir:** `PrPublishApp` pasó a marcar cuándo el cuerpo se creó/actualizó realmente en la forge, y no solo cuando se abrió un PR existente. Es esa señal la que permite limpiar el registro del issue solo después de una publicación de verdad.
+* **`body_published` Distingue Crear de Abrir:** la `PrPublishApp` marca cuándo el cuerpo se creó/actualizó realmente en el proveedor, y no solo cuándo se abrió un PR existente. Es esa señal la que permite limpiar el registro de la issue solo tras una publicación de verdad.
 * **Insignia en el Cuerpo del PR:** `attach_pr_badge()` corre en `src/main.py` justo después de que `pr_data` esté completo — **punto único de inyección**.
-* **`_attach_reviewers` con resolución:** Resuelve lo que el usuario escribió **antes** de enviar, reporta lo que fue descartado y, en un `422` de lote, **repite uno a uno**. 🆕 Cuando un proveedor de terceros sigue el contrato legado y devuelve `None` en el read-back, el log dice `(no read-back)` en vez de `attached None`.
+* **`_attach_reviewers` con resolución:** Resuelve lo que el usuario escribió **antes** de enviar, reporta lo que fue descartado y, en un `422` por lote, **repite uno a uno**. Cuando un proveedor de terceros sigue el contrato heredado y devuelve `None` en la lectura de vuelta, el log dice `(no read-back)` en vez de `attached None`.
 * **Revisores Sugeridos:** Consulta al forge por revisores sugeridos; `_reviewer_suggestion_view()` construye las `resolutions` vía `resolve_candidates`.
 * **Bindings:** F1 (Help), F2 (Guardar .md local), F3 (Publicar vía forge), Esc (Salir).
 * **Flujo de Auto-Commit:** Linter → mensaje por IA → confirmación → commit → push → publicación del PR.
@@ -127,7 +133,7 @@
 ### **6. Motor de Análisis Estático / Linter (`src/linter_engine.py`)**
 
 * **Linter Offline:** Analiza estáticamente las líneas añadidas (`+`) en el diff sin gastar cuota de IA.
-* **Reglas YAML:** Lee `.gitpr.linter.yml` (creado vía `--skill`).
+* **Reglas YAML:** Lee `.gitpr.linter.yml` (creado vía `--skill` o `gitpr seed`).
 * **Plugins de Linter:** Reglas adicionales desde `~/.gitpr/plugins/linter/*.yml`.
 * **Comodín de Extensión:** `extensions: ["*"]` significa **todo** archivo, incluidos los que no tienen sufijo y los dotfiles.
 * **Ruleset de Secretos Integrado:** `load_linter_rules()` fusiona `src/security_ruleset.py` **después** de las reglas del proyecto y de los plugins. Siete reglas, todas `extensions: ["*"]`: cinco `error` y dos `warning`. La alerta **nunca repite el valor**.
@@ -138,15 +144,15 @@
 * **Informe Consolidado:** `generate_linter_report_content()` consolida errores regex + externos en `.gitpr/reports/linter/` — generado solo cuando hay violaciones.
 * **Consciente del Baseline:** los hallazgos se anotan con el estado del baseline antes de convertirse en informe.
 
-### **7. Seguridad y Autenticación (`src/security.py`, `src/config.py`, `src/tui_issue.py`)**
+### **7. Seguridad y Autenticación (`src/security.py`, `src/scm_settings.py`, `src/tui_issue.py`)**
 
 * **Cifrado:** Genera la clave maestra `secret.key` en `~/.gitpr/`.
-* **Protección de Tokens:** `encrypt_data`/`decrypt_data` para claves de IA, PAT de GitHub y tokens SCM de los forges.
-* **Validación Multi-Forge:** `validate_or_request_scm_token(provider, repo_display)` — 401 → bucle de reautenticación preservando el borrador.
+* **Protección de Tokens:** `encrypt_data`/`decrypt_data` para claves de IA y para el token de **cada** proveedor (un slot por proveedor SCM).
+* **🆕 Credencial por Proveedor:** un token GitLab nunca responde por un repositorio GitHub. El `GITPR_SCM_TOKEN` crudo sigue siendo el **único** override global de CI/CD y se intenta primero en todos los proveedores.
+* **Validación Multi-Forge:** `validate_or_request_scm_token(provider, repo_display, allow_prompt=True)` — 401 → loop de reautenticación preservando el borrador. 🆕 `allow_prompt=False` (hooks, MCP, CI) nunca pregunta, nunca borra el token guardado y devuelve la instrucción "ejecute `gitpr --init`".
 * **Secretos en la TUI de Configuración:** Los campos `KIND_SECRET` se editan enmascarados, **nunca** muestran el valor en claro y se cifran con Fernet antes de escribirse.
 * **Escaneo de Secretos en el Propio Flujo:** El linter — que corre en el hook pre-commit — es una puerta de credenciales con reglas idénticas en toda máquina.
 * **Enmascarado en CI:** `src/infrastructure/ci/masking.py` elimina claves privadas, AWS access key ID/secret, tokens de GitHub, Google, OpenAI y Slack, `Bearer`, basic-auth en URLs y asignaciones genéricas de contraseña **antes** de serializar el artefacto. La extensión tiene un espejo en TypeScript (`masking.ts`).
-* **✅ Brechas de cobertura del ruleset cerradas en esta ventana:** la regla genérica pasó a detectar asignaciones **sin comillas**, los prefijos `ASIA…`, `github_pat_…` y `xoxc-`/`xoxd-` entraron en el catálogo, y la frontera a la izquierda del nombre de la clave impide falsos positivos como `bypassword`. El estado del arte se detalla en la sección 31.
 
 ### **8. Auto-Updater (`src/updater.py`)**
 
@@ -159,9 +165,8 @@
 * **Puerta Obligatoria (`enforce_update_required()`):** Devuelve `True` (tras imprimir ambas versiones y el comando pip) cuando la versión publicada es más reciente; `False` cuando está al día, cuando la versión remota es **desconocida (offline)** o cuando la verificación está apagada.
 * **Semántica Estricta de la Válvula de Escape:** `GITPR_SKIP_UPDATE_CHECK` se parsea contra `_SKIP_TRUTHY_VALUES` (`1`, `true`, `yes`, `on`, `y`).
 * **`check_and_update()`:** Solo consulta e **informa**, nunca instala.
-* **Versionado Centralizado:** `__version__` (**1.5.0** 🆕), `__lang_version__` (**v0.0.38** 🆕), `__scripts_version__` (**v0.0.4**), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`, `LINTER_PRESETS_VERSION`. 🆕 El SSOT del paquete se volvió un contrato explícito ([ADR-014](docs/adr/0014-canonical-package-version-ssot.md)) y está cubierto por `tests/unit/test_version_consistency.py`.
-* **⚠️ Estado del release — tagueado, no publicado:** la tag `v1.5.0` apunta al merge del PR #260 (`4c2bede`, 2026-11-04) y la sección `[1.5.0] - 2026-11-03` está commiteada en el `CHANGELOG.md`. PyPI, sin embargo, todavía sirve **1.4.4** — la publicación por `release.yml` debe ejecutarse/confirmarse. Mientras tanto, la puerta no bloquea a nadie (la versión remota es más antigua que la local).
-* **Puerta Revalidada:** con la 1.4.4 publicada en la ventana anterior, el escenario 1.4.2 → 1.4.4 quedó cubierto por el TTL de 1 hora; la revalidación real en un cliente antiguo sigue siendo un seguimiento de campo.
+* **Versionado Centralizado:** `__version__` (**1.6.0** 🆕), `__lang_version__` (**v0.0.41** 🆕), `__scripts_version__` (**v0.0.4**), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`, `LINTER_PRESETS_VERSION`. El SSOT del paquete es contrato explícito ([ADR-014](docs/adr/0014-canonical-package-version-ssot.md)) cubierto por `tests/unit/test_version_consistency.py`.
+* **✅ Estado del release — 1.5.0 publicada:** la deuda de la ventana anterior se cerró: el PyPI sirve la **1.5.0**. La **1.6.0** ya está en el `CHANGELOG.md` (`## [1.6.0] - 2026-11-07`), pero **aún no fue tagueada ni publicada** — la puerta seguirá sin bloquear hasta que el tag `v1.6.0` pase por el `release.yml`.
 
 ### **9. Interfaz de Chat Interactivo (`src/ui/chat_app.py`)**
 
@@ -170,26 +175,26 @@
 * **Comandos Slash:** `/explain`, `/tests`, `/optimize`, `/clear`. `/tests` (y los alias localizados) delega en el **mismo caso de uso** que usa la CLI.
 * **Auto-Patching (F5), Actualización de Diff (F2), Exportación de Sesión (F6).**
 * **Extractor Compartido:** F5 y `ctrl+s` llaman a `patch_extractor.extract_code_blocks()` — comportamiento visible idéntico, sin lógica duplicada.
-* **🆕 Ayuda Localizada de Verdad:** `ChatHelpScreen` dejó de tener literales estáticos y compone cada línea vía `__()`, con los rótulos corregidos (`Ctrl+Shift+S`, `Ctrl+Shift+E`).
+* **Ayuda Localizada en Serio:** el `ChatHelpScreen` compone cada línea vía `__()`. 🆕 Los links de la ayuda dejaron de apuntar a `blob/main` en GitHub y pasan por `doc_url()`, con el contrato `?lang=` del sitio (`es_es`→`es`, `fr_fr`→`fr`).
 
 ### **10. Internacionalización — i18n (`src/i18n.py`)**
 
 * **Sistema Inspirado en Laravel:** Función `__()` con placeholders nombrados (`{count}`, `{file}`, etc.).
 * **Detección Automática:** Detecta el idioma del SO en la primera ejecución y lo guarda en `GITPR_LANG`; el directorio de perfil se crea **antes** de persistir.
 * **5 Idiomas, 6 Diccionarios:** en_us (predeterminado/fallback), pt_br, pt_pt, es/es_es, fr/fr_fr.
-* **Archivos Versionados:** `__lang_version__` (**v0.0.38** 🆕) controla la actualización de los paquetes (`langs/*.json`).
-* **✅ Cobertura — la deuda se pagó:** los **seis** archivos tienen **1698 claves** cada uno. El código usa las mismas claves; no hay clave sin diccionario ni huérfana. `tests/test_i18n.py` cierra **22 en verde**, incluyendo la paridad de conteo, la ausencia de claves faltantes/huérfanas y el guarda de identidad.
-* **🆕 El Bump de Idioma Ahora Tiene Contenido:** `__lang_version__` pasó de v0.0.36 a **v0.0.38** y, esta vez, los diccionarios cambiaron: español y francés se sincronizaron con policy packs, baseline, mentor, risk, MCP, base del PR, configuración de proyecto y atajos del chat; la renovación OTA entrega traducción nueva.
-* **🆕 Guarda Contra Regresión:** `test_all_identity_keys_are_allowlisted` falla cuando una clave cuyo valor es igual al inglés no está en la allowlist de términos técnicos/acrónimos/cognados legítimos.
+* **Archivos Versionados:** el `__lang_version__` (**v0.0.41** 🆕) controla la actualización de los paquetes (`langs/*.json`).
+* **✅ Cobertura:** los **seis** archivos tienen **1772 claves** cada uno. El código usa las mismas claves; no hay clave sin diccionario ni huérfana. El `tests/test_i18n.py` sigue **22 en verde**.
+* **🆕 La v0.0.41 tiene contenido:** las nuevas strings de SCM por proveedor, `seed`, gráficos de métricas y resumen de blame entraron en los seis diccionarios; la renovación OTA entrega traducción nueva.
 * **Snapshot del Entorno (`AMBIENT_ENV_KEYS`):** `frozenset(os.environ)` capturado **inmediatamente antes** del `load_dotenv()` a nivel de módulo.
 * **Caché con Indexación por Idioma:** Las respuestas de IA en caché incluyen el idioma actual en el keying MD5.
-* **Fuente de Traducción en Lockstep:** una clave nueva debe existir en el código, en `langs/pt_br.json` (lista maestra), en los diccionarios FR/ES de `scripts/sync_all_langs.py` y en los valores curados de `scripts/fix_mangled_i18n_keys.py`. 🆕 El extractor de `sync_i18n.py` usa **AST**, no regex.
+* **Fuente de Traducción en Lockstep:** una clave nueva tiene que existir en el código, en `langs/pt_br.json` (lista maestra), en los dicts FR/ES de `scripts/sync_all_langs.py` y en los valores curados de `scripts/fix_mangled_i18n_keys.py`; el extractor usa **AST**.
 
 ### **11. Spinner Animado (`src/spinner.py`)**
 
 * **Braille + Thinking Words:** Hilo en background durante llamadas de IA con caracteres braille y palabras de "pensamiento".
 * **263 entradas por idioma:** Sincronizadas entre los 5 idiomas. `_load_thinking_words()` / `reload_thinking_words()` aceptan `force=`.
 * **La TUI de Commit No Usa el Spinner:** la TUI muestra `CommitProgressScreen` con su propia barra animada, y la llamada a la IA corre en un `threading.Thread` daemon. Con `--hook` el spinner clásico sigue siendo el único feedback.
+* **🆕 Carga de `.env` Blindada:** un fallo de lectura no impide que arranque el spinner.
 
 ### **12. Proveedores de IA (`src/ai_providers.py`)**
 
@@ -199,14 +204,14 @@
 * **Llamadas con `quiet`:** el release y las funcionalidades nuevas propagan `quiet` hasta la capa de IA, para que el spinner nunca corrompa una salida `--format json`.
 * **Una Llamada a la Vez, con Caché:** mentor y explain reutilizan la caché MD5 por prompt.
 * **Payload Ya Interpretado:** `parse_explain_payload()` y `generate_test_file` aceptan el **dict** que entrega el proveedor, con fallback a la cadena JSON cruda (respuestas antiguas de caché).
-* **Supresión de Stdout en el Commit:** `_generate_commit_msg()` redirige `sys.stdout` a `os.devnull` durante la llamada (el mismo patrón de `_with_suppressed_stdout`), restaurándolo en `finally` — un print del proveedor no corrompe la pantalla de Textual.
+* **Supresión de Stdout en el Commit:** `_generate_commit_msg()` redirige el `sys.stdout` a `os.devnull` durante la llamada, restaurándolo en el `finally` — un print del proveedor no corrompe la pantalla Textual.
 
 ### **13. Caché Inteligente (`src/cache.py`)**
 
 * **MD5 + Metadata:** Keying por hash MD5 del diff y del prompt, con indexación por idioma.
 * **Selección del Último Review (`resolve_last_review()`):** Elige el registro `review`/`fullreview` **más nuevo** para un par repo+rama — es la puerta de entrada del `gitpr fix` y de `gitpr mentor`.
 * **Diff Revisado (`reviewed_diff`):** Campo en la parte superior del registro que guarda el diff efectivamente revisado.
-* **Telemetría y Duración:** Persistencia de `duration_ms` y `meta_raw`.
+* **Telemetría y Duración:** Persistencia de `duration_ms` y `meta_raw`. 🆕 El release pasa la clave de caché por idioma declarado, por lo que cambiar el idioma de la skill genera una sección nueva en vez de reutilizar la anterior.
 * **Lectura para el Dashboard:** `scan_cache_files_for_dashboard()` es un **puente pre-migración**.
 * **Efecto de la Sanitización de Skill:** como `get_skill_context()` elimina el fragmento corrupto del prompt de PR, la clave MD5 cambia y las respuestas antiguas contaminadas dejan de reutilizarse.
 * **`git config` Decodificado con Seguridad:** las lecturas de `user.name`/`user.email` usan `encoding="utf-8"` + `errors="replace"`.
@@ -215,29 +220,32 @@
 ### **14. Motor de Issues y TUI (`src/issue_engine.py`, `src/tui_issue.py`, `src/ui/issue_app.py`)**
 
 * **3 Motores de Contexto:** Diff actual, Historial de la rama (`-ht`) y Arqueología por Blame (`-b`).
-* **Publicación Multi-Forge:** F3 crea el issue en el forge **configurado** (`GITPR_SCM_PROVIDER`) vía `provider.create_issue` — Azure DevOps lanza `ScmNotSupportedError`.
+* **Publicación Multi-Forge:** el F3 crea la issue en el proveedor **resuelto para el repositorio** vía `provider.create_issue` — Azure DevOps lanza `ScmNotSupportedError`.
 * **Map-Reduce para Issues:** El contexto por encima de ~90k tokens se divide y se unifica.
 * **Manejo de 401:** Señalización de reautenticación sin cerrar la aplicación.
 * **`git remote -v` Decodificado con Seguridad:** la llamada usa `encoding="utf-8"` + `errors="replace"`.
-* **🆕 El Número Dejó de Perderse:** tras una creación exitosa en GitHub, `register_created_issue()` guarda el número en `.gitpr/conf/github.yml`. Los fallos de bookkeeping se absorben — un problema local nunca convierte una creación exitosa en error — y la primera escritura añade el archivo al `.gitignore`.
+* **🆕 Registro Provider-Agnóstico:** tras una creación exitosa en cualquier proveedor soportado, `register_created_issue()` guarda el número **y el proveedor** en `.gitpr/conf/issue.yml`. Los fallos de bookkeeping se engullen — un problema local nunca convierte una creación exitosa en error — y la primera escritura agrega el archivo al `.gitignore`.
+* **🆕 Métrica por Proveedor:** el evento de creación pasó a derivarse dinámicamente (`issue:<provider>_create`) en vez de estar fijo en GitHub.
 
 ### **15. Arqueólogo de Código (`src/blame_engine.py`)**
 
 * **Git Blame + IA:** Rastrea la evolución y la autoría histórica con clasificación de commits (`ORIGIN` vs `REFACTORING`).
 * **Métricas de Blame:** Eventos vía `log_blame_metric()` con profundidad y número de commits analizados.
 * **Ahora también alimenta al riesgo:** el lector de historial de la puntuación (`risk_history_reader.py`) usa la misma ventana de 90 días y clasifica bugs/reverts por patrón, sin llamar a la IA.
+* **🆕 Alimenta la Sugerencia de Revisores:** el análisis de blame de un PR clasifica los archivos en `files_with_blame`/`files_without_blame`, consumidos por el resumen de la sección 27.
 
 ### **16. Servidor MCP e Invocación CLI Directa (`src/mcp_server.py`)**
 
-* **18 Herramientas MCP Anotadas:** `get_git_context`, `analyze_diff`, `list_unstaged_files`, `analyze_unstaged_diff`, `get_full_diff`, `generate_commit_message`, `review_code`, `full_review`, `generate_pr_description`, `run_linter`, `analyze_blame`, `generate_issue`, `list_fix_candidates`, `review_remote_pr`, `get_baseline_status`, `get_usage_metrics`, `run_check` y `publish_pull_request`. 🆕 El cierre de issue **no** se volvió una herramienta: es comportamiento del flujo de PR.
+* **18 Herramientas MCP Anotadas:** `get_git_context`, `analyze_diff`, `list_unstaged_files`, `analyze_unstaged_diff`, `get_full_diff`, `generate_commit_message`, `review_code`, `full_review`, `generate_pr_description`, `run_linter`, `analyze_blame`, `generate_issue`, `list_fix_candidates`, `review_remote_pr`, `get_baseline_status`, `get_usage_metrics`, `run_check` y `publish_pull_request`.
 * **Parámetros Opt-In en el Contrato:** `review_code` y `full_review` aceptan `mentor: bool = False`; `generate_pr_description` acepta `explain: bool = False`. Son **puramente por parámetro** — nunca hacen OR con los valores por defecto del `.env`.
 * **19 Recursos + 7 Prompts Templatizados:** `skill://list` + `skill://{pr,commit,review,filereview,issue,blame,release,fix}` + `linter://config` + `baseline://summary` + `prompt://list` + 7 prompts.
 * **Registry de Skills Alineado:** `mcp_server.SKILL_FILES` tiene **11 entradas** (`tests`, `explain` y `mentor` incluidas); `TestSkillRegistryAgreement` pasa.
 * **Invocación CLI Directa:** `gitpr-mcp --tool <name> [--tool-args '<json>']` invoca cualquier tool sin iniciar el servidor stdio; `gitpr-mcp --list` imprime el registry completo como JSON.
 * **Aislamiento del Stdout Real:** `_write_real_stdout()` escribe en el `sys.__stdout__` original, con fallback a `buffer` o re-codificación con `errors='replace'` en páginas de código legacy de Windows.
 * **Offload del Event Loop:** Decorador `_offload` (`anyio.to_thread.run_sync`) en todas las tools — el orden de los decoradores importa (`@mcp.tool` **encima** de `@_offload`).
-* **Fallos como Errores Estructurados:** las herramientas nuevas devuelven el fallo **como dato** en lugar de lanzar.
-* **🆕 `publish_pull_request` con el Resolvedor Compartido:** usa `resolve_pull_request_base()`, devuelve el envelope `{"status": "error"}` para `BaseBranchError` y expone los `warnings` del resolvedor en el payload y en el catálogo de la herramienta.
+* **Fallos como Error Estructurado:** las tools devuelven el fallo **como dato** en vez de lanzar.
+* **🆕 `get_usage_metrics` con Gráficos:** el payload pasó a incluir `token_trend` (ventana de hasta 14 días) y `latency` (media/mediana/P95), los mismos números del CLI y del dashboard.
+* **🆕 Credencial por Repositorio:** toda la resolución SCM pasa por `src.scm_settings`; sin token, la tool responde con el comando que lo corrige (`gitpr --init`) en vez de intentar preguntar — una tool call no puede detenerse y esperar al usuario.
 * **Métricas MCP:** `run_check` y `publish_pull_request` escriben filas locales (`mcp:check`, `mcp:publish_pr`).
 * **El servidor MCP nunca queda bloqueado por la puerta:** `--mcp`/`gitpr-mcp` está en la lista de exenciones desde la primera versión de la puerta.
 
@@ -245,17 +253,21 @@
 
 * **Alcance por Repositorio:** Etiqueta `📁 Repository: owner/repo` y filtrado estricto por proyecto.
 * **Escaneo Asíncrono con Overlay:** Worker thread en background con una `ProgressBar`; las pruebas esperan `workers.wait_for_complete()` antes de asertar.
-* **Lectura del Ledger:** el dashboard consulta `telemetry.db` en el worker thread, renderizando las cinco secciones (costo, calidad, módulos, proveedores, ciclo) con los mismos renderers que usa la CLI.
+* **Lectura del Ledger:** el dashboard consulta el `telemetry.db` en el hilo de trabajo, renderizando las secciones (costo, calidad, módulos, proveedores, ciclo) desde los mismos renderizadores que usa el CLI.
+* **🆕 Dos Secciones Nuevas:** `section_token_trend` y `section_latency`, con renderizadores compartidos con el CLI; el `max-height` de las cards subió de 20 a 24 para que quepan los gráficos.
 * **Asistente de Migración (`src/ui/metrics_migration_app.py`):** ofrece importar los archivos legados, importar **y** reconstruir desde la caché de IA, o "ahora no".
-* **🆕 Artefactos de Exportación Desrastreados:** los **34 archivos** de `.gitpr/metrics/export/` que seguían rastreados se eliminaron del índice (`git rm --cached`); el `.gitignore` es ahora la única fuente sobre ellos.
+* **Artefactos de Exportación Destrackeados:** el `.gitignore` es la única fuente sobre `.gitpr/metrics/export/`.
 
 ### **18. Sistema de Métricas y Telemetría (`src/metrics.py`)**
 
 * **Ámbito por Repositorio:** Todos los eventos indexados por `repo_name`, resuelto por `src/infrastructure/git/identity.py`.
 * **Eventos de Hook, Linter y Blame:** `log_hook_event()`, `log_linter_metric()`, `log_blame_metric()`. `gitpr check` escribe `command="check"` con `findings_total`/`findings_errors` y el exit code.
-* **🆕 Evento `issue_autoclose`:** una línea por decisión de cierre, con `asked`, `accepted` y `skipped_reason` en el `meta` — permite medir cuántas ofertas se aceptaron, se rechazaron y por qué motivo.
+* **Evento `issue_autoclose`:** una línea por decisión de cierre, con `asked`, `accepted` y `skipped_reason` en el `meta`.
+* **🆕 Token Trend (`TOKEN_TREND_MAX_DAYS = 14`):** serie diaria continua (los días sin uso entran como cero) con sparkline y barras horizontales por día; elige el lado (input/output) con más movimiento.
+* **🆕 Latency Histogram:** distribución por rangos con **media, mediana y P95**; los eventos sin duración medida quedan fuera para no arrastrar las estadísticas a cero ni inflar el rango `< 1s`.
+* **🆕 El `duration_ms` ya no se pierde:** el ledger usa `meta["duration_ms"]` como fallback antes de guardar `0`.
 * **Exportación y Limpieza:** `gitpr metrics export` (CSV/JSON), `prune`, `purge` con confirmación interactiva, `bundle`/`merge` para transportar y fusionar ventanas.
-* **El Commit Interactivo También Mide:** el camino `commit` sigue escribiendo la línea de comando con `meta` y `modules`; la TUI no creó un nuevo tipo de métrica.
+* **El Commit Interactivo También Mide:** la ruta `commit` sigue guardando la línea de comando con `meta` y `modules`.
 
 ### **19. Sincronización de Idiomas de los Hooks Git**
 
@@ -265,35 +277,36 @@
 * **Elección vs. Estado (`SCRIPTS_LANG` / `SCRIPTS_INSTALLED_LANG`):** Permite **detectar un cambio de idioma**.
 * **`effective_hook_lang()`:** Resuelve el idioma efectivo; `--lang` dejó de descartarse en esa ruta.
 * **Skip de Merge-Source:** `prepare-commit-msg` salta las fuentes `message|merge|squash|commit`.
-* **`prepare-commit-msg` Sigue No Interactivo:** el hook corre con `--hook`, así que **nunca** abre `CommitApp` — la TUI existe solo en el uso humano de `gitpr -c`.
+* **El `prepare-commit-msg` Sigue No Interactivo:** el hook corre con `--hook`, por lo que **nunca** abre la `CommitApp` — la TUI solo existe en el uso humano de `gitpr -c`, y ahora solo cuando hay TTY.
 * **Los hooks corren con `--quiet` y `--hook`, así que nunca quedan bloqueados por la puerta de actualización.**
 
 ### **20. Bridge de Linters Externos y Asistente Interactivo (`src/linter_wizard.py`, `src/ui/linter_app.py`)**
 
 * **Asistente `--linter-setup`:** Wizard con presets numerados (PHP_CodeSniffer, ESLint, Stylelint) e inyección del bloque `external_linters`.
 * **Presets Remotos:** `templates/gitpr.linter-presets.json` con la cadena de fallback local → descarga → stale → embebido.
-* **TUI de Errores del Linter:** `src/ui/linter_app.py` (Textual) muestra errores críticos y warnings; en modo hook/quiet imprime y hace `sys.exit(1)`.
+* **TUI de Errores del Linter:** `src/ui/linter_app.py` (Textual) muestra errores críticos y warnings; en hook/quiet imprime y hace `sys.exit(1)`. 🆕 `ENABLE_COMMAND_PALETTE = False` — era la **última** app Textual con la palette activa.
 * **Informe Markdown:** Consolidado en `.gitpr/reports/linter/` solo cuando hay violaciones.
 * **La Capa SAST Es Hermana, No un Reemplazo:** los puentes Semgrep/Gitleaks/Bandit alimentan el **mismo** pipeline de informes — y también `gitpr check`.
 
 ### **21. SCM Multi-Forge (`src/infrastructure/scm/`)**
 
 * **Abstracción Única (`ScmProvider` ABC):** `base.py` define el contrato (dataclasses `RepoRef`, `PullRequestDraft` etc. y `ScmProviderError(provider, http_status, message)` — `http_status` 0 = fallo de red).
-* **Registry y Factory:** `resolve_scm_provider()` selecciona por `GITPR_SCM_PROVIDER` (predeterminado `github`); `detect_provider_from_remote()` identifica el forge desde la URL de origin.
+* **🆕 `IssueInfo` con `is_open`:** el flag booleano elimina las comparaciones frágiles de string de estado en la capa de decisión.
+* **🆕 Las Operaciones de Issue Son de Todos los Proveedores:** GitLab normaliza `opened` → `open` y emite `Closes #N`; Bitbucket normaliza `new`/`open`/`on hold` → `open` y emite `close #N`; Azure DevOps lanza `ScmNotSupportedError` (Work Items no son issues).
 * **`list_pull_requests(repo, state, since, until)` — paginado y canónico:** los cuatro proveedores traducen los estados canónicos (`open`/`merged`/`closed`/`all`) al vocabulario nativo, paginan en el cursor de cada API y filtran por una ventana de fechas inclusiva.
 * **Por qué el filtro es por fecha de estado:** tres de los cuatro forges devuelven algo más amplio para un PR fusionado, así que cada uno filtra su propia respuesta contra la fecha que el estado implica.
 * **`supports_merged_dates`:** atributo de clase, `False` en Bitbucket Cloud, que publica `merged_at` **vacío**.
 * **`web_links.py`:** funciones puras (`repo_web_base`, `commit_url`, `pull_request_url`, `user_url`) que normalizan cualquier formato de remote.
 * **`get_pull_request(repo, pr_id)` — método concreto de la ABC:** el default lanza `ScmNotSupportedError` y cada forge lo implementa.
-* **🆕 `IssueInfo` y las Operaciones de Issue:** `get_issue()` devuelve `IssueInfo` con `state` en el vocabulario de la forge y `is_pull_request`; `get_default_branch()` lee la rama por defecto; `closing_line()` devuelve la sintaxis de cierre (`close #N` en GitHub). Las tres son **defaults concretos** de la ABC que lanzan `ScmNotSupportedError`, así que las otras tres forges degradan a "funcionalidad inactiva" en vez de romperse.
+* **🆕 Resolución por Repositorio:** el registry ya no lee `GITPR_SCM_PROVIDER`; `resolve_scm_provider(config)` recibe el provider ya resuelto por `src/scm_settings.py` (sección 46).
 * **GitHub:** `GET /repos/{o}/{r}/issues/{n}` (marcando `pull_request` y cayendo al número pedido cuando falta), `GET /repos/{o}/{r}` para `default_branch` (cadena vacía cuando falta) y el keyword `close #N`.
 * **Encabezados de GitLab Sintetizados:** `changes[].diff` es un hunk suelto; `old_path`/`new_path` montan los encabezados `diff --git a/… / --- / +++`, honrando `/dev/null`. Y `overflow: true` **lanza** en lugar de revisar la mitad de un diff truncado.
-* **`request_pull_request_reviewers` devuelve `list[str]`:** Devuelve los logins **efectivamente anexados**, leídos del cuerpo del `201`. 🆕 La ruptura de contrato está documentada en [ADR-0009](docs/adr/0009-reviewer-attach-returns-read-back.md) y en `docs/suggested-reviewers.*`/`docs/scm-multiforge.*`.
+* **`request_pull_request_reviewers` devuelve `list[str]`:** Devuelve los logins **efectivamente adjuntados**, leídos del cuerpo del `201`. La ruptura de contrato está documentada en [ADR-0009](docs/adr/0009-reviewer-attach-returns-read-back.md) y en `docs/suggested-reviewers.*`/`docs/scm-multiforge.*`.
 * **Helpers Read-Only de GitHub:** `get_commit_author_login` y `get_user_login`.
 * **Fail-Fast por Forge:** Azure exige `GITPR_SCM_ORGANIZATION`/`GITPR_SCM_PROJECT`; Bitbucket exige `GITPR_SCM_USERNAME`; `create_issue` en Azure lanza `ScmNotSupportedError`.
 * **Publicación de Release:** `provider.create_release()` usado por `gitpr release --publish`.
-* **Publicación Compartida de PR:** `src/application/use_cases/publish_pull_request.py`, usado por `--no-edit` y por la herramienta MCP. Valida título/cuerpo, **exige `provider.token` solo cuando `check_remote_state=True`**, verifica opcionalmente si ya existe PR y si la rama no fue empujada, enmascara los mensajes de error y devuelve `PublishPrOutcome`. Los campos `url`/`number` del resultado se leen con `getattr` defensivo.
-* **Artefactos:** Glosario + ADR-001/ADR-005; la familia `docs/scm-multiforge.*.md` en 5 idiomas; 9 archivos de prueba, **317 escenarios**.
+* **Publicación de PR Compartida:** `src/application/use_cases/publish_pull_request.py`, usado por el `--no-edit` y por la tool MCP. Valida título/cuerpo, **exige `provider.token` solo cuando `check_remote_state=True`**, opcionalmente verifica PR existente y rama no pusheada, enmascara mensajes de error y devuelve `PublishPrOutcome`.
+* **Artefactos:** Glosario + ADR-001/ADR-005/**ADR-016**; familia `docs/scm-multiforge.*.md` en 5 idiomas; **10 archivos de prueba, 370 escenarios**.
 
 ### **22. Subcomando `gitpr release` — Changelog / Release Notes (`src/release_engine.py`)**
 
@@ -301,33 +314,39 @@
 * **El Rango Dejó de Venir de `git describe`:** el origen del rango es la **sección anterior del propio changelog**, mediante dos anclas: el hash más reciente de esa sección y, como fallback, el tag de versión de la sección.
 * **`_drop_released()` — la segunda línea de defensa:** cualquier commit cuyo hash corto aparezca en **otra** sección de versión se descarta, con conteo.
 * **Cada viñeta pasó a ser un enlace:** `- {subject} ([{short_hash}]({commit_url})) — {scope} · [#{n}]({pr_url}) · {YYYY-MM-DD}`.
-* **El fallo del PR por merge commit:** una segunda pasada (`git log --merges`) construye `hash → PR` por ancestralidad. 🆕 La sección `[1.5.0]` cubre 7 PRs fusionados y lista los 15 merges de la ventana sin perder ninguno.
+* **El fallo del PR merged por merge commit:** una segunda pasada (`git log --merges`) monta `hash → PR` por ancestralidad.
 * **Contribuidores resueltos por la misma escalera que los revisores:** `get_commit_author_login` primero, luego `email_to_handle`, cacheados en `~/.gitpr/cache/contributors.json`.
 * **La Frontera de la Sección Era un Bug Latente:** `upsert_changelog(force=True)` reemplaza desde la línea `## [x.y.z]` hasta el próximo encabezado de **nivel 2**.
+* **🆕 El Front Matter Declara el Idioma de la Skill:** `src/skill_frontmatter.py` (`split_front_matter()`) lee un bloque YAML inicial con `language: <code>` (allowlist `en_us`, `pt_br`, `pt_pt`, `es_es`, `fr_fr`), **elimina el bloque** antes de que el cuerpo pase a ser instrucción de sistema y cambia el idioma del i18n durante el tiempo de la generación — headings, rótulos **y** el idioma pedido a la IA, incluso con el resumen desactivado. Parse defensivo: nunca lanza, acepta BOM/CRLF e ignora una declaración inválida.
+* **🆕 `_declared_language()` Restaura el Estado:** el context manager devuelve `CURRENT_LANG`/`TRANSLATIONS` directamente, sin una segunda búsqueda de traducción en la salida; `_language_for_prompt()` importa `CURRENT_LANG` de forma lazy y normaliza `-` a `_`.
 * **Clasificador (`src/commit_classifier.py`)** y **Constructor con Secciones Traducibles (`src/changelog_builder.py`)**.
 * **Bump Semántico (`src/version_bump.py`)** y **Publicación** (`--publish`, `--draft`, `--format markdown|json`, `--force`). **6 opciones en el subcomando.**
-* **🆕 Estado del release:** la sección `## [1.5.0] - 2026-11-03` está commiteada y traducida; la tag `v1.5.0` existe. **La publicación en PyPI aún no ha ocurrido** — el paquete servido sigue siendo 1.4.4.
+* **Estado del release:** la sección `## [1.6.0] - 2026-11-07` está commiteada; **no hay tag `v1.6.0` ni publicación**.
 * **El subcomando pasa por la puerta de actualización** cuando se ejecuta en un terminal interactivo.
 * **Artefactos:** `docs/release-notes.*.md` en 5 idiomas, ADR y `tests/test_web_links.py`.
 
 ### **23. Subcomando `gitpr config` — TUI de Configuración**
 
 * **Pantalla Master-Detail (`src/ui/config_app.py`):** Categorías a la izquierda, campos a la derecha, editados en línea. Cabecera con búsqueda (`/`) y un contador de cambios pendientes; pie `F1 Help · F2 Save · ^R Restore · / Search · Esc`. `ENABLE_COMMAND_PALETTE = False`.
-* **Schema Declarativo (`src/config_schema.py`) — la fuente única de verdad:** **17 categorías** y **85 `ConfigField`**, de los cuales **8 son avanzados**. Las 9 `GITPR_CHECK_*` siguen **fuera** del schema.
-* **🆕 Categoría `project` y el Atributo `store`:** los campos declaran dónde viven (`env` vs `project`). Los tres campos del proyecto son la ruta del archivo (read-only), la rama destino (editable) y la base efectiva con el origen (read-only). El nuevo `KIND_BRANCH` renderiza la elección de rama.
-* **🆕 Categoría `issue`:** `GITPR_ISSUE_AUTOCLOSE` y `GITPR_ISSUE_AUTOCLOSE_TIMEOUT` aparecen aquí.
-* **🆕 Escritura por Store:** `ConfigApp` despacha por `store`: los valores de proyecto **nunca** pasan por `save_config_values()`, se escriben primero, soportan eliminación al vaciar, rechazan la rama actual y nunca sobrescriben YAML ilegible. La línea de la base efectiva se actualiza in-place después de guardar.
+* **Schema Declarativo (`src/config_schema.py`) — la fuente única de verdad:** **18 categorías** y **100 `ConfigField`**, de los cuales **7 avanzados** y **55 `seeded`**.
+* **🆕 `DEFAULT_CONFIG` Derivado:** el diccionario dejó de mantenerse a mano — se monta a partir de `seeded=True`, así que una clave nueva en el schema ya nace sembrada o deliberadamente no-sembrada.
+* **🆕 Categoría `check`:** las nueve `GITPR_CHECK_*` (`BASE`, `FORMAT`, `OUTPUT`, `FAIL_ON`, `NO_IA`, `IA_ONLY_HIGH_RISK`, `BASELINE_PATH`, `POLICY`, `TIMEOUT_SECONDS`) pasaron a aparecer aquí, con los mismos defaults del pipeline.
+* **🆕 Categoría `smart_excludes`:** sustituye al antiguo rótulo `Diff Filters`; `SMART_EXCLUDES_VERSION` cambió de grupo y la categoría tiene panel propio (ver abajo).
+* **🆕 Panel Smart Excludes:** lista de fuentes (proyecto, global core, global docs), `TextArea` de edición, botón de creación del archivo del proyecto, estado/nota y rastreo de dirty. El `F2` guarda el archivo del proyecto por el mismo plan de escritura.
+* **🆕 Categoría `project` y el Atributo `store`:** los campos declaran dónde viven (`env` vs `project`). Los tres campos del proyecto son el path del archivo (read-only), la rama objetivo (editable) y la base efectiva con el origen (read-only). El `KIND_BRANCH` renderiza la elección de rama.
+* **🆕 Categoría `scm` por Proveedor:** ganó la línea editable `PROJECT_SCM_PROVIDER`, la línea read-only `PROJECT_EFFECTIVE_PROVIDER` (proveedor en uso y origen) y un grupo `gitlab`; tokens y base URLs de **todos** los proveedores se listan siempre, y la prueba de token usa el host del propio slot.
+* **Categoría `issue`:** `GITPR_ISSUE_AUTOCLOSE` y `GITPR_ISSUE_AUTOCLOSE_TIMEOUT` aparecen aquí.
+* **Escritura por Store:** la `ConfigApp` despacha por `store`: los valores de proyecto **nunca** pasan por `save_config_values()`, se graban primero, soportan eliminación al vaciar, rechazan la rama actual y nunca sobrescriben YAML ilegible. La línea de la base efectiva se actualiza in-place tras guardar.
 * **Categorías `policy` y `baseline`:** los campos del pack y los cuatro del baseline.
 * **Sección Skills Alineada:** `SKILL_LABELS` tiene **11 entradas** (`tests`, `explain`, `mentor`).
 * **Filtrado por Contexto (`show_if`):** `GEMINI_*`/`DEEPSEEK_*`/`OLLAMA_*` según `DEFAULT_AI_PROVIDER`; `GITPR_SCM_USERNAME` bajo `[Bitbucket]`; `GITPR_SCM_ORGANIZATION`/`PROJECT` bajo `[Azure DevOps]`.
 * **Búsqueda Global (`/`):** Coincide con la clave o la etiqueta en todas las categorías e **ignora el filtro de visibilidad**.
 * **Validación en Dos Capas:** **Offline** bloquea `F2` con un error en línea; **online** (solo credenciales cambiadas en la sesión) corre en un worker con timeout de 10s y solo bloquea ante `401`/`403`.
 * **Restaurar (`Ctrl+R`):** Elimina la línea del `.env` en lugar de reescribir el valor predeterminado; `Esc` con cambios pendientes pide confirmación.
-* **Sección Skills — la única project-scoped hasta ahora:** Edita `.gitpr/skill/*.md` del proyecto resueltos desde el directorio de invocación, escribiendo atómicamente y preservando CRLF/LF. 🆕 La categoría `project` introduce una **segunda** superficie versionada, con el mismo cuidado de escritura atómica.
+* **Secciones Project-Scoped:** Edita `.gitpr/skill/*.md`, `.gitpr/conf/gitpr.config.yml` y los smart-excludes del proyecto, grabando atómicamente y preservando CRLF/LF.
 * **Descargas Forzadas:** Botones que fuerzan la redescarga de smart-excludes, traducciones, presets y thinking words vía `force=`.
-* **Módulo Ligero de Enlaces (`src/doc_links.py`):** `doc_url()` salió de `core.py` para que la UI pueda obtener el enlace sin importar los SDKs de IA.
-* **Pruebas:** 5 archivos — `test_config_app.py` (88), `test_config_schema.py` (46), `test_config_validation.py` (40), `test_config_store.py` (22), `test_config_cli.py` (9), más 🆕 `test_config_issue_autoclose.py` (10).
-* **✅ Deuda cerrada:** `gitpr -h config` dejó de abrir la TUI y pasó a renderizar la ayuda (`tests/test_cli_help.py`).
+* **Módulo de Links Ligero (`src/doc_links.py`):** el `doc_url()` salió de `core.py` para que la UI obtenga el link sin importar SDKs de IA. 🆕 El `DOC_LANG_PARAMS` mapea `es_es`→`es` y `fr_fr`→`fr`, y el `CURRENT_LANG` se lee **en la llamada**, por lo que `set_lang()` se propaga a los links.
+* **Pruebas:** 5 archivos — `test_config_app.py` (94), `test_config_schema.py` (53), `test_config_validation.py` (40), `test_config_store.py` (22), `test_config_cli.py` (9) y `test_config_issue_autoclose.py` (10).
 
 ### **24. Registro General de Uso (`src/usage_log.py`)**
 
@@ -354,7 +373,8 @@
 * **Read-Only por Defecto:** `--post-comment` es el **único** camino que escribe en el forge. La tool MCP `review_remote_pr` ni siquiera recibe el argumento.
 * **El baseline se resuelve antes de la primera llamada de red**, y los avisos de la puerta se fusionan en el informe/comentario.
 * **`render.py` y el riesgo:** `compose_review_content` / `render_review_result` **anteponen** la sección `⚡ Risk Assessment` por encima de las alertas del linter, cuando `GITPR_RISK_INCLUDE_IN_REVIEW` está activo.
-* **✅ Documentación ahora completa en los 5 idiomas:** `docs/review-pr.md`, `.pt_br.md`, `.pt_pt.md`, `.es_es.md` y `.fr_fr.md` — el tema dejó de ser parcial.
+* **Documentación completa en los 5 idiomas:** `docs/review-pr.md`, `.pt_br.md`, `.pt_pt.md`, `.es_es.md` y `.fr_fr.md`.
+* **🆕 Hunk Binario en el Diff Remoto:** `filter_excluded_sections` aplica siempre `collapse_binary_hunks()`, incluso en las early exits sin patterns/secciones.
 * **Pruebas:** 4 archivos en `tests/review/` (**97 escenarios**).
 
 ### **27. Resolución de Identidad del Revisor (`src/reviewer_resolution.py`)**
@@ -364,8 +384,9 @@
 * **Escalera de Resolución:** handle ya conocido (sin petición) → casamiento exacto con una persona sugerida → lookup por correo → validación del login en el forge.
 * **Lo que no resuelve nunca se envía:** Sale en `ResolutionOutcome.dropped` como `(value, reason_i18n)` y se descarta con aviso visible.
 * **La Misma Escalera Sirve al Release:** `release_engine` reutiliza `get_commit_author_login` + `email_to_handle`.
-* **🆕 Compañero Legado:** si un proveedor de terceros devuelve `None` (contrato antiguo), el log dice `(no read-back)` y el flujo sigue — un read-back ausente **nunca** se trata como fallo.
-* **Pruebas:** `tests/test_reviewer_resolution.py` (18) + ampliaciones en `test_github_provider.py` (86), `test_pr_publish_app.py` (59), `test_suggest_reviewers.py` (17), `test_reviewer_suggestion.py` (18) y `test_main_suggest_reviewers.py` (8).
+* **Compañero Heredado:** si un proveedor de terceros devuelve `None` (contrato antiguo), el log dice `(no read-back)` y el flujo continúa — una lectura de vuelta ausente **nunca** se trata como fallo.
+* **🆕 Resumen de Blame:** `ReviewerSuggestionResult` ganó `files_with_blame`/`files_without_blame`; el motor separa los archivos y el CLI imprime **una** línea consolidada (`ℹ️ Análisis de blame: X archivo(s) con blame, Y sin blame`) — solo cuando hay archivos sin blame. Decenas de avisos por archivo pasaron a un único resumen.
+* **Pruebas:** `tests/test_reviewer_resolution.py` (18) + `test_github_provider.py` (86), `test_pr_publish_app.py` (59), `test_suggest_reviewers.py` (**19** 🆕), `test_reviewer_suggestion.py` (18) y `test_main_suggest_reviewers.py` (8).
 
 ### **28. Subcomando `gitpr demo` — Recorrido Guiado sobre Ejemplos Grabados (`src/demo/`)**
 
@@ -387,7 +408,7 @@
 * **Punto de Inyección Único:** `attach_pr_badge()` en `src/main.py`. Anexado idempotente por marcador.
 * **Comando `gitpr badge`:** `--readme` y `--style`. **Solo imprime** — el README nunca se modifica.
 * **Configuración:** `GITPR_BADGE` (predeterminado `true`) — opt-out **de solo lectura**.
-* **Pruebas:** 7 archivos en `tests/badge/` (**83 escenarios**), todos en verde desde la ventana v0.0.20.
+* **Pruebas:** 7 archivos en `tests/badge/` (**83 escenarios**).
 * **Artefactos:** `docs/badge.*.md` en 5 idiomas y el survey dedicado.
 
 ### **30. Subcomando `gitpr split` — Commits Atómicos por Hunk (`src/split/`)**
@@ -401,14 +422,14 @@
 * **Pruebas:** 6 archivos en `tests/split/` (**101 escenarios**).
 * **Artefactos:** `docs/split-command.md` en 5 idiomas, ADR-006, `glossary-gitpr-split.md`, spec/plan y survey.
 
-### **31. Escaneo de Secretos Integrado (`src/security_ruleset.py`) 🆕 Cobertura Ampliada**
+### **31. Barrido de Secretos Embebido (`src/security_ruleset.py`)**
 
 * **Qué Es:** Siete reglas que corren en **cada** invocación del linter, fusionadas al final de `load_linter_rules()` después de las reglas del proyecto y de los plugins.
 * **Las Siete Reglas:** cinco `error` bloqueantes — AWS access key ID, token de GitHub, token de Slack, clave de API de Google y clave privada — y dos `warning`: URL de conexión a base de datos con credenciales y asignación genérica de credencial, esta última tras un filtro de placeholders (`changeme`, `xxxxxx`, `example`, `dummy`, `sample`, `your_password_here`, `sua_senha`).
-* **✅ Las Tres Brechas Cerradas:** la regla genérica ahora detecta **asignaciones sin comillas** (`.env`/YAML `API_KEY=abc123`), los prefijos **`ASIA…`**, **`github_pat_…`** y **`xoxc-`/`xoxd-`** entraron en el catálogo, y hay **frontera a la izquierda** en el nombre de la clave — `bypassword` ya no coincide. Las expresiones de runtime (`os.getenv(...)`, `process.env.X`) también dejaron de generar falsos positivos.
+* **Cobertura:** asignación **sin comillas**, prefijos **`ASIA…`**, **`github_pat_…`** y **`xoxc-`/`xoxd-`**, **frontera a la izquierda** en el nombre de la clave (`bypassword` no coincide) y supresión de falsos positivos de runtime (`os.getenv(...)`, `process.env.X`).
 * **Por qué en el Paquete y No en la Plantilla:** una puerta de secretos debe comportarse **igual** en todas las máquinas y en todo CI.
 * **Configuración:** `GITPR_LINTER_SECURITY` (predeterminado `true`; opt-out fail-open) y `GITPR_LINTER_SECURITY_DISABLED_RULES` (separadas por `;`).
-* **Pruebas:** `tests/test_security_ruleset.py` (**77 escenarios**, eran 61) — matriz de regex, placeholders, nivel, comodín, fusión y traducciones; la invariante "la alerta nunca repite el valor" sigue vigente.
+* **Pruebas:** `tests/test_security_ruleset.py` (**77 escenarios**) — matriz de regex, placeholders, nivel, wildcard, merge y traducciones; la invariante "la alerta nunca repite el valor" sigue vigente.
 * **Artefactos:** ADR-007, [ADR-0008](docs/adr/0008-secret-ruleset-coverage-extension.md), `glossary-gitpr-secret-scanning.md`, spec/plan/survey e informes de tarea.
 
 ### **32. Puentes SAST — Semgrep, Gitleaks y Bandit (`src/infrastructure/linter/external/`)**
@@ -446,13 +467,14 @@
 ### **35. Suite Determinista y CI (`.github/workflows/tests.yml`, `release.yml`)**
 
 * **Qué Es:** El workflow que corre la suite en **Python 3.10** (el piso declarado en `pyproject.toml`) y **3.13**, con `fail-fast: false`.
-* **`tests/conftest.py` Hermético:** Fija `GITPR_LANG=en_us`, `GITPR_LINTER_SECURITY=false` y `LANG_VERSION` en la versión del código, más `GITPR_SHOW_LOGS=false`, `GITPR_SKIP_UPDATE_CHECK=true` y 🆕 `GITPR_SKIP_PROJECT_CONFIG_SEED=true` (la suite nunca escribe en un checkout de desarrollador).
+* **`tests/conftest.py` Hermético:** Fija `GITPR_LANG=en_us`, `GITPR_LINTER_SECURITY=false` y `LANG_VERSION` en la versión del código, además de `GITPR_SHOW_LOGS=false`, `GITPR_SKIP_UPDATE_CHECK=true` y `GITPR_SKIP_PROJECT_CONFIG_SEED=true` (la suite nunca escribe en un checkout de desarrollador).
+* **🆕 Fixtures Autouse Contra Fuga de Perfil:** `english_interface` y `no_hook_script_sync` impiden que el idioma, los flags de linter y el auto-sync de hooks del perfil del desarrollador se escapen entre las pruebas de CLI.
 * **El Orden Importa:** `src.updater` se importa **antes** de que se definan las variables de idioma.
 * **Estabilidad de las Pruebas de Worker:** `test_config_app.py` y `test_metrics.py` esperan `workers.wait_for_complete()` antes de asertar.
 * **Dependencia del Workflow:** El runner limpio no tiene `~/.gitpr`, y `test_demo_isolation.py` aserta que el perfil existe — el job crea explícitamente el directorio y un `.env` vacío.
-* **🆕 En esta ventana la suite ganó 266 escenarios y 12 módulos:** `tests/issue_autoclose/` (5 archivos, **120 escenarios**), `test_project_config.py` (41), `test_pr_base_app.py` (12), `test_config_issue_autoclose.py` (10), `test_cli_help.py` (9), `test_project_config_cli.py` (7), `tests/unit/test_version_consistency.py` (5), `tests/integration/test_baseline_exit_code_contract.py` (8), además del crecimiento de `test_mcp_server.py` (117), `test_security_ruleset.py` (77), `test_github_provider.py` (86), `test_config_app.py` (88), `test_pr_publish_app.py` (59), `test_config_schema.py` (46) y `test_i18n.py` (22). **Total: 3276 escenarios en 153 archivos.**
-* **Workflow de la Extensión:** `.github/workflows/extension.yml` corre `npm install`, compila, prueba y empaqueta el VSIX; en tags `ext-v*` publica en el VS Code Marketplace y Open VSX, saltando cada paso cuando `VSCE_PAT`/`OVSX_PAT` está vacío.
-* **🆕 Workflow de Release:** `release.yml` corre pruebas, verifica la consistencia tag ↔ `src.updater.__version__`, construye sdist/wheel, valida con `twine check --strict`, publica por Trusted Publishing (OIDC) y crea el GitHub Release. El SSOT de versión también tiene su propia prueba (`tests/unit/test_version_consistency.py`).
+* **🆕 En esta ventana la suite ganó 146 escenarios y 6 módulos:** `scm/test_scm_settings.py` (24), `test_skill_frontmatter.py` (11), `test_doc_links.py` (11), `test_seed_command.py` (8), `test_tui_issue_token.py` (8) y `unit/test_check_ci_docs_parity.py` (2), además del crecimiento de `test_metrics.py` (174), `tests/scm/` (370), `test_config_app.py` (94), `test_release_engine.py` (61), `test_config_schema.py` (53), `test_project_config.py` (49), `test_full_diff_encoding.py` (8), `test_commit_app.py` (17), `test_suggest_reviewers.py` (19), `test_smart_excludes.py` (17) y `tests/issue_autoclose/` (126). **Total: 3422 escenarios en 159 archivos.**
+* **Workflow de la extensión:** `.github/workflows/extension.yml` corre `npm install`, compila, prueba y empaqueta el VSIX; en tags `ext-v*` publica en VS Code Marketplace y Open VSX, saltando cada paso cuando `VSCE_PAT`/`OVSX_PAT` está vacío. 🆕 Ganó `workflow_dispatch` con `dry_run`, guarda de tag ↔ `package.json` y falla de forma explícita cuando falta credencial.
+* **Workflow de Release:** `release.yml` corre pruebas, verifica la consistencia tag ↔ `src.updater.__version__`, builda sdist/wheel, valida con `twine check --strict`, publica por Trusted Publishing (OIDC) y crea el GitHub Release. El SSOT de versión también tiene prueba propia (`tests/unit/test_version_consistency.py`).
 
 ### **36. Ledger de Telemetría SQLite (`src/ledger.py`, `src/infrastructure/git/identity.py`)**
 
@@ -466,11 +488,12 @@
 * **`modules` Normalizado:** las rutas pasan a dos segmentos (`src/fix`), `(root)` y `(no module)`.
 * **Transporte por Bundle:** `bundle` escribe la ventana en un `.db` autónomo; `merge` lo anexa e inserta por UUID.
 * **`cache_backfill` Se Queda Fuera:** las filas reconstruidas desde la caché se excluyen de los agregados de ejecución.
-* **🆕 `issue_autoclose` Entra en el Ledger:** una línea por decisión, con `asked`, `accepted` y `skipped_reason`; la doc de métricas lista el comando junto a los demás.
+* **`issue_autoclose` Entra al Ledger:** una línea por decisión, con `asked`, `accepted` y `skipped_reason`.
+* **🆕 `duration_ms` con Fallback de `meta`:** los eventos que solo transportaban la duración en `meta["duration_ms"]` dejaron de guardarse como `0` — sin eso, el histograma de latencia subcontaría.
 * **Identidad Git sin Forge (`identity.py`):** etiqueta del repo, rama y autor en una **única** llamada al subproceso.
 * **La Sección de Ciclo Es la Única que el Ledger No Responde:** lista PRs fusionados vía `ScmProvider.list_pull_requests`; cada fallo degrada a una sola línea — `No leído: <motivo>`.
 * **Presentación Completa:** grupo `gitpr metrics` con 8 subcomandos, un dashboard que lee el ledger en un worker thread y el asistente de migración de tres opciones.
-* **Pruebas:** `tests/test_metrics.py` (**164 escenarios**).
+* **Pruebas:** `tests/test_metrics.py` (**174 escenarios**).
 
 ### **37. Subcomando `gitpr mentor` y la Flag `--mentor` — Mentor Mode (`src/domain/mentor/`)**
 
@@ -480,7 +503,6 @@
 * **Dos Puntos de Entrada:** `gitpr mentor [--finding <id>] [--provider <name>]` y la flag `--mentor`, que añade la sección al review normal.
 * **Opt-In Estricto:** `GITPR_REVIEW_MENTOR_MODE` (predeterminado `false`) y `GITPR_MENTOR_INCLUDE_ANALOGY` (predeterminado `true`), editables en la TUI de configuración.
 * **Skill y Registry:** `.gitpr.mentor.md` registrado en `SKILL_FILES_BY_TYPE`, en `mcp_server.SKILL_FILES` y en `SKILL_LABELS`, con plantillas en **5 idiomas**.
-* **✅ Aislamiento de Prueba Corregido:** `@patch("src.core.get_git_diff")` pasó a `@patch("src.main.get_git_diff")` — el nombre se importa por valor en `src/main.py`, así que el patch antiguo no alcanzaba el código bajo prueba. Los **dos fallos heredados más antiguos de la suite** se cerraron.
 * **Pruebas:** `tests/domain/mentor/test_mentor_explanation_builder.py` (8), `tests/application/use_cases/test_generate_mentor_explanation.py` (5) y `tests/test_mentor_cli.py` (4) — **todos en verde**.
 * **Artefactos:** `docs/mentor-mode.*.md` en **5 idiomas**, ADR-009, `glossary-gitpr-mentor.md`, spec e informes de tarea.
 
@@ -491,7 +513,7 @@
 * **La Fórmula Se Declara, No Se Aprende:** **50%** el archivo de mayor riesgo, **30%** el promedio ponderado por líneas y **20%** la evidencia crítica.
 * **Adaptadores de Infraestructura:** `risk_history_reader.py` lee `git log` y extrae commits, bug fixes y reverts dentro de una ventana de **90 días**; `test_matcher.py` casa archivos de prueba ↔ producción por convención.
 * **Caso de Uso (`calculate_risk.py`):** correlaciona secciones del diff, hallazgos, emparejamiento de pruebas e historial en `FileRisk`/`PullRequestRisk`, **degradando con advertencia** cuando una señal no está disponible.
-* **🆕 Path Tolerante:** la agregación de `check` aceptaba solo `path` y silenciaba las entradas con `file_path`, produciendo `high_risk_files` y `file_risk_map` con claves vacías. Ahora cualquiera de los dos atributos sirve — el informe de riesgo no degrada en silencio.
+* **Path Tolerante:** la agregación del `check` acepta `path` **o** `file_path` — el reporte de riesgo no degrada en silencio.
 * **Tres Consumidores:** el comando `gitpr risk`, la sección `⚡ Risk Assessment` añadida a los reviews y al review remoto de PR, y el **prompt de IA** como contexto **read-only**. `gitpr check` usa el mismo `execute_calculate_risk`.
 * **Opt-Out:** `GITPR_RISK_INCLUDE_IN_REVIEW` (predeterminado `true`).
 * **Configuración por Proyecto:** `templates/gitpr.risk.yml` (o `.gitpr/skill/gitpr.risk.yml`) sobrescribe pesos, umbrales y rutas críticas.
@@ -527,10 +549,10 @@
 * **Configuración:** `GITPR_BASELINE_ENABLED`, `GITPR_BASELINE_PATH`, `GITPR_BASELINE_REQUIRE_LOCKFILE_CHECKSUM_MATCH` y `GITPR_BASELINE_ALLOW_LOCAL_OVERRIDES`.
 * **Opt-In y No-Op:** apagada o sin un baseline existente, la funcionalidad **no lee ningún archivo y no imprime nada**.
 * **⚠️ La Excepción Deliberada:** un archivo de baseline que existe pero **no puede aplicarse** hace que lint, review, full review, auditoría de archivos, review remoto y riesgo **aborten con código de salida 1**. En `gitpr check`, un baseline corrupto sale con **código 2**.
-* **🆕 El Contrato Se Volvió Prueba:** `tests/integration/test_baseline_exit_code_contract.py` (8 escenarios) fija los dos códigos — el flujo que no logra aplicar el baseline nunca se disfraza de ejecución limpia.
+* **El Contrato se Volvió Prueba:** `tests/integration/test_baseline_exit_code_contract.py` (8 escenarios) fija los dos códigos.
 * **Alcance:** CLI (6 subcomandos, todos con `--format json`), MCP (`get_baseline_status` + `baseline://summary`), review remoto de PR y el flujo de lint.
 * **La Refactorización que la Funcionalidad Exigió:** `NormalizedFinding` pasó a tipo canónico en `src/domain/finding/`.
-* **Pruebas:** `tests/domain/baseline/` (5 archivos, **126**), `tests/application/use_cases/` (5 archivos, **141**), `tests/infrastructure/baseline/test_local_baseline_repository.py` (24), `tests/domain/finding/test_finding_types.py` (3), `tests/domain/linter/test_structured_findings.py` (44), `tests/test_baseline_cli.py` (54) y `tests/integration/test_baseline_effect_on_review_linter_risk.py` (34) + 🆕 `tests/integration/test_baseline_exit_code_contract.py` (8).
+* **Pruebas:** `tests/domain/baseline/` (5 archivos, **126**), `tests/application/use_cases/` (5 archivos, **141**), `tests/infrastructure/baseline/test_local_baseline_repository.py` (24), `tests/domain/finding/test_finding_types.py` (3), `tests/domain/linter/test_structured_findings.py` (44), `tests/test_baseline_cli.py` (54) y `tests/integration/test_baseline_effect_on_review_linter_risk.py` (34) + `tests/integration/test_baseline_exit_code_contract.py` (8).
 * **Artefactos:** `docs/baseline-suppressions.*.md` en **5 idiomas**, ADR-012, `glossary-baseline.md`, spec/plan/survey e informe de tarea.
 
 ### **41. Subcomando `gitpr check` — Puerta de CI Unificada (`src/domain/check/`, `src/infrastructure/ci/`)**
@@ -539,11 +561,12 @@
 * **El Orden del Pipeline Es Contrato:** (1) resolución de la policy — inválida sale con `2`; (2) extracción del diff con smart excludes; (3) linter regex + secretos + puentes externos; (4) puntuación de riesgo preliminar; (5) **review por IA opcional**; (6) clasificación por baseline; (7) evaluación del umbral `--fail-on`; (8) generación del artefacto con **enmascarado de secretos**.
 * **Capa de Dominio (`src/domain/check/`):** `check_types.py` (severidad normalizada en tres niveles con alias de la especificación); `check_config.py` (precedencia **CLI > env > defaults**); `check_output.py` (despacho por formato y escritura atómica).
 * **Capa de Infraestructura (`src/infrastructure/ci/`):** `sarif_builder.py` (SARIF 2.1.0), `junit_builder.py` (testsuites con `<failure>` y `<system-out>`) y `masking.py`.
-* **Caso de Uso (`run_check.py`):** `resolve_diff_base()` (explícito → `GITHUB_BASE_REF` → `origin/main` → `HEAD`), ejecución del linter y de los puentes, puntuación de riesgo, review opcional, baseline y envelope final. Stdout emite **solo el artefacto**. 🆕 La agregación de riesgo acepta `path` **o** `file_path`.
-* **Exit Codes:** `0` éxito; `1` hallazgo contable en el umbral; `2` error de ejecución — ahora con el contrato del baseline cubierto por prueba.
-* **CLI:** `gitpr check` con 8 opciones y 9 variables `GITPR_CHECK_*`.
+* **Use Case (`run_check.py`):** `resolve_diff_base()` (explícito → `GITHUB_BASE_REF` → `origin/main` → `HEAD`), ejecución del linter y de los bridges, score de riesgo, review opcional, baseline y sobre final. El stdout emite **solo el artefacto**. La agregación de riesgo acepta `path` **o** `file_path`.
+* **Códigos de Salida:** `0` éxito; `1` hallazgo contable en el umbral; `2` error de ejecución.
+* **CLI:** `gitpr check` con 8 opciones y 9 variables `GITPR_CHECK_*` — 🆕 ahora también en la TUI de configuración (categoría `check`).
 * **GitHub Action Reescrita:** `action.yml` pasó a un único paso `gitpr check`. **Ruptura declarada** para workflows que dependían de `--linter` + `--fullreview`.
-* **Pruebas:** 45 escenarios — `test_run_check.py` (8), `test_check_types.py` (8), `test_check_config.py` (3), `test_check_output.py` (3), `test_masking.py` (6), `test_sarif_builder.py` (2), `test_junit_builder.py` (2), `test_check_cli.py` (5) y 🆕 `test_baseline_exit_code_contract.py` (8).
+* **🆕 La Nota de Migración se Volvió Prueba:** `tests/unit/test_check_ci_docs_parity.py` exige las 5 variantes de idioma de `docs/check-ci.*`, las 7 secciones `## 1.`–`## 7.` y los términos `action.yml`, `--linter`, `--fullreview`, `gitpr check` y `SARIF` en la sección de migración — más el término **Legacy CI action contract** en el `CONTEXT.md`.
+* **Pruebas:** `test_run_check.py` (8), `test_check_types.py` (8), `test_check_config.py` (3), `test_check_output.py` (3), `test_masking.py` (6), `test_sarif_builder.py` (2), `test_junit_builder.py` (2), `test_check_cli.py` (5), `test_baseline_exit_code_contract.py` (8) y 🆕 `test_check_ci_docs_parity.py` (2).
 * **MCP:** la herramienta `run_check` devuelve el envelope JSON del mismo pipeline, con `no_ia` por defecto en `true`.
 * **Artefactos:** `docs/check-ci.*.md` en **5 idiomas**, ADR-013, `glossary-check-ci.md`, spec, `plansfacts` y survey.
 
@@ -556,10 +579,11 @@
 * **Diagnósticos en el Panel Problems:** `run_check` se convierte en una `DiagnosticCollection("gitpr")`.
 * **Enmascarado en Doble Profundidad:** `masking.ts` refleja `src/infrastructure/ci/masking.py`.
 * **Localización de la Extensión:** bundles en **en, es, fr y pt-br** (4 idiomas) — la UI de GitPR mantiene 5.
-* **CI/CD de la Extensión:** `.github/workflows/extension.yml` instala, compila, prueba y empaqueta el VSIX; en tags `ext-v*` publica en el Marketplace y Open VSX.
-* **Lo que la Extensión No Hace:** no commitea, no hace push y no publica sin confirmación. El comando `gitpr.commit` de la extensión llama a la herramienta MCP `generate_commit_message` — **no** abre la TUI, que es exclusiva del terminal. 🆕 El cierre automático de issue también es **exclusivo de la CLI**: la extensión no tiene camino para registrar el issue creado.
-* **Pruebas:** su propia suite Mocha (7 escenarios, incluido stdio real) + `tests/test_mcp_server.py` (117 escenarios).
-* **Artefactos:** `docs/editor-extension.*.md` en **5 idiomas**, ADR-014, `glossary-editor-extension.md`, specs, `plansfacts` y el informe Gemini.
+* **🆕 Metadatos de Marketplace:** el `package.json` ganó `icon` (`images/icon.png`), `homepage` y `bugs.url`; el paquete transporta `LICENSE` (LGPL-2.1), condición mínima para un listing creíble.
+* **🆕 Pipeline Endurecido:** `.github/workflows/extension.yml` acepta `workflow_dispatch` con `dry_run`, confirma que el tag `ext-v<versión>` coincide con el `package.json` antes de buildear, falla con `::error::` cuando falta `VSCE_PAT`/`OVSX_PAT`, y mueve las credenciales al `env` del job para que validación y publicación las lean.
+* **Lo Que la Extensión No Hace:** no commitea, no hace push y no publica sin confirmación. El comando `gitpr.commit` de la extensión llama a la tool MCP `generate_commit_message` — **no** abre la TUI, que es exclusiva del terminal. El cierre automático de issue también es **exclusivo del CLI**.
+* **Pruebas:** suite Mocha propia (7 escenarios, incluyendo stdio real; el timeout de la prueba de integración subió de 20s a 60s) + `tests/test_mcp_server.py` (117 escenarios).
+* **Artefactos:** `docs/editor-extension.*.md` en **5 idiomas**, `docs/marketplace-publishing-guide.md` 🆕, ADR-014, `glossary-editor-extension.md`, specs, `plansfacts` e informe del Gemini.
 
 ### **43. TUI de Commit Interactivo (`src/ui/commit_app.py`)**
 
@@ -573,43 +597,73 @@
 * **Todo Fallo Se Vuelve Estado, No Excepción:** la IA rota cae a `__("Code update")`; el commit que lanza excepción se vuelve `failed` con la salida capturada. Estados terminales: `no_changes`, `cancelled`, `committed`, `failed`.
 * **Auto-Exit al Tener Éxito:** `log.mark_finished(False)` quita el botón, y `_schedule_auto_exit()` registra `set_timer(0.6, self.exit)` — el usuario vuelve al prompt sin pulsar nada. **En error el Close se mantiene**, porque es ahí donde el log del fallo queda legible.
 * **`--hook` Intacto:** el camino de hook sigue sin TUI y merge-aware (`is_merge_in_progress()` → `return` silencioso). El `prepare-commit-msg` nunca abre la aplicación.
-* **Configuración:** `GITPR_SKIP_UNSTAGED_CHECK` (salta el Stage Selector) y `GITPR_AUTO_STAGE` (prepara todo y sigue), ambos ya existentes en `DEFAULT_CONFIG` y en el schema de la TUI de configuración.
+* **✅ La Ruptura Fue Cerrada — guarda de TTY:** sin `--hook`, el routing consulta ahora `_may_ask_the_user()`; con TTY, abre la `CommitApp`; sin TTY (CI, pipe, cron), cae en el flujo de consola silencioso. Fue esta corrección la que desbloqueó el escenario que congelaba la suite completa en ~33%.
+* **Configuración:** `GITPR_SKIP_UNSTAGED_CHECK` (salta el Stage Selector) y `GITPR_AUTO_STAGE` (hace stage de todo y sigue), ambos en el `DEFAULT_CONFIG` y en el schema de la TUI de configuración.
 * **Detalles de Textual:** `ENABLE_COMMAND_PALETTE = False`; `on_button_pressed` trata `#btn_close`; `_on_commit_progress_dismissed` lee `_commit_success` en lugar de asumir éxito cuando el modal se cierra.
-* **⚠️ Ruptura de Comportamiento (aún abierta):** sin `--hook`, `gitpr -c` **siempre** abre la TUI — no hay guardia de TTY en el enrutamiento. Un script o job de CI que contaba con el commit silencioso necesita pasar a usar `--hook`; `GITPR_SKIP_UNSTAGED_CHECK`/`--no-unstaged-check` solo saltan la etapa 1.
-* **Pruebas:** `tests/test_commit_app.py` (**14 escenarios**) — cada transición de estado y callback, más un flujo headless completo con el pilot de `run_test()`.
+* **✅ Prueba Headless Estabilizada:** `pilot.click("#btn_confirm")` pasó a `Button.press()` + `pilot.pause()`, el predicado de espera exige `CommitMessageScreen` montada con `#btn_confirm`, y el timeout default subió de **5 s a 10 s**. Cinco rondas de estrés cerraron al 100%.
+* **Pruebas:** `tests/test_commit_app.py` (**17 escenarios** 🆕) — cada transición de estado y callback, un flujo headless completo y el nuevo `TestCliCommitRouting` (routing con y sin TTY).
 * **Dominio:** `CONTEXT.md` mantiene los términos **Stage selector** y **Commit flow**.
 * **Artefactos:** `docs/commit-message-ia.*.md` en los **5 idiomas** y el informe de tarea de Gemini.
 
-### **44. Cierre Automático de Issues (`src/issue_autoclose/`) 🆕**
+### **44. Cierre Automático de Issues (`src/issue_autoclose/`) — 🆕 Multi-Forge**
 
 * **Lo que era:** el issue creado con `gitpr -is` quedaba huérfano — el número existía solo dentro de la TUI de issue y se perdía en el instante en que esta se cerraba. Todo PR tenía que vincularse a mano, y el merge no cerraba nada.
-* **Paquete de 5 archivos:** `issue_registry.py` (235 líneas), `register_created_issue.py` (80), `resolve_close_issue.py` (226), `insert_close_line.py` (46) y `__init__.py`. Cada uno es una responsabilidad: persistir, registrar en la creación, decidir en la siguiente ejecución e insertar en el cuerpo.
-* **Registro Local (`IssueRegistry`):** `.gitpr/conf/github.yml` con `schema_version: 1` y un único `last_issue` (last write wins, coherente con un flujo de un PR por vez). Escritura **atómica** mediante archivo hermano + `os.replace`; `load()` devuelve `error` en vez de lanzar (un archivo corrupto no bloquea la creación), y `matches_repo()` compara owner/repo sin distinguir mayúsculas para nunca cerrar el issue del repositorio equivocado.
-* **Auto-Ignorando con Precisión:** `record()` corre `git check-ignore` antes de la primera escritura y añade exactamente una línea `.gitpr/conf/github.yml` al `.gitignore` cuando el archivo no está cubierto — `.gitpr/conf/` **no** se ignora entero, porque `gitpr.config.yml` se versiona a propósito ([ADR-015](docs/plans/ADR-015-project-local-pr-base.md)).
-* **Registro en la Creación:** `register_created_issue()` solo escribe en **GitHub** y absorbe los fallos de bookkeeping — un problema de escritura local nunca convierte una creación exitosa en error.
-* **Decisión (`resolve_close_issue`):** filtra pronto por flags, configuración y forge no-GitHub; solo después toca disco/red. Verifica que el issue siga **abierto** y **no sea un PR**, borra registros muertos (404, cerrado, número de PR) y pregunta **una vez**, avisando cuando el PR apunta a una rama distinta de la default.
+* **Paquete de 5 archivos:** `issue_registry.py`, `register_created_issue.py`, `resolve_close_issue.py`, `insert_close_line.py` y `__init__.py`. Cada uno es una responsabilidad: persistir, registrar en la creación, decidir en la ejecución siguiente e insertar en el cuerpo.
+* **🆕 Registro Provider-Neutro (`IssueRegistry`):** el archivo pasó de `.gitpr/conf/github.yml` a **`.gitpr/conf/issue.yml`**, con un campo `provider` (default `github`). El `github.yml` heredado se **lee** de forma transparente cuando el nuevo no existe y se borra en la siguiente escritura/limpieza — migración sin intervención del usuario.
+* **Auto-Ignorándose con Precisión:** `record()` corre `git check-ignore` antes de la primera escritura y agrega exactamente una línea al `.gitignore` cuando el archivo no está cubierto — `.gitpr/conf/` **no** se ignora por entero, porque `gitpr.config.yml` se versiona a propósito ([ADR-015](docs/plans/ADR-015-project-local-pr-base.md)).
+* **Registro en la Creación:** `register_created_issue()` guarda el número **y el proveedor** de cualquier proveedor soportado y engulle fallos de bookkeeping — un problema de escritura local nunca convierte una creación exitosa en error. El desenlace antiguo `not-github` pasó a `no-provider`.
+* **Decisión (`resolve_close_issue`):** barre por flags y configuración, pero **no** ya por proveedor; cada proveedor sin soporte degrada a `skipped_reason="not-supported"` en vez de ser ignorado. Verifica que la issue sigue **abierta** y **no es un PR** (prefiriendo `IssueInfo.is_open`), borra registros muertos (404, cerrada, número de PR) y pregunta **una vez**, avisando cuando el PR apunta a una rama distinta de la default.
 * **Línea Idempotente (`insert_close_line`):** detecta cualquier keyword existente (`close/closes/closed`, `fix/fixes/fixed`, `resolve/resolves/resolved`, con prefijo `owner/repo#N` opcional, case-insensitive) y nunca duplica la línea.
-* **CLI:** `--close-issue` y `--no-close-issue` — mutuamente excluyentes, rechazadas antes de cualquier prompt o escritura; `-h` vence al conflicto. Entradas en `HELP_MAP`.
+* **CLI:** `--close-issue` y `--no-close-issue` — mutuamente excluyentes, rechazadas antes de cualquier prompt o escritura; el `-h` vence el conflicto.
 * **Conexión en el Flujo de PR:** `_prepare_close_issue` corre **antes** del Stage Selector y reutiliza el contexto SCM resuelto; `_publish_pr_directly` devuelve si la forge realmente publicó; `PrPublishApp.body_published` distingue crear/actualizar de solo abrir un PR existente. El registro solo se limpia después de una publicación real (ADR-007).
-* **Contrato SCM:** `IssueInfo` (state en el vocabulario de la forge + `is_pull_request`), `get_issue()`, `get_default_branch()` y `closing_line()` son **defaults concretos** de la ABC que lanzan `ScmNotSupportedError`; solo GitHub implementa. Las otras forges degradan a "funcionalidad inactiva".
-* **Configuración:** `GITPR_ISSUE_AUTOCLOSE` (default `true`, opt-out) y `GITPR_ISSUE_AUTOCLOSE_TIMEOUT` (default `5`, int positivo), expuestas en la categoría `issue` de la TUI; se leen como defaults read-only y **no** se siembran en `~/.gitpr/.env`.
+* **Contrato SCM:** `IssueInfo` (state en el vocabulario del proveedor, `is_open` y `is_pull_request`), `get_issue()`, `get_default_branch()` y `closing_line()` son defaults concretos de la ABC; 🆕 GitHub, GitLab y Bitbucket implementan (sintaxis `Closes #N` en GitLab, `close #N` en GitHub/Bitbucket), y Azure DevOps lanza `ScmNotSupportedError`.
+* **Configuración:** `GITPR_ISSUE_AUTOCLOSE` (default `true`, opt-out) y `GITPR_ISSUE_AUTOCLOSE_TIMEOUT` (default `5`, int positivo), expuestas en la categoría `issue` de la TUI.
 * **Telemetría:** una línea `issue_autoclose` por decisión (`asked`, `accepted`, `skipped_reason`).
-* **Pruebas:** 5 archivos en `tests/issue_autoclose/` (**120 escenarios**) — round-trip del registro, schema, corrupción, fallo de escritura atómica, `.gitignore`, decisión, idempotencia de la línea, flags, conexión y semántica de `body_published`.
-* **Artefactos:** `docs/specs/issue-autoclose/` (**12 archivos**: spec, entrevista, glosario, prompt y ADRs 001–007), `docs/issue-tui-help.*`, `docs/config-tui.*` y `docs/metricas-telemetria.*` en los **5 idiomas**, README en los 5 idiomas y 12 informes de tarea en `docs/claude-code/reports/feat/issue-autoclose/`.
+* **Pruebas:** 5 archivos en `tests/issue_autoclose/` (**126 escenarios** 🆕) — round-trip del registro, schema, corrupción, fallo de escritura atómica, `.gitignore`, migración del heredado, decisión, idempotencia de la línea, flags, cableado y semántica de `body_published`.
+* **Artefactos:** [ADR-010](docs/adr/0010-multiforge-issue-autoclose.md), `docs/specs/issue-autoclose/` (12 archivos), `docs/issue-autoclose.*` en **5 idiomas** 🆕, `docs/issue-tui-help.*`, `docs/config-tui.*` y `docs/metricas-telemetria.*`, README en los 5 idiomas e informes de tarea.
 
-### **45. Base del PR por Proyecto (`src/project_config.py`, `src/ui/pr_base_app.py`) 🆕**
+### **45. Base del PR por Proyecto (`src/project_config.py`, `src/ui/pr_base_app.py`)**
 
 * **Lo que era:** la rama de destino del PR vivía solo en el `~/.gitpr/.env` de la máquina (`PR_DEFAULT_BASE`) o se adivinaba por `origin/HEAD`. Un repositorio que apunta a `develop` dependía de que cada desarrollador configurara la misma variable, y el error (PR abierto contra la rama equivocada) solo aparecía en la forge.
 * **Lo que es:** `.gitpr/conf/gitpr.config.yml` — archivo **versionado con el proyecto** que carga la base del PR, editado por la TUI de configuración y validado antes de cualquier commit/push. Un resolvedor único sirve a la CLI y al MCP, así que todos los puntos de entrada coinciden en la precedencia y en las reglas de fallo.
-* **Resolvedor (`src/project_config.py`, 426 líneas):** `resolve_pull_request_base()` — `--base` → archivo del proyecto → `PR_DEFAULT_BASE` → detección `origin/HEAD` → `main`. Lectura/escritura YAML preserva claves ajenas; seeding idempotente; listado de ramas; detección de la rama actual; verificación contra el remoto.
+* **Resolvedor (`src/project_config.py`):** `resolve_pull_request_base()` — `--base` → archivo del proyecto → `PR_DEFAULT_BASE` → detección `origin/HEAD` → `main`. Lectura/escritura YAML preserva claves ajenas; seeding idempotente; listado de ramas; detección de la rama actual; verificación contra el remote.
+* **🆕 Segunda Sección (`scm:`):** el archivo también transporta `scm.provider` (lectura/escritura), con las dos secciones independientes y rechazo a sobrescribir un bloque `scm` que no sea mapping. Es ese override el que vence la detección por el remote (sección 46).
 * **Fallo Antes de que Nazca el PR:** `BaseBranchError`/`CurrentBranchError`; la base debe existir en `origin/<branch>` y diferir de la rama actual — sin `origin` o con ref ausente, el flujo se detiene con una pista accionable en vez de abrir un PR condenado.
-* **TUI de Configuración:** nueva categoría `project` con atributo `store` (`env` vs `project`), `KIND_BRANCH` y tres campos: ruta del archivo (read-only), rama destino (editable) y base efectiva con el origen (read-only). `ConfigApp` escribe primero los valores de proyecto, soporta eliminación al vaciar, rechaza la rama actual y nunca sobrescribe YAML ilegible; la línea de la base efectiva se actualiza in-place.
-* **Modal de Reparación (`src/ui/pr_base_app.py`, 98 líneas):** cuando el destino es la propia rama actual y la ejecución es interactiva, un modal enfocado pide la rama sustituta y la escribe en el archivo del proyecto. Probado en modo headless (`tests/test_pr_base_app.py`, 12 escenarios).
-* **CLI:** `--base` pasa por `_resolve_pr_target()`; el archivo se siembra en toda invocación dentro de un repositorio (excepto ayuda), anunciado solo en el camino interactivo de la raíz; `GITPR_SKIP_PROJECT_CONFIG_SEED` desactiva el seed (suite de pruebas).
+* **TUI de Configuración:** categoría `project` con atributo `store` (`env` vs `project`), `KIND_BRANCH` y tres campos: path del archivo (read-only), rama objetivo (editable) y base efectiva con el origen (read-only).
+* **Modal de Reparación (`src/ui/pr_base_app.py`, 98 líneas):** cuando el objetivo es la propia rama actual y la ejecución es interactiva, un modal enfocado pide la rama sustituta y la graba en el archivo del proyecto.
+* **CLI:** `--base` pasa por `_resolve_pr_target()`; el archivo se siembra en cada invocación dentro de repositorio (excepto ayuda), anunciado solo en la ruta interactiva de la raíz; `GITPR_SKIP_PROJECT_CONFIG_SEED` desactiva el seed. 🆕 `gitpr seed` hace lo mismo de forma explícita e idempotente (sección 47).
 * **MCP:** `publish_pull_request` usa el resolvedor compartido, devuelve envelope de error para `BaseBranchError` y expone `warnings` en el payload y en el catálogo.
 * **Efecto Colateral Declarado:** ejecutar `gitpr` en un repositorio pasa a crear el archivo en la primera ejecución. Un archivo existente nunca se sobrescribe; si el `.gitignore` excluye la ruta, un aviso explica que el valor no se versionará.
-* **Pruebas:** `tests/test_project_config.py` (41), `tests/test_project_config_cli.py` (7), `tests/test_pr_base_app.py` (12) + ampliaciones en `test_config_app.py` (88), `test_config_schema.py` (46), `test_config_store.py` (22), `test_mcp_server.py` (117) y `test_core.py` (49).
+* **Pruebas:** `tests/test_project_config.py` (**49**), `tests/test_project_config_cli.py` (7), `tests/test_pr_base_app.py` (12) + ampliaciones en `test_config_app.py` (94), `test_config_schema.py` (53), `test_config_store.py` (22), `test_mcp_server.py` (117) y `test_core.py` (49).
 * **Artefactos:** [ADR-015](docs/plans/ADR-015-project-local-pr-base.md), `docs/plans/develop_natan/20261030_project_pr_base_plansfacts.md`, `docs/survey/20261030_project_pr_base_surveyfacts.md`, y `docs/config-tui.*`/`docs/install-wizard.*`/`docs/pr-descricao-padrao.*`/`docs/pull-request-publication.*` en los 5 idiomas.
+
+### **46. Configuración SCM por Repositorio y por Proveedor (`src/scm_settings.py`) 🆕**
+
+* **Lo que era:** el proveedor (`GITPR_SCM_PROVIDER`), el token (`GITPR_SCM_TOKEN_ENCRYPTED`) y la base URL eran configuraciones **globales de la máquina** en `~/.gitpr/.env`. Una máquina no servía más de un proveedor a la vez, la credencial equivocada iba al host equivocado cuando el remote de un repositorio cambiaba, y cualquier host self-hosted no reconocido se mapeaba silenciosamente a GitHub.
+* **Lo que es:** el proveedor y la credencial pasaron a ser **propiedad del repositorio** ([ADR-016](docs/plans/ADR-016-per-provider-scm-settings.md)). Un único resolvedor responde "¿qué proveedor, qué token, qué base URL valen aquí?" para todas las superficies.
+* **Orden de Resolución (`resolve_provider_choice`):** override del proyecto (`scm.provider` en `.gitpr/conf/gitpr.config.yml`) → `detect_provider_from_remote(origin, default=None)` → `github`. Un valor de proveedor desconocido en el archivo del proyecto se **ignora con aviso**, nunca es fatal; `default=None` permite al wizard distinguir "reconocido como GitHub" de "no reconocido" y **preguntar** en vez de asumir.
+* **Un Slot por Proveedor:** `GITHUB_TOKEN_ENCRYPTED`, `GITLAB_TOKEN_ENCRYPTED`, `BITBUCKET_TOKEN_ENCRYPTED`, `AZURE_DEVOPS_TOKEN_ENCRYPTED` (Fernet) y los `*_BASE_URL` correspondientes. Un token nunca responde por otro proveedor; el `GITPR_SCM_TOKEN` crudo sigue siendo el override global de CI/CD y se intenta primero en todos los proveedores.
+* **Migración Única e Idempotente (`migrate_legacy_scm_config`, bajo lock):** mueve `GITPR_SCM_PROVIDER` + `GITPR_SCM_TOKEN_ENCRYPTED` + `GITPR_SCM_BASE_URL` al slot del proveedor que ellos nombran, **nunca sobrescribe** un slot ya relleno, elimina las líneas heredadas y sigue funcionando cuando el `.env` es de solo lectura (degrada al entorno del proceso). Un token heredado **sin** proveedor registrado se **deja en su lugar** deliberadamente, sin adivinar.
+* **Wizard (`gitpr --init`):** persiste **solo en caso de éxito**, graba en el slot del proveedor elegido, ofrece la base URL guardada como default del prompt (no-GitHub) y solo escribe `scm.provider` en el archivo del proyecto cuando el proveedor elegido difiere del detectado — el archivo se commitea y se comparte con el equipo.
+* **TUI de Configuración:** línea editable `PROJECT_SCM_PROVIDER` y línea read-only `PROJECT_EFFECTIVE_PROVIDER` (proveedor en uso + origen), tokens y base URLs de todos los proveedores siempre listados, prueba de token contra el host del propio slot y un grupo `gitlab`.
+* **Superficies Convertidas:** `src/main.py`, `src/metrics.py`, `src/release_engine.py` y `src/mcp_server.py` resuelven por `get_scm_settings()` y propagan los avisos del resolvedor.
+* **No Interactivo Nunca Pregunta:** `validate_or_request_scm_token(..., allow_prompt=False)` en hooks, MCP y CI devuelve "ejecute `gitpr --init`", no borra la credencial guardada y aún usa un token validado que no pudo persistirse.
+* **Pruebas:** `tests/scm/test_scm_settings.py` (**24 escenarios**) + ampliaciones en `test_init_wizard.py` (20), `test_factory.py` (14), `test_azure_devops_provider.py` (51), `test_bitbucket_provider.py` (49), `test_gitlab_provider.py` (56) y 🆕 `tests/test_tui_issue_token.py` (8).
+* **Artefactos:** [ADR-016](docs/plans/ADR-016-per-provider-scm-settings.md), `docs/plans/develop_natan/20261107_per_provider_scm_settings_plansfacts.md`, `docs/scm-multiforge.*` (5 idiomas) y el glosario `docs/plans/glossary-scm-multiforge.md`.
+
+### **47. Subcomando `gitpr seed` — Bootstrap de la Configuración Local (`src/core.py`, `src/main.py`) 🆕**
+
+* **Lo que era:** la configuración local del proyecto (base del PR, smart excludes, reglas de linter) nacía **como efecto colateral** del callback raíz y de la descarga de skills. No había forma de sembrarla de forma explícita, repetible e idempotente — y un CI que dependía de esos archivos solo lo descubría en la segunda ejecución.
+* **Lo que es:** `gitpr seed` (y el flag global `-sd/--seed`) promueven el bootstrap a operación de primera clase. `seed_project_configuration()` crea:
+  * `.gitpr/conf/gitpr.config.yml` (base del PR, vía `ensure_project_config`);
+  * `.gitpr/conf/gitpr.smart-excludes.json` (exclusiones del proyecto);
+  * `.gitpr/skill/.gitpr.linter.yml` (reglas del linter local).
+* **Nunca Destruye sin Pedido:** un archivo existente **nunca** se sobrescribe; `--force/-f` sobrescribe a propósito, y `--all/-a` incluye también la descarga de todas las skills de IA. La función devuelve un resumen estructurado (`config`, `smart_excludes`, `linter`, `skills_downloaded`) y el comando guarda la métrica `seed`.
+* **Wizard de Instalación en 5 Etapas:** **1)** Configuración Local del Proyecto (nuevo, confirmable), **2)** Skill Templates (con el setup opcional de bridges de linter externo), **3)** Git Hooks, **4)** Configuración del MCP, **5)** Clave de API. Saltar pasó a ser explícito.
+* **Compatibilidad:** `generate_skill_template()` sigue auto-sembrando los smart-excludes, así que la ruta antigua no se rompe; `ensure_project_config()` y `download_skill_file()` ganaron el parámetro `force` manteniendo el default no-clobber.
+* **Ayuda:** `HELP_MAP["seed"]` apunta a `docs/install-wizard.md` y describe `--force`/`--all`.
+* **Pruebas:** `tests/test_seed_command.py` (**8 escenarios**) — creación, idempotencia, sobrescritura forzada, `--all`, CLI y flag; `tests/test_install_wizard.py` pasó a mockear el setup de linter externo.
+* **Artefactos:** `docs/install-wizard.*` (5 idiomas), `docs/plans/develop_natan/20261105_seed_local_conf_plansfacts.md`, survey y walkthrough, y el término **Project configuration seed** en el `CONTEXT.md`.
 
 ---
 
@@ -623,24 +677,25 @@
 | `tests/test_changelog_builder.py` | 22 | Constructor de changelog: secciones, títulos traducibles, contribuidores, enlaces y fechas |
 | `tests/test_chat_backend.py` | 19 | Memoria de chat, persistencia, comandos slash |
 | `tests/test_check_cli.py` | 5 | CLI de `check`: opciones, formatos, exit codes |
-| `tests/test_cli_help.py` | 9 🆕 | `-h` antes del subcomando: ayuda renderizada, TUI nunca abierta |
-| `tests/test_commit_app.py` | 14 | `CommitApp`: mount, Stage Selector, auto-stage, skip, cancelar, confirmar, éxito/fallo del commit, auto-exit y flujo headless |
+| `tests/test_cli_help.py` | 9 | `-h` antes del subcomando: ayuda renderizada, TUI nunca abierta |
+| `tests/test_commit_app.py` | 17 | `CommitApp`: mount, Stage Selector, auto-stage, skip, cancelar, confirmar, éxito/fallo, auto-exit, flujo headless **y routing con/sin TTY** 🆕 |
 | `tests/test_commit_classifier.py` | 30 | Clasificación Conventional Commits + `pr_number_from_merge()` en los 4 forges |
-| `tests/test_config_app.py` | 88 | TUI de configuración: montaje, cambio de categoría, dirty tracking, F2 bloqueado, Ctrl+R, búsqueda, secretos, store `project` |
+| `tests/test_config_app.py` | 94 | TUI de configuración: montaje, categorías, dirty tracking, F2 bloqueado, Ctrl+R, búsqueda, secretos, stores `project`, panel Smart Excludes 🆕 |
 | `tests/test_config_cli.py` | 9 | Registro del subcomando `config`, `-h`, lazy import, stdout limpio |
-| `tests/test_config_issue_autoclose.py` | 10 🆕 | Getters de configuración y campos del schema de cierre de issue |
-| `tests/test_config_schema.py` | 46 | Cobertura de `DEFAULT_CONFIG`, sin duplicados, categorías/tipos, `advanced` solo en Advanced, sección de skills |
+| `tests/test_config_issue_autoclose.py` | 10 | Getters de configuración y campos del schema de cierre de issue |
+| `tests/test_config_schema.py` | 53 | Cobertura de `DEFAULT_CONFIG` derivado, sin duplicados, categorías/kinds, `seeded`, sección de skills, banner y palette 🆕 |
 | `tests/test_config_store.py` | 22 | Round-trip sobre el `.env` temporal, comentarios y orden preservados, `remove_config_value()` idempotente |
 | `tests/test_config_suggest_reviewers.py` | 8 | Configuración de revisores sugeridos (claves y defaults) |
 | `tests/test_config_validation.py` | 40 | Tipos, enums, plantillas, `validate_ai_key()` con un SDK mockeado (401 vs. red vs. ollama) |
 | `tests/test_core.py` | 49 | Flujos principales, git diff, PR generation, timing, staging, coautoría, idioma de los hooks, base del PR |
 | `tests/test_diff_failure_cli.py` | 3 | Exit code 1 en fallo de git, 0 en diff vacío, fail-open en `--hook` |
-| `tests/test_diff_parser.py` | 26 | Parser de diff por líneas/hunks + `summarize_patch()` y `split_patch_sections()` |
+| `tests/test_diff_parser.py` | 26 | Parser de diff por líneas/hunks, `summarize_patch()` y `split_patch_sections()` |
+| `tests/test_doc_links.py` | 11 🆕 | Contrato `?lang=` del sitio, `doc_url()` dinámico, links de las TUIs y paridad de 5 idiomas |
 | `tests/test_explain_command.py` | 4 | CLI de `explain`: éxito, clave ausente, diff vacío, ayuda contextual |
 | `tests/test_external_linters.py` | 33 | Puente Checkstyle: parser XML, subprocess, intersección con el diff, informe |
-| `tests/test_full_diff_encoding.py` | 1 | Repositorio real con un archivo Latin-1: el byte `0xFA` pasa a `U+FFFD` y el archivo aparece en el diff |
+| `tests/test_full_diff_encoding.py` | 8 | Repositorio real con archivo Latin-1 + guarda de hunk binario (fast path, colapso, densidad) 🆕 |
 | `tests/test_i18n.py` | 22 ✅ | Paridad entre idiomas, claves faltantes/huérfanas, identidad — **todos en verde** |
-| `tests/test_install_wizard.py` | 3 | Wizard de instalación interactivo |
+| `tests/test_install_wizard.py` | 3 | Asistente interactivo de instalación (5 etapas) |
 | `tests/test_issue_engine.py` | 4 | Borrador de issue estructurado |
 | `tests/test_linter_metrics.py` | 4 | Métricas del linter: errores, warnings, duración |
 | `tests/test_linter_presets.py` | 5 | Presets del linter: resolución y re-descarga forzada |
@@ -648,30 +703,33 @@
 | `tests/test_mcp_prompts.py` | 11 | Plantillas de prompts MCP y fallback de idioma |
 | `tests/test_mcp_server.py` | 117 | Herramientas MCP (18), recursos (19), anotaciones, patching, CLI directa, offload, contrato de la extensión, base del PR |
 | `tests/test_mcp_server_e2e.py` | 6 | Servidor MCP real vía subprocess + JSON-RPC stdio |
-| `tests/test_mentor_cli.py` | 4 ✅ | CLI de `mentor` y opt-in de `--mentor` — **patches en `src.main`, todos en verde** |
-| `tests/test_metrics.py` | 164 | **Ledger**: escritura síncrona, export idempotente, bundle/merge, versionado, migración, renderers, costo, calidad, módulos, proveedores, ciclo |
+| `tests/test_mentor_cli.py` | 4 ✅ | CLI del `mentor` y opt-in del `--mentor` — patches en `src.main` |
+| `tests/test_metrics.py` | 174 | **Ledger**: escritura síncrona, exportación, bundle/merge, migración, renderizadores, costo, calidad, módulos, proveedores, ciclo, **Token Trend y Latency Histogram** 🆕 |
 | `tests/test_net_timeouts.py` | 12 | Timeouts de red/IA — alineados con el predeterminado real de 180s |
 | `tests/test_plugins.py` | 17 | Descubrimiento de plugins, fusión de reglas del linter, prompts MCP |
 | `tests/test_policy_cli.py` | 26 | Grupo `policy`: list/show/validate/use/off/install/init, confirmación y lockfile |
-| `tests/test_pr_base_app.py` | 12 🆕 | Modal de cambio de la base del PR: montaje headless, elección y cancelación |
+| `tests/test_pr_base_app.py` | 12 | Modal de cambio de la base del PR: montaje headless, elección y cancelación |
 | `tests/test_pr_publish_app.py` | 59 | TUI del PR Publisher: pantallas, flujos, revisores sugeridos, `NoticeScreen`, modal de merge, `body_published` |
 | `tests/test_pr_publish_linter_modal.py` | 4 | Modal de error del linter: abortar, no-verify |
 | `tests/test_pre_save.py` | 3 | Flag --pre-save y payload JSON |
-| `tests/test_project_config.py` | 41 🆕 | `project_config`: path, YAML, seed, resolvedor de base, validación contra el remoto |
-| `tests/test_project_config_cli.py` | 7 🆕 | Conexión de la base del proyecto en la CLI |
+| `tests/test_project_config.py` | 49 | `project_config`: path, YAML, seed, resolvedor de base, sección `scm`, validación contra el remote 🆕 |
+| `tests/test_project_config_cli.py` | 7 | Cableado de la base del proyecto en la CLI |
 | `tests/test_release_cli.py` | 4 | CLI de release: opciones, ayuda con epílogo documentado |
-| `tests/test_release_engine.py` | 53 | **Cutoff anclado en el changelog, `_drop_released()`, enlaces, mapa de PRs por merge commit**, publicación |
+| `tests/test_release_engine.py` | 61 | **Corte anclado en el changelog, `_drop_released()`, links, mapa de PR por merge commit**, front matter de idioma 🆕 |
 | `tests/test_reviewer_resolution.py` | 18 | Escalera de resolución, rechazo de nombre parcial, dedup, tolerancia a fallos |
 | `tests/test_reviewer_suggestion.py` | 18 | Lógica de sugerencia de revisores (ranking, exclusión, top-N, `last_commit_hash`) |
 | `tests/test_risk_cli.py` | 4 | CLI de `risk`: `--file`, `--format json`, `--base`, `--no-history` |
 | `tests/test_security_ruleset.py` | 77 | Matriz del ruleset integrado: regex, placeholders, nivel, comodín, fusión, traducciones |
+| `tests/test_seed_command.py` | 8 🆕 | `gitpr seed`/`--seed`: creación, idempotencia, force, `--all`, métricas |
 | `tests/test_skill_command.py` | 10 | Descarga y validación de plantillas de skill |
 | `tests/test_skill_context.py` | 20 | `get_skill_context()` con `quiet=True`, fallbacks, guardia del artefacto de PR |
+| `tests/test_skill_frontmatter.py` | 11 🆕 | `split_front_matter()`: BOM, CRLF, YAML malformado, allowlist de idiomas |
 | `tests/test_skill_templates.py` | 99 | Barrido parametrizado de **todas las plantillas publicadas** contra referencias embebidas |
-| `tests/test_smart_excludes.py` | 15 | Filtro smart pathspec y re-descarga forzada |
-| `tests/test_suggest_reviewers.py` | 17 | Revisores sugeridos en el flujo de PR (integración, hint `no_login`) |
+| `tests/test_smart_excludes.py` | 17 | Filtro pathspec inteligente, re-download forzado, **nuevas familias binarias** 🆕 |
+| `tests/test_suggest_reviewers.py` | 19 | Suggested reviewers en el flujo de PR + **resumen de blame** 🆕 |
 | `tests/test_tests_command.py` | 4 | Grupo `tests` y CLI de `generate`, `--finding` y epilog con enlace |
 | `tests/test_thinking_words.py` | 5 | Carga, parsing con separador `;` y recarga forzada |
+| `tests/test_tui_issue_token.py` | 8 🆕 | `allow_prompt=False`: nunca pregunta, nunca borra, apunta `gitpr --init` |
 | `tests/test_updater.py` | 55 | **Puerta de PyPI**: TTL deslizante, caché legado/corrupto, escritura atómica, `force`, `bounded_urlopen`, comparador PEP 440, pre-release, switch de skip estricto y puerta del subcomando |
 | `tests/test_usage_log.py` | 27 | Log de uso: nombre derivado de la fecha, escritura síncrona, silencio, `_repo_label()` multi-forge |
 | `tests/test_version_bump.py` | 17 | Bump semántico: major/minor/patch, targets y validación |
@@ -694,7 +752,7 @@
 | `tests/badge/test_badge_data.py` | 7 | Conteo de alertas; `None` sin reglas configuradas |
 | `tests/badge/test_badge_offline.py` | 6 | Guard offline (red prohibida, salvo loopback) |
 | `tests/badge/test_badge_optout.py` | 17 | `GITPR_BADGE=false` en cada camino de publicación |
-| `tests/badge/test_badge_paths.py` | 10 ✅ | Punto único de inyección en ambos publishers — sigue en verde |
+| `tests/badge/test_badge_paths.py` | 10 ✅ | Punto único de inyección en los dos publicadores |
 | `tests/demo/test_demo_app.py` | 22 | TUI del tour: navegación, pantallas, modal de ayuda |
 | `tests/demo/test_demo_isolation.py` | 14 | El tour no toca ni `~/.gitpr` ni la red |
 | `tests/demo/test_demo_runner.py` | 33 | Máquina de estados `DemoState`: avance, retroceso, completado, modo texto |
@@ -743,47 +801,46 @@
 | `tests/infrastructure/linter/external/test_gitleaks_bridge.py` | 4 | Puente Gitleaks: enmascarado de secretos, ámbito por archivo |
 | `tests/infrastructure/linter/external/test_semgrep_bridge.py` | 3 | Puente Semgrep: parsing JSON, severidad, skip de no-Python |
 | `tests/integration/test_baseline_effect_on_review_linter_risk.py` | 34 | Efecto real del baseline sobre review, lint y riesgo en un repositorio real |
-| `tests/integration/test_baseline_exit_code_contract.py` | 8 🆕 | Exit code 1 para baseline inaplicable y 2 en `check` |
+| `tests/integration/test_baseline_exit_code_contract.py` | 8 | Exit code 1 para baseline inaplicable y 2 en el `check` |
 | `tests/integration/test_policy_effect_on_review_linter_risk.py` | 31 | Efecto real del pack sobre review, lint y riesgo (con un guard de red autouse) |
-| `tests/issue_autoclose/test_close_issue_wiring.py` | 26 🆕 | Conexión en el flujo de PR: flags, prompt, publicación real, limpieza del registro |
-| `tests/issue_autoclose/test_insert_close_line.py` | 19 🆕 | Inserción idempotente y reconocimiento de keywords de cierre |
-| `tests/issue_autoclose/test_issue_registry.py` | 23 🆕 | Registro local: round-trip, atomicidad, corrupción, `.gitignore`, repo match |
-| `tests/issue_autoclose/test_register_created_issue.py` | 12 🆕 | Registro poscreación: solo GitHub, fallos absorbidos, primera escritura |
-| `tests/issue_autoclose/test_resolve_close_issue.py` | 40 🆕 | Árbol de decisión: gates, issue abierto, PR, registros muertos, confirmación |
+| `tests/issue_autoclose/test_close_issue_wiring.py` | 26 | Cableado en el flujo de PR: flags, prompt, publicación real, limpieza del registro |
+| `tests/issue_autoclose/test_insert_close_line.py` | 19 | Inserción idempotente y reconocimiento de keywords de cierre |
+| `tests/issue_autoclose/test_issue_registry.py` | 26 | Registro local: round-trip, atomicidad, corrupción, `.gitignore`, repo match, **migración de `github.yml`** 🆕 |
+| `tests/issue_autoclose/test_register_created_issue.py` | 13 | Registro post-creación: multi-forge, proveedor persistido, fallos engullidos |
+| `tests/issue_autoclose/test_resolve_close_issue.py` | 42 | Árbol de decisión: gates, `is_open`, PR, registros muertos, `not-supported`, confirmación |
 | `tests/review/test_diff_normalizer.py` | 20 | Saltos de línea, validación de diff, smart-excludes en Python |
 | `tests/review/test_diff_source.py` | 12 | `DiffOrigin`/`DiffSource`: procedencia, `cache_scope`, `is_remote` |
 | `tests/review/test_remote_pr.py` | 40 | Orquestación: puertas, PR, diff, linter, comentario opcional |
 | `tests/review/test_review_pr_cli.py` | 25 | CLI de `review-pr`: opciones, rechazos antes de la IA, `--post-comment` |
-| `tests/scm/test_azure_devops_provider.py` | 48 | Proveedor de Azure DevOps: org/project, PRs, `ScmNotSupportedError` |
-| `tests/scm/test_bitbucket_provider.py` | 44 | Proveedor de Bitbucket: Basic auth, workspace, PRs |
+| `tests/scm/test_azure_devops_provider.py` | 51 | Proveedor Azure DevOps: org/proyecto, PRs, `ScmNotSupportedError`, issue read-back |
+| `tests/scm/test_bitbucket_provider.py` | 49 | Proveedor Bitbucket: Basic auth, workspace, PRs, `close #N` |
 | `tests/scm/test_contract.py` | 44 | Contrato de `ScmProvider`: firmas, dataclasses, errores, defaults de issue |
-| `tests/scm/test_factory.py` | 11 | `resolve_scm_provider()` + `detect_provider_from_remote()` |
+| `tests/scm/test_factory.py` | 14 | `resolve_scm_provider()` + `detect_provider_from_remote(default=None)` |
 | `tests/scm/test_github_api_shim.py` | 18 | Shim deprecado `github_api` → delega en el proveedor |
-| `tests/scm/test_github_provider.py` | 86 | Proveedor de GitHub: REST, headers, PRs, issues, releases, read-back de revisores, `get_issue`/`get_default_branch` |
-| `tests/scm/test_gitlab_provider.py` | 52 | Proveedor de GitLab: API v4, namespace, headers sintetizados y `overflow` |
-| `tests/scm/test_init_wizard.py` | 12 | Wizard de `--init`: detección de forge, validación, persistencia |
+| `tests/scm/test_github_provider.py` | 86 | Proveedor GitHub: REST, headers, PRs, issues, releases, read-back de revisores |
+| `tests/scm/test_gitlab_provider.py` | 56 | Proveedor GitLab: API v4, namespace, cabeceras sintetizadas, `overflow`, `Closes #N` |
+| `tests/scm/test_init_wizard.py` | 20 | Wizard `--init`: detección del proveedor, slot por proveedor, validación, persistencia |
 | `tests/scm/test_release_publish.py` | 8 | Publicación de release por forge (GitHub/GitLab) |
+| `tests/scm/test_scm_settings.py` | 24 🆕 | Resolvedor de proveedor/credencial: precedencia, migración heredada, avisos, read-only |
 | `tests/split/test_apply_split_plan.py` | 11 | El único módulo que muta: staging selectivo, un commit por grupo |
 | `tests/split/test_generate_split_plan.py` | 12 | Diff → unidades → grupos → pre-validación de conflictos → mensajes |
 | `tests/split/test_hunk_grouper.py` | 18 | Prompt, presupuesto/recorte, llamada de IA, validación de respuesta |
 | `tests/split/test_hunk_parser.py` | 18 | `parse_units()`/`build_patch()`: texto ↔ modelo, puro |
 | `tests/split/test_selective_stager.py` | 11 | Staging de un subconjunto, verificación contra HEAD, índice limpio |
 | `tests/split/test_split_cli.py` | 31 | CLI de split: opciones, dry run predeterminado, `--apply` |
-| `tests/unit/test_version_consistency.py` | 5 🆕 | SSOT de la versión: `pyproject.toml`, `CLAUDE.md` y `GEMINI.md` contra `src.updater.__version__` |
+| `tests/unit/test_version_consistency.py` | 5 | SSOT de la versión: `pyproject.toml`, `CLAUDE.md` y `GEMINI.md` contra `src.updater.__version__` |
+| `tests/unit/test_check_ci_docs_parity.py` | 2 🆕 | Paridad de 5 idiomas y 7 secciones del `docs/check-ci.*` + término en el `CONTEXT.md` |
 | `tests/sync_i18n.py` | — | Script de verificación de cobertura i18n (scaffold; nunca se ejecuta) |
 
-**Total:** **3276 escenarios recolectados en 153 módulos de prueba** (59 en la raíz + 12 en `tests/application/use_cases/` + 10 en `tests/fix/` + 9 en `tests/scm/` + 7 en `tests/badge/` + 6 en `tests/split/` + 6 en `tests/demo/` + 5 en `tests/domain/baseline/` + 5 en `tests/issue_autoclose/` + 4 en `tests/domain/policy/` + 4 en `tests/review/` + 4 en `tests/infrastructure/linter/external/` + 3 en `tests/domain/check/` + 3 en `tests/infrastructure/ci/` + 3 en `tests/integration/` + 2 en `tests/domain/risk/` + 2 en `tests/domain/tests_generation/` + 2 en `tests/infrastructure/git/` + 2 en `tests/domain/linter/` + 1 en `tests/domain/finding/` + 1 en `tests/domain/mentor/` + 1 en `tests/domain/pr/` + 1 en `tests/infrastructure/baseline/` + 1 en `tests/unit/`; **+266 escenarios, +12 archivos** desde el informe anterior).
+**Total:** **3422 escenarios recolectados en 159 módulos de prueba** (63 en la raíz + 12 en `tests/application/use_cases/` + 10 en `tests/fix/` + 10 en `tests/scm/` + 10 en `tests/infrastructure/` + 21 en `tests/domain/` + 7 en `tests/badge/` + 6 en `tests/demo/` + 6 en `tests/split/` + 5 en `tests/issue_autoclose/` + 4 en `tests/review/` + 3 en `tests/integration/` + 2 en `tests/unit/`; **+146 escenarios, +6 archivos** desde el informe anterior).
 
 **Notas de calidad de esta versión:**
-- **⚠️ Ejecución completa en esta máquina — el escenario que se cuelga:** sin exclusión, el run se queda atascado en **~33%** (≈1085 escenarios) y no termina ni tras 16 minutos. La causa es `tests/integration/test_baseline_effect_on_review_linter_risk.py::TestAnUnusableBaseline::test_a_flow_that_never_enforced_it_is_untouched`: llama a `gitpr -c --no-unstaged-check` por el `CliRunner`, y la rama `commit` de [main.py:1625-1638](src/main.py#L1625-L1638) **abre `CommitApp` sin comprobar el TTY**, así que `app.run()` espera un terminal que no existe. Aislado, el archivo corre **24 de los 34 escenarios** y se detiene en el 25.º; el escenario solo no retorna (proceso muerto tras 45 s). **Es la primera evidencia concreta de la deuda de guardia de TTY** — no es un fallo de aserción, es la TUI bloqueando un proceso no interactivo.
-- **Ejecución completa con ese escenario deseleccionado:** **3272 passed, 1 failed, 2 skipped, 1 deselected y 227 subtests passed en 695,38 s (11min35s)**. La cuenta cuadra con los 3276 recolectados (3272 + 1 + 2 + 1). El único fallo es el ya conocido `test_headless_full_flow` (timeout de 5 s esperando el Confirm en `CommitMessageScreen`) — el intermitente descrito abajo.
-- **Los módulos verificados aisladamente cierran en verde:** `tests/test_i18n.py` (**22 passed en 1,49 s**), los cuatro `tests/infrastructure/linter/external/` (**14 passed en 0,09 s**) y el conteo por archivo de las pruebas nuevas verificado con `--collect-only` (120 en `tests/issue_autoclose/`, 41 en `test_project_config.py`, 12 en `test_pr_base_app.py`, 9 en `test_cli_help.py`, 10 en `test_config_issue_autoclose.py`, 5 en `test_version_consistency.py`, 8 en `test_baseline_exit_code_contract.py`).
-- **✅ Los 5 fallos heredados se cerraron:** los 3 de i18n (conteo/paridad, claves faltantes, huérfanas) y los 2 de `tests/test_mentor_cli.py` (patch en el módulo equivocado) ya no existen. `tests/test_i18n.py` corre **22 passed en 1,49 s** aisladamente, y el patch del mentor apunta a `src.main.get_git_diff`.
-- **✅ La deuda de traducción se pagó, no se sorteó:** los seis diccionarios tienen **1698 claves**; no hubo cambio de expectativa de prueba, hubo traducción de verdad — incluyendo las 3 cadenas de la TUI de commit que estaban pendientes, el `argparse` del MCP y `ChatHelpScreen`.
-- **⚠️ La prueba intermitente del commit sigue intermitente:** `test_headless_full_flow` volvió a fallar en este run — `AssertionError: timed out waiting for condition. Current screen: CommitMessageScreen()` tras 5 s esperando el botón Confirm. Ningún commit de esta ventana abordó el problema; hoy es el **único fallo** de la suite.
-- **Los escenarios nuevos cubren exactamente lo que cambió:** el paquete `issue_autoclose` tiene una suite por archivo; `project_config` cubre path/YAML/seed/resolvedor; el contrato de exit code del baseline ganó prueba de integración; y el SSOT de versión tiene su propio guarda en `tests/unit/`.
-- **`tests/conftest.py` sigue hermético:** `GITPR_SHOW_LOGS=false`, `GITPR_SKIP_UPDATE_CHECK=true`, `GITPR_LANG=en_us`, `GITPR_LINTER_SECURITY=false`, `LANG_VERSION` en la versión del código y 🆕 `GITPR_SKIP_PROJECT_CONFIG_SEED=true`.
-- **Guard de red en dos lugares:** `tests/demo/conftest.py` y `tests/integration/conftest.py`.
+- **✅ El escenario que trababa la suite fue desbloqueado:** `-c` sin `--hook` ya no abre la `CommitApp` cuando no hay TTY — el routing consulta `_may_ask_the_user()`. El `test_a_flow_that_never_enforced_it_is_untouched`, que trababa la ejecución completa en ~33%, termina ahora.
+- **✅ La única falla intermitente se cerró:** `test_headless_full_flow` cambió el clic por `Button.press()` + `pilot.pause()`, endureció el predicado de montaje y subió el timeout de 5 s a 10 s; cinco rondas consecutivas cerraron al 100%.
+- **🆕 Aislamiento de perfil del desarrollador:** los fixtures autouse `english_interface` y `no_hook_script_sync` impiden que el idioma y el auto-sync de hooks de la máquina se escapen entre las pruebas de CLI.
+- **Los escenarios nuevos cubren exactamente lo que cambió:** un archivo por feature (`test_seed_command.py`, `test_doc_links.py`, `test_skill_frontmatter.py`, `test_tui_issue_token.py`, `scm/test_scm_settings.py`) y ampliaciones en los módulos existentes (metrics, config, release, SCM, issue_autoclose, smart excludes).
+- **`tests/conftest.py` sigue hermético:** `GITPR_SHOW_LOGS=false`, `GITPR_SKIP_UPDATE_CHECK=true`, `GITPR_LANG=en_us`, `GITPR_LINTER_SECURITY=false`, `LANG_VERSION` en la versión del código y `GITPR_SKIP_PROJECT_CONFIG_SEED=true`.
+- **Guarda de red en varios sitios:** `tests/demo/conftest.py`, `tests/badge/conftest.py`, `tests/integration/conftest.py` y `tests/split/conftest.py`.
 - **Fixtures de git real:** `tests/fix/git_fixture.py`, `tests/split/git_fixture.py` y `tests/test_full_diff_encoding.py`.
 - **La suite de la extensión es aparte:** 7 escenarios Mocha en `extensions/vscode/src/test/mcp_client.test.ts`, de los cuales 1 se integra de verdad con el servidor MCP Python por stdio; no cuenta para pytest.
 - **La CI corre en Python 3.10 y 3.13** con `fail-fast: false`, y el release tiene su propio workflow con Trusted Publishing.
@@ -792,27 +849,31 @@
 
 ## **🌐 Internacionalización y Documentación**
 
-* **Cobertura i18n — deuda pagada:** **1698 claves** en **los seis** diccionarios (`es.json`, `es_es.json`, `fr.json`, `fr_fr.json`, `pt_br.json`, `pt_pt.json`). El código usa las mismas claves: **0 sin traducir** y **0 huérfanas**. Eran 1620 (×4)/1618 (×2), 11 faltantes y 2 huérfanas en el informe anterior. ✅
-* **🆕 `__lang_version__` subió a v0.0.38 con contenido:** español y francés se sincronizaron con policy packs, baseline, mentor, risk, MCP, base del PR, configuración de proyecto y atajos del chat; el `argparse` del MCP y `ChatHelpScreen` pasaron por `__()`; la renovación OTA ahora entrega traducción nueva de verdad.
-* **Fuentes de traducción en lockstep:** una clave nueva debe existir en el código (fuente), en `langs/pt_br.json` (**lista maestra**), en los diccionarios FR/ES de `scripts/sync_all_langs.py` y en los valores curados de `scripts/fix_mangled_i18n_keys.py`; la aserción `len(CLEAN_KEYS)` sigue en 49. 🆕 El extractor de claves se volvió **AST** en ambos lados (script y prueba), eliminando la divergencia de concatenación implícita.
-* **Temas nuevos:** **ninguno** en esta ventana — los 50 temas canónicos se mantienen.
+* **Cobertura i18n:** **1772 claves** en **todos los seis** diccionarios (`es.json`, `es_es.json`, `fr.json`, `fr_fr.json`, `pt_br.json`, `pt_pt.json`). El código usa las mismas claves: **0 sin traducción** y **0 huérfanas**. Eran 1698 × 6 en la ventana anterior.
+* **🆕 El `__lang_version__` subió a v0.0.41 con contenido:** entraron las strings de SCM por proveedor (slots, wizard, TUI), `seed`, gráficos de métricas (Token Trend, Peak, Daily avg, Latency, Timed runs) y el resumen de blame; los 6 diccionarios fueron sincronizados.
+* **Fuentes de traducción en lockstep:** una clave nueva tiene que existir en el código (fuente), en `langs/pt_br.json` (**lista maestra**), en los dicts FR/ES de `scripts/sync_all_langs.py` y en los valores curados de `scripts/fix_mangled_i18n_keys.py`; el extractor de claves es **AST** en ambos lados.
+* **🆕 Temas nuevos:** dos en esta ventana —
+  - `docs/issue-autoclose.*` (**5 archivos**) — el registro local, la decisión de cierre, los flags `--close-issue`/`--no-close-issue` y la cobertura multi-forge.
+  - `docs/marketplace-publishing-guide.md` (**1 archivo, EN**) — la publicación de la extensión en los marketplaces, aún sin traducción.
 * **🆕 Temas actualizados en esta ventana:**
-  - `docs/issue-tui-help.*` (**5 archivos**) — documenta el registro del issue creado, el aviso de cierre y las flags `--close-issue`/`--no-close-issue`.
-  - `docs/config-tui.*` (**5 archivos**) — la categoría `project` (archivo versionado, base destino, base efectiva) y la categoría `issue` (`GITPR_ISSUE_AUTOCLOSE*`).
-  - `docs/metricas-telemetria.*` (**5 archivos**) — el comando `issue_autoclose` y el `meta` con `asked`/`accepted`/`skipped_reason`.
-  - `docs/review-pr.*` (**5 archivos ahora completos**) — PT-PT, ES y FR fueron traducidos; el tema dejó de ser parcial.
-  - `docs/install-wizard.*`, `docs/pr-descricao-padrao.*` y `docs/pull-request-publication.*` (**5 archivos cada uno**) — seed y precedencia de la base del PR, y el comportamiento del MCP.
-  - `docs/baseline-suppressions.*` y `docs/check-ci.*` (**5 archivos cada uno**) — contrato de exit code del baseline y agregación de riesgo por `path`/`file_path`.
-  - `docs/suggested-reviewers.*` y `docs/scm-multiforge.*` (**5 archivos cada uno**) — read-back legado (`None`) y el contrato `list[str]`.
-  - `docs/commit-message-ia.*` (**5 archivos**) — sin cambio de flujo, solo sincronización de traducción.
-* **`CONTEXT.md` (actualizado):** el glosario de dominio pasó de **7 a 22 términos**. Nuevos: **PR target base**, **Project configuration file**, **Self-target**, **Release workflow**, **Trusted publishing**, **Diff base**, **Embedded security ruleset**, **Read-back**, **Unusable baseline**, **Package version**, **Language asset version**, **Hook script version**, **Issue registry**, **Closing line** y **Close issue decision**.
-* **Documentación en 5 idiomas:** **50 temas canónicos** en `docs/` (sin cambios) — **48 con cobertura completa en los 5 idiomas** y **2 temas parciales** (`github-issue-prompt-com-gh`, `version-markers`). `review-pr` dejó de ser parcial.
-* **Nuevos artefactos de especificación:** `docs/specs/issue-autoclose/` (**12 archivos** — spec, entrevista, glosario, prompt y ADRs 001–007) y 3 nuevas ADRs en `docs/adr/` (`0008` secret ruleset, `0009` reviewer read-back, `0014` package version SSOT).
+  - `docs/scm-multiforge.*` (**5 archivos**) — proveedor y credencial por repositorio, slots por proveedor, migración heredada ([ADR-016](docs/plans/ADR-016-per-provider-scm-settings.md)).
+  - `docs/issue-tui-help.*` y `docs/issue-autoclose.*` — registro renombrado a `issue.yml` y comportamiento en los cuatro proveedores.
+  - `docs/smart-excludes.*` (**5 archivos**) — la categoría de la TUI, el archivo del proyecto y las nuevas familias binarias.
+  - `docs/install-wizard.*` (**5 archivos**) — el wizard de 5 etapas y el `gitpr seed`.
+  - `docs/check-ci.*` (**5 archivos**) — nota de migración del `action.yml`, fijada por prueba de paridad.
+  - `docs/editor-extension.*` (**5 archivos**) — metadatos de marketplace y el pipeline endurecido.
+  - `docs/release-notes.*` (**5 archivos**) — el front matter `language:` de la skill de release.
+  - `docs/version-markers.*` (**5 archivos**) — ES y FR traducidos; el tema dejó de ser parcial.
+  - `docs/ARCHITECTURE.*` (**5 archivos**) — las capas nuevas (`scm_settings`, `skill_frontmatter`).
+  - `docs/metricas-telemetria.md` (**1 archivo**) — Token Trend y Latency Histogram (traducciones pendientes).
+* **`CONTEXT.md` (actualizado):** el glosario del dominio pasó de **22 a 35 términos**. Nuevos: **Binary hunk guard**, **Seeded configuration field**, **CI Check**, **Legacy CI action contract**, **Marketplace publication workflow**, **Extension release tag**, **Fail-fast secret check**, **Documentation link**, **Latency histogram**, **Token trend**, **Project configuration seed** y **Blame summary**.
+* **Documentación en 5 idiomas:** **52 temas canónicos** en `docs/` (**+2**) — **50 con cobertura completa en los 5 idiomas** y **2 temas parciales** (`github-issue-prompt-com-gh`, `marketplace-publishing-guide`). El `version-markers` dejó de ser parcial.
+* **Nuevos artefactos de especificación:** [ADR-010](docs/adr/0010-multiforge-issue-autoclose.md) en `docs/adr/` (ahora **4 archivos**) y [ADR-016](docs/plans/ADR-016-per-provider-scm-settings.md) en `docs/plans/`.
 * **Skills locales de Claude Code:** `.claude/skills/` con **29 skills** (conteo sin cambios).
 * **Índice de memoria:** `.claude/memory/MEMORY.md` con **40 patrones** (conteo sin cambios).
-* **Informes de tarea:** `docs/claude-code/reports/develop_natan/` (**116**; **+2** desde el informe anterior) + 🆕 `docs/claude-code/reports/feat/issue-autoclose/` (**12**) y `docs/gemini/reports/develop_natan/` (**31**; **+12**).
-* **Informes de estado:** `docs/reports/` — este es el **22.º informe** (v0.0.22); el v0.0.21 nunca se sobrescribe.
-* **Planes de desarrollo:** **152** archivos en `docs/plans/` (+4) + **12 archivos en `docs/gemini/plans/`** (+10) + **24 archivos en `docs/survey/`** (+3).
+* **Informes de tareas:** `docs/claude-code/reports/develop_natan/` (**118**; **+2**) + `docs/claude-code/reports/feat/issue-autoclose/` (**12**) + 🆕 `docs/claude-code/reports/main/` (**1**) y `docs/gemini/reports/` (**42**; **+11**), más `docs/gemini/walkthrough/` (**19**).
+* **Informes de estado:** `docs/reports/` — este es el **23.º informe** (v0.0.23); el v0.0.22 nunca se sobrescribe.
+* **Planes de desarrollo:** **161** archivos en `docs/plans/` (+9) + **24 archivos en `docs/gemini/plans/`** (+12) + **34 archivos en `docs/survey/`** (+10).
 
 ---
 
@@ -821,102 +882,104 @@
 1. **PyPI (canal único):** `python -m build` → `twine upload dist/*` → `pip install gitpr-cli`
 2. **Actualización obligatoria con ventana deslizante:** la ejecución consulta PyPI al iniciar y **bloquea con código de salida 1** si hay una versión más nueva, imprimiendo `pip install --upgrade gitpr-cli`. La respuesta se cachea durante **1 hora** y `--update` **siempre** consulta la red. La comparación es PEP 440: un pre-release remoto no bloquea una instalación estable, y una versión ilegible cuenta como desconocida. La puerta cubre los subcomandos cuando hay un TTY; CI, pipes, hooks, MCP y `-h` siguen exentos.
 3. **GitHub Releases:** producción automatizada por `release.yml` en tags `v*` — build, validación, Trusted Publishing y creación del release con artefactos.
-4. **GitHub Actions:** workflow `pr-review.yml` + `action.yml` (instala vía pip) + `tests.yml` (matriz Python 3.10 y 3.13) + `extension.yml` (VSIX; publicación en el Marketplace/Open VSX en `ext-v*`) + 🆕 `release.yml` (PyPI + GitHub Release en `v*`). `action.yml` llama a un único paso `gitpr check` — **ruptura declarada** para quien use `--linter` + `--fullreview`.
+4. **GitHub Actions:** workflow `pr-review.yml` + `action.yml` (instala vía pip) + `tests.yml` (matriz Python 3.10 y 3.13) + `extension.yml` (VSIX; `workflow_dispatch` con `dry_run`, guarda de tag, publicación en Marketplace/Open VSX en `ext-v*`) + `release.yml` (PyPI + GitHub Release en `v*`). El `action.yml` llama a un único paso `gitpr check` — **ruptura declarada** para quienes usaban `--linter` + `--fullreview`, ahora cubierta por prueba de paridad de documentación.
 5. **Servidor MCP:** entry point `gitpr-mcp` vía `pyproject.toml`
-6. **Extensión de Editor:** paquete VSIX autónomo (`natanfiuza.gitpr`), con canales VS Code Marketplace y Open VSX; requiere Node.js 20+ solo para compilar, no para usar
-7. **Plantillas e idiomas OTA:** `templates/` y `langs/*.json` servidos desde GitHub (main) — `__lang_version__` **v0.0.38** 🆕 refresca las copias locales en `~/.gitpr/langs/`; `__scripts_version__` **v0.0.4** refresca los hooks
-8. **Versión derivada del código:** `pyproject.toml` usa `version = {attr = "src.updater.__version__"}` — `__version__` es la **única** fuente, ahora garantizada por [ADR-014](docs/adr/0014-canonical-package-version-ssot.md) y por `tests/unit/test_version_consistency.py`
-9. **`package-data` importa:** los cuatro packs embebidos (`src/policy_packs/*`) viajan en el wheel
-10. **⚠️ Estado del release — tagueado, pendiente de publicación:** `__version__` es **1.5.0**, la tag `v1.5.0` existe y la sección `[1.5.0]` está en el `CHANGELOG.md`, pero **PyPI todavía sirve 1.4.4**. El siguiente paso es ejecutar/confirmar `release.yml` para la tag — hasta entonces, `pip install --upgrade gitpr-cli` no entrega la 1.5.0.
+6. **Extensión de Editor:** paquete VSIX independiente (`natanfiuza.gitpr`), con canales VS Code Marketplace y Open VSX; requiere Node.js 20+ solo para build, no para uso. 🆕 El paquete transporta icon y LICENSE y el workflow falla temprano si tag, versión o credencial no coinciden.
+7. **Templates e idiomas OTA:** `templates/` y `langs/*.json` servidos desde GitHub (main) — `__lang_version__` **v0.0.41** 🆕 renueva las copias locales de `~/.gitpr/langs/`; `__scripts_version__` **v0.0.4** renueva los hooks.
+8. **Versión derivada del código:** `pyproject.toml` usa `version = {attr = "src.updater.__version__"}` — el `__version__` es la **única** fuente, garantizado por [ADR-014](docs/adr/0014-canonical-package-version-ssot.md) y por `tests/unit/test_version_consistency.py`.
+9. **`package-data` importa:** los cuatro packs embebidos (`src/policy_packs/*`) viajan en la wheel.
+10. **✅ Estado del release — 1.5.0 publicada; 1.6.0 pendiente:** el PyPI sirve la **1.5.0**, cerrando la deuda de la ventana anterior. La **1.6.0** ya está en el `CHANGELOG.md` (`## [1.6.0] - 2026-11-07`) y en la rama `develop_natan`, pero **sin tag `v1.6.0` y sin publicación** — el `pip install --upgrade gitpr-cli` todavía no entrega la 1.6.0.
 
 ---
 
-## **📈 Evolución desde el Informe Anterior (v0.0.21)**
+## **📈 Evolución desde el Informe Anterior (v0.0.22)**
 
-| Área | v0.0.21 (anterior) | v0.0.22 (actual) |
+| Área | v0.0.22 (anterior) | v0.0.23 (actual) |
 |------|-------------------|-----------------|
-| **Versión de GitPR** | 1.4.4 — tagueada (`v1.4.4`) y **publicada en PyPI** | **1.5.0** — tagueada (`v1.5.0`), sección en el changelog, **PyPI todavía en 1.4.4** |
-| **Versión de idioma** | v0.0.36 — bump sin cambio de diccionario | **v0.0.38** — diccionarios realmente modificados |
+| **Versión GitPR** | 1.5.0 — tagueada (`v1.5.0`), **PyPI aún en 1.4.4** | **1.6.0** — en el changelog y en `develop_natan`, **sin tag**, PyPI en **1.5.0** |
+| **Versión Idioma** | v0.0.38 | **v0.0.41** — diccionarios sincronizados |
 | **Versión de los scripts de hook** | v0.0.4 | v0.0.4 (sin cambios) |
 | **Proveedores de IA** | Gemini + DeepSeek + Ollama | Sin cambios |
 | **Idiomas** | 5 idiomas, 6 diccionarios | Sin cambios |
-| **Subcomandos** | 15 | 15 (sin cambios) — 4 grupos (baseline 6, metrics 8, policy 7, tests 1) |
-| **Flags de CLI** | 32 opciones en la raíz | **33** — 🆕 `--close-issue` y `--no-close-issue` |
-| **Cierre de Issue 🆕** | — | Paquete `src/issue_autoclose/` (5 archivos): registro local, decisión, línea idempotente y conexión en el PR |
-| **Base del PR 🆕** | `PR_DEFAULT_BASE` de la máquina o `origin/HEAD` | **`.gitpr/conf/gitpr.config.yml` versionado** + `src/project_config.py` + modal de reparación |
-| **Capas** | 9 paquetes de dominio, 15 casos de uso | Sin cambios — las dos funcionalidades nuevas son orquestación/borde |
-| **Herramientas MCP** | 18 herramientas / 19 recursos / 7 prompts | Sin cambios — `publish_pull_request` ganó base compartida y `warnings` |
-| **Variables de entorno** | 58 en `DEFAULT_CONFIG` + precios/moneda + 9 `GITPR_CHECK_*` | 58 + precios/moneda + 9 `GITPR_CHECK_*` + 🆕 3 read-only (`GITPR_ISSUE_AUTOCLOSE`, `GITPR_ISSUE_AUTOCLOSE_TIMEOUT`, `GITPR_SKIP_PROJECT_CONFIG_SEED`) |
-| **Esquema de configuración** | 80 `ConfigField` / 16 categorías | **85 / 17** — categorías `project` y campos de issue, atributo `store` |
-| **i18n (claves por archivo)** | 1620 × 4 y 1618 × 2 — 1629 en el código, 11 sin traducir, 2 huérfanas | **1698 × 6 — 0 faltantes, 0 huérfanas** ✅ |
-| **Puerta de actualización** | TTL deslizante de 1 h, `-u` siempre en línea, PEP 440, `bounded_urlopen`, semántica estricta, puerta de subcomando en TTY | Sin cambios en el código |
-| **Linter** | Regex + secretos + SAST + `findings_out` + consciente del baseline | Sin cambios — el **ruleset** de secretos amplió la cobertura (7 reglas, 77 escenarios) |
+| **Subcomandos** | 15 | **16** — 🆕 `seed`; 4 grupos (baseline 6, metrics 8, policy 7, tests 1) |
+| **Flags CLI** | 33 opciones en la raíz | **34** — 🆕 `-sd/--seed` |
+| **Configuración SCM 🆕** | Global por máquina (`GITPR_SCM_PROVIDER`, token único) | **Por repositorio y por proveedor** (`src/scm_settings.py`, 1 slot por proveedor, migración heredada) |
+| **Cierre de Issue** | GitHub-only | **Multi-forge** — GitLab/Bitbucket implementan, Azure degrada; registro `issue.yml` con migración |
+| **Seed de Configuración 🆕** | Efecto colateral del callback raíz | **`gitpr seed`/`--seed`** + wizard de 5 etapas |
+| **Capas** | 9 paquetes de dominio, 15 casos de uso | Sin cambios — `scm_settings`/`skill_frontmatter` son borde |
+| **Herramientas MCP** | 18 tools / 19 recursos / 7 prompts | Sin cambios — `get_usage_metrics` ganó `token_trend` y `latency` |
+| **`DEFAULT_CONFIG`** | 58 claves, mantenidas a mano | **55 claves, derivadas del schema** (`seeded`); 3 heredadas de SCM removidas |
+| **Schema de Config** | 85 `ConfigField` / 17 categorías | **100 / 18** — categorías `smart_excludes` y `check`, 55 `seeded` |
+| **i18n (claves por archivo)** | 1698 × 6 | **1772 × 6** — 0 faltantes, 0 huérfanas ✅ |
+| **Puerta de Actualización** | TTL corrido de 1 h, `-u` siempre online, PEP 440 | Sin cambios en el código |
+| **Linter** | Regex + secretos + SAST + `findings_out` + baseline-aware | Sin cambios |
+| **Diff / Smart Excludes** | Filtro pathspec en dos capas | + **guarda de hunk binario** y **100+ patrones** en 8 familias |
 | **Git Hooks** | post-checkout/post-merge/pre-push en el ledger | Sin cambios — `prepare-commit-msg` sigue sin interactividad |
-| **Capa SCM** | 4 forges, paginación, `web_links.py` | + `IssueInfo`, `get_issue()`, `get_default_branch()`, `closing_line()`; read-back legado documentado |
-| **Motor de release** | Secciones `[1.4.3]`/`[1.4.4]` commiteadas; PyPI en 1.4.4 | Sección `[1.5.0]` commiteada y traducida; tag `v1.5.0`; publicación pendiente |
-| **Documentación** | 50 temas (47 completos + 3 parciales) | 50 temas (48 completos + 2 parciales) — `review-pr` traducido en los 5 idiomas |
-| **Glosario de dominio** | `CONTEXT.md` con 7 términos | **22 términos** — PR target base, project config file, self-target, issue registry, closing line, etc. |
-| **CI** | `tests.yml` (3.10 + 3.13) + `action.yml` + `extension.yml` | + 🆕 `release.yml` (Trusted Publishing) |
-| **Suite de pruebas** | 3010 escenarios (141 archivos) | **3276 escenarios (153 archivos) — +266 escenarios, +12 archivos** |
-| **Fallos conocidos** | 5 (3 i18n + 2 mentor) + 1 intermitente | **0 de los heredados** (i18n y mentor cerradas); el intermitente del commit sigue abierto y **la suite completa ahora se cuelga en `test_a_flow_that_never_enforced_it_is_untouched`** (`-c` sin guardia de TTY) |
-| **Dependencias** | Ninguna dependencia Python nueva | Ninguna nueva — `PyYAML` y `requests` ya estaban presentes |
-| **Commits desde el informe** | 3 commits de código + 1 de documentación + 2 merges | **37 commits y 15 merges** (2026-10-30 → 2026-11-04) |
-| **PRs fusionados** | 2 PRs (#230, #231) | **15 PRs (#235, #237, #239, #241, #243, #244, #245, #247, #249, #251, #253, #255, #256, #258, #260)** |
+| **Capa SCM** | 4 proveedores, paginación, `web_links.py` | + **proveedor/credencial por repositorio**, issue read-back en los 4 proveedores, `IssueInfo.is_open` |
+| **Release engine** | Sección `[1.5.0]`, tag `v1.5.0`, publicación pendiente | Sección `[1.6.0]`; **1.5.0 publicada**; 1.6.0 sin tag; 🆕 front matter `language:` |
+| **Métricas** | Ledger SQLite, costo/calidad/módulos/proveedores/ciclo | + **Token Trend** y **Latency Histogram** en CLI/TUI/MCP; `duration_ms` con fallback |
+| **Commit TUI** | Sin guarda de TTY; prueba intermitente | **Guarda de TTY** (`_may_ask_the_user`) y prueba headless estable |
+| **Extensión** | Workflow de build/publicación | + `dry_run`, guarda de tag/versión, fail-fast de credencial, icon y LICENSE |
+| **Documentación** | 50 temas (48 completos + 2 parciales) | **52 temas (50 completos + 2 parciales)** — `issue-autoclose` y `marketplace-publishing-guide` nuevos |
+| **Agenda del dominio** | `CONTEXT.md` con 22 términos | **35 términos** — Binary hunk guard, Token trend, Project configuration seed etc. |
+| **CI** | `tests.yml` + `action.yml` + `extension.yml` + `release.yml` | Sin cambios en archivos; workflows endurecidos |
+| **Suite de Pruebas** | 3276 escenarios (153 archivos) | **3422 escenarios (159 archivos) — +146 escenarios, +6 archivos** |
+| **Estabilidad de la Suite** | Traba en ~33% por el `-c` sin TTY; 1 intermitente | **✅ ambas cerradas** — ningún bloqueo conocido |
+| **Dependencias** | Sin nuevas dependencias Python | Ninguna nueva |
+| **Commits desde el informe** | 37 commits + 15 merges | **16 commits, 0 merges** (2026-11-04 → 2026-11-07, en `develop_natan`) |
+| **PRs referenciados** | 15 PRs mergeados (#235 … #260) | **14 PRs** (#261, #263, #265, #267, #269, #271, #273, #275, #277, #279, #283, #286, #288, #291) — aún sin merge en `main` |
 | **Índice de memoria** | 40 patrones | 40 patrones (sin cambios) |
-| **Informes de tarea** | 114 claude-code, 19 gemini | **116 claude-code (+12 en `feat/issue-autoclose/`), 31 gemini** |
-| **Planes de desarrollo** | 148 planes, 2 gemini, 21 surveys | **152 planes, 12 gemini, 24 surveys** |
+| **Informes de tareas** | 116 claude-code, 31 gemini | **118 claude-code (+12 feat, +1 main), 42 gemini, 19 walkthrough** |
+| **Planes de desarrollo** | 152 planes, 12 gemini, 24 surveys | **161 planes, 24 gemini, 34 surveys** |
 
 ---
 
 ## **🚧 Próximos Pasos**
 
-* **🆕 Publicar la 1.5.0 en PyPI:** la tag `v1.5.0` existe y `release.yml` está listo, pero el paquete servido es 1.4.4. Ejecutar/confirmar el workflow de la tag y validar `pip install --upgrade gitpr-cli`; después comprobar que un cliente 1.4.4 pasa a bloquear. **Es la deuda de release reabierta.**
-* **🆕 Estabilizar `test_headless_full_flow`:** el clic en `#btn_confirm` llega antes de que el layout de `CommitMessageScreen` se asiente y el test muere en el timeout de 5 s. Esperar a que el botón sea **clickable** (o sustituir el clic por `screen.dismiss("confirm")`) elimina el único fallo intermitente de la suite. **Ítem heredado, sin cambios en esta ventana.**
-* **🆕 Proteger `-c` de la ejecución no interactiva — ahora con evidencia:** el enrutamiento sigue sin guarda de TTY — sin `--hook`, `gitpr -c` **siempre** abre `CommitApp` ([main.py:1625-1638](src/main.py#L1625-L1638)), también en scripts y CI. En esta ventana el costo dejó de ser hipotético: `test_a_flow_that_never_enforced_it_is_untouched` llama a `gitpr -c` por el `CliRunner` y **`app.run()` nunca retorna**, atascando la ejecución completa de la suite en ~33%. Reutilizar `_may_ask_the_user()` (o exigir `--hook`) corrige el comportamiento y desbloquea la prueba de una vez. **Ítem heredado, aún abierto — y es la prioridad de estabilidad de la suite.**
-* **🆕 Cubrir el cierre de issue en las otras forges:** la funcionalidad es GitHub-only por diseño (`get_issue`/`get_default_branch`/`closing_line` lanzan `ScmNotSupportedError`). GitLab (`Closes #N`), Bitbucket y Azure necesitan implementación propia antes de que la funcionalidad sea multi-forge.
-* **🆕 Documentar el nuevo archivo versionado como cambio de flujo:** `.gitpr/conf/gitpr.config.yml` nace en la primera ejecución dentro de un repositorio. Quien ejecuta GitPR en CI o en monorepos necesita saber que el archivo se creará y que `GITPR_SKIP_PROJECT_CONFIG_SEED` lo desactiva — la documentación de config cubre la funcionalidad, pero no la nota de migración.
-* **Corregir el aislamiento de `tests/test_mentor_cli.py`:** ✅ **concluido** — el patch pasó a apuntar a `src.main.get_git_diff`.
-* **Cerrar la deuda de i18n:** ✅ **concluido** — 1698 claves en los seis diccionarios, `tests/test_i18n.py` 22/22.
-* **Ampliar la cobertura del ruleset de secretos:** ✅ **concluido** — `ASIA…`, `github_pat_…`, `xoxc/xoxd`, asignación sin comillas y frontera a la izquierda.
-* **Traducir `docs/review-pr.*.md`:** ✅ **concluido** — 5 idiomas completos.
-* **Desrastrear los artefactos de `.gitpr/metrics/export/`:** ✅ **concluido** — 0 archivos rastreados.
-* **Documentar la ruptura de contrato de `request_pull_request_reviewers`:** ✅ **concluido** — ADR-0009 + docs de revisores/SCM.
-* **Mapear el radio de impacto del baseline en el exit code:** ✅ **cubierto** — `tests/integration/test_baseline_exit_code_contract.py` (8 escenarios) y docs actualizadas.
-* **Reconciliar la versión del proyecto:** ✅ **concluido** — `CLAUDE.md`/`GEMINI.md` en 1.5.0, ADR-014 y prueba de consistencia.
-* **`gitpr -h config` ignora `-h`:** ✅ **concluido** — `-h` antes del subcomando renderiza la ayuda y no abre la TUI.
-* **Migrar el extractor de `sync_i18n.py` a AST:** ✅ **concluido** — regex sustituido, 21 falsos negativos eliminados.
-* **Documentar el cambio de semántica de `GITPR_SKIP_UPDATE_CHECK` como nota de migración:** `docs/tutorial/install-from-source` ya describe el parser estricto, pero las automatizaciones que ponían `=false` esperando silenciar la verificación ahora la ven correr. **Ítem heredado, aún abierto.**
-* **Documentar la ruptura de comportamiento de `-c` interactivo como nota de migración:** `commit-message-ia` describe el flujo nuevo, pero no dice explícitamente "antes era silencioso; en CI usa `--hook`". **Ítem heredado, aún abierto.**
-* **Sección Smart Exclude en la TUI:** los campos `GITPR_SMART_EXCLUDES_*` siguen bajo `diff`, sin categoría propia. **Ítem heredado, aún abierto.**
-* **Deudas registradas en el plan de la TUI de configuración:** `DEFAULT_CONFIG` quedó redundante con el schema; el banner de apertura no lista `--init`, `--base` ni `--plugins`; `LinterApp` es la **única** app Textual que aún no desactiva la command palette; y las **9 `GITPR_CHECK_*`** siguen **sin** categoría en el schema. **Ítem heredado, aún abierto.**
-* **Crear una nota de migración para `action.yml`:** reemplazar `--linter` + `--fullreview` por `gitpr check` es una ruptura de contrato para los workflows existentes. **Ítem heredado, aún abierto.**
-* **Publicar la extensión en los marketplaces:** el workflow está listo, pero depende de `VSCE_PAT`/`OVSX_PAT`; hasta entonces, la instalación es vía VSIX local. **Ítem heredado, aún abierto.**
-* **Revisar `git diff` en repositorios con archivos binarios grandes:** los bytes binarios llegan al modelo como una secuencia de `U+FFFD`; vale la pena confirmar que los smart excludes cubren los casos reales. **Ítem heredado, aún abierto.**
-* **Monitorizar el fallback ES/FR en el sitio:** los enlaces de los README ya usan `?lang=es` y `?lang=fr`, pero el sitio todavía puede servir inglés. **Ítem heredado, aún abierto.**
-* **Proveedor Anthropic Claude:** Soporte directo para la API de Claude (`claude-sonnet-5`).
-* **Gráficos ASCII/Textual en el Dashboard:** Histogramas de tiempo y tendencias de tokens en la TUI de métricas.
-* **Seed de `.gitpr/conf/` local:** el seed del smart-excludes y del linter sigue pendiente como subcomando propio o etapa del wizard — `gitpr.config.yml` ahora cubre solo la base del PR.
-* **Más proveedores:** OpenAI directo, proveedores locales adicionales.
+* **🆕 Taguear y publicar la 1.6.0:** la sección `## [1.6.0]` está en el `CHANGELOG.md` y la rama `develop_natan` tiene los 16 commits, pero **no existe tag `v1.6.0`**. Crear el tag, dejar que el `release.yml` publique en PyPI y confirmar que el `pip install --upgrade gitpr-cli` entrega la 1.6.0. **Es la deuda de release reabierta.**
+* **🆕 Hacer merge de `develop_natan` en `main`:** la ventana entera está en la rama de desarrollo, sin ningún merge. Los 14 PRs referenciados necesitan llegar al `main` antes (o junto) del tag de release.
+* **🆕 Nota de migración del SCM por repositorio:** las claves `GITPR_SCM_PROVIDER`, `GITPR_SCM_TOKEN_ENCRYPTED` y `GITPR_SCM_BASE_URL` fueron retiradas del `.env` por la migración automática. Quien automatizó la escritura de esas claves (scripts de aprovisionamiento) necesita saber que ahora hay un slot por proveedor — la documentación de `scm-multiforge` cubre la resolución, no la nota de upgrade.
+* **🆕 Traducir el `marketplace-publishing-guide`:** el tema nuevo existe solo en inglés; PT-BR, PT-PT, ES y FR siguen pendientes (el tema cuenta como parcial en la sección de documentación).
+* **🆕 Publicar la extensión en los marketplaces:** el workflow está listo y endurecido, y el paquete ya tiene icon/LICENSE/homepage, pero la publicación depende de `VSCE_PAT`/`OVSX_PAT`. Hasta entonces, la instalación es por VSIX local.
+* **Estabilizar el `test_headless_full_flow`:** ✅ **concluido** — clic semántico, timeout de 10 s y predicado de montaje; 5 rondas en verde.
+* **Proteger el `-c` de ejecución no interactiva:** ✅ **concluido** — `_may_ask_the_user()` hace el gate de la `CommitApp`; la suite completa dejó de trabarse en 33%.
+* **Cubrir el cierre de issue en los otros proveedores:** ✅ **concluido** — GitLab, Bitbucket y Azure implementan/degradan por contrato (ADR-010).
+* **Documentar el nuevo archivo versionado como cambio de flujo:** ✅ **concluido** — `gitpr seed`, wizard de 5 etapas y `docs/install-wizard.*`.
+* **Sección Smart Exclude en la TUI:** ✅ **concluido** — categoría `smart_excludes` con lista de fuentes y editor.
+* **Deudas registradas en el plan del config TUI:** ✅ **concluido** — `DEFAULT_CONFIG` derivado, banner con `--init`/`--base`, palette desactivada en el `LinterApp` y las 9 `GITPR_CHECK_*` en la categoría `check`.
+* **Nota de migración para el `action.yml`:** ✅ **concluido** — docs en 5 idiomas y prueba de paridad en `tests/unit/test_check_ci_docs_parity.py`.
+* **Acompañar el fallback ES/FR en el sitio:** ✅ **concluido** — `DOC_LANG_PARAMS` y `?lang=` en los links de ayuda.
+* **Revisar el `git diff` con binarios grandes:** ✅ **concluido** — `collapse_binary_hunks()` + smart excludes ampliados.
+* **Gráficos en ASCII/Textual en el Dashboard:** ✅ **concluido** — Token Trend y Latency Histogram.
+* **Seed de `.gitpr/conf/` local:** ✅ **concluido** — `gitpr seed` cubre config, smart excludes y linter.
+* **Publicar la 1.5.0 en PyPI:** ✅ **concluido** — el PyPI sirve la 1.5.0.
+* **Documentar la ruptura de semántica del `GITPR_SKIP_UPDATE_CHECK` como nota de migración:** el `docs/tutorial/install-from-source` ya describe el parser estricto, pero las automatizaciones que definían `=false` esperando silenciar la verificación pasan a verla correr. **Ítem heredado, aún abierto.**
+* **Nota de migración del `-c` interactivo:** el `commit-message-ia` describe el flujo nuevo; vale decir explícitamente que sin TTY cae en la consola y que el `--hook` sigue siendo la ruta de CI. **Ítem heredado, aún abierto (la guarda de TTY redujo el impacto).**
+* **Proveedor Anthropic Claude:** Soporte directo a la API de Claude (`claude-sonnet-5`). **Ítem heredado, aún abierto.**
+* **Más proveedores:** OpenAI directo, proveedores locales adicionales. **Ítem heredado, aún abierto.**
+* **🆕 Traducir `docs/metricas-telemetria.*`:** la ventana dio gráficos nuevos al tema, pero solo se actualizó la versión en inglés — PT-BR, PT-PT, ES y FR quedaron atrás.
+* **🆕 Acompañar el host self-hosted no reconocido:** la resolución por remote solo reconoce dominios que contienen el nombre del proveedor; un GitLab/GitHub en dominio personalizado cae a GitHub hasta que alguien corra `gitpr --init` y grabe el override. Vale documentar el síntoma.
 
-### ✅ Completados en esta ventana (2026-10-30 → 2026-11-04)
+### ✅ Concluidos en esta ventana (2026-11-04 → 2026-11-08)
 
-* ~~**Todo issue creado con `gitpr -is` quedaba huérfano**~~ 🆕 — PR #260 (`4c2bede`): registro local, `get_issue`/`get_default_branch`/`closing_line`, línea `close #N` idempotente, flags `--close-issue`/`--no-close-issue` y métrica `issue_autoclose`. **120 escenarios nuevos.**
-* ~~**La base del PR solo existía en el `.env` de la máquina**~~ 🆕 — PR #235 (`2eff88b`): `.gitpr/conf/gitpr.config.yml` versionado, resolvedor único, validación contra `origin` y modal `PrBaseApp` ([ADR-015](docs/plans/ADR-015-project-local-pr-base.md)).
-* ~~**La deuda de i18n (11 claves faltantes, 2 huérfanas, 3 pruebas rojas)**~~ — PR #237 (`96526b9`): español y francés sincronizados, MCP y chat localizados, guarda de identidad, `__lang_version__` v0.0.37; cerrada de una vez en 1698 claves. **`test_i18n.py` 22/22.**
-* ~~**Los 2 fallos antiguos de `test_mentor_cli.py`**~~ — PR #239 (`90fd76c`): patch movido a `src.main.get_git_diff`.
-* ~~**El release era manual**~~ — PR #241 (`d401931`): `release.yml` con pruebas, verificación tag/versión, build, `twine check`, Trusted Publishing y GitHub Release.
-* ~~**Brechas del ruleset de secretos**~~ — PR #243 (`9dd149a`): `ASIA…`, `github_pat_…`, `xoxc/xoxd`, asignación sin comillas, frontera a la izquierda y filtros de runtime.
-* ~~**`gitpr -h config` abría la TUI**~~ — PR #253 (`ce52558`): `-h` antes del subcomando renderiza la ayuda.
-* ~~**El informe de riesgo degradaba en silencio con `file_path`**~~ — PR #249 (`3e6f97a`): agregación tolerante y contrato de exit code del baseline cubierto.
-* ~~**La versión podía divergir entre `pyproject.toml`, `CLAUDE.md` y `GEMINI.md`**~~ — PR #251 (`ed7e888`): SSOT en `src/updater.__version__` ([ADR-014](docs/adr/0014-canonical-package-version-ssot.md)) y prueba de consistencia.
-* ~~**El extractor de i18n truncaba concatenación implícita**~~ — PR #255 (`694a640`): AST en el script y en la prueba.
-* ~~**El contrato del read-back de revisores no estaba documentado**~~ — PR #247 (`149fb49`): `(no read-back)` + [ADR-0009](docs/adr/0009-reviewer-attach-returns-read-back.md).
-* ~~**`review-pr` solo tenía 2 de los 5 idiomas**~~ — PR #244 (`8cdd1fc`): PT-PT, ES y FR traducidos.
-* ~~**34 artefactos de métricas seguían rastreados**~~ — PR #245 (`e4f455b`): `git rm --cached` aplicado.
-* ~~**La 1.4.4 estaba publicada pero el release seguía siendo manual**~~ — la 1.4.4 sigue en PyPI y el pipeline de release ahora es automatizado; la 1.5.0 es el primer candidato a pasar por él.
+* ~~**El proveedor y el token eran globales de la máquina**~~ 🆕 — PR #288 (`ee012fa`): `src/scm_settings.py`, un slot de credencial por proveedor, migración heredada idempotente, wizard y TUI ([ADR-016](docs/plans/ADR-016-per-provider-scm-settings.md)). **+24 escenarios + ampliaciones.**
+* ~~**El cierre de issue era GitHub-only**~~ 🆕 — PR #286 (`fe35c96`): read-back en los cuatro proveedores, registro `issue.yml` con migración, `IssueInfo.is_open` ([ADR-010](docs/adr/0010-multiforge-issue-autoclose.md)).
+* ~~**La configuración local nacía como efecto colateral**~~ 🆕 — PR #277 (`d934f21`): `gitpr seed`/`--seed`, `--force`/`--all` y wizard de 5 etapas.
+* ~~**La TUI no tenía sección de Smart Excludes**~~ 🆕 — PR #263 (`b3e547d`): categoría `smart_excludes`, lista de fuentes y editor del proyecto.
+* ~~**El dashboard solo tenía números agregados**~~ 🆕 — PR #275 (`67a9e77`): Token Trend y Latency Histogram en el CLI, TUI y MCP.
+* ~~**Los binarios sin NUL inundaban el prompt con `U+FFFD`**~~ 🆕 — PR #271 (`988dbbc`): `collapse_binary_hunks()` + 100+ patrones de smart excludes.
+* ~~**Los links de ayuda apuntaban a `blob/main` y rompían ES/FR**~~ 🆕 — PR #273 (`ffa9b9e`): `doc_url()` con `?lang=` y lectura dinámica de `CURRENT_LANG`.
+* ~~**`gitpr -c` se trababa en CI sin terminal**~~ 🆕 — PR #283 (`869e2a1`): guarda de TTY vía `_may_ask_the_user()`.
+* ~~**`test_headless_full_flow` era intermitente**~~ 🆕 — PR #279 (`f57e869`): `Button.press()`, predicado de montaje y timeout de 10 s.
+* ~~**`DEFAULT_CONFIG` era una copia manual del schema**~~ 🆕 — PR #265 (`74f8c38`): derivado de `ConfigField.seeded`, categoría `check` y deudas del config TUI cerradas.
+* ~~**La skill de release seguía siempre el idioma de la interfaz**~~ 🆕 — PR #291 (`b277632`): front matter `language:` leído por `src/skill_frontmatter.py`.
+* ~~**La extensión no tenía metadatos de marketplace**~~ 🆕 — PR #269 (`613af18`): icon, LICENSE, homepage, `workflow_dispatch`/`dry_run` y fail-fast de credencial.
+* ~~**La sugerencia de revisores inundaba el terminal con avisos de blame**~~ 🆕 — (`405dc7c`): `files_with_blame`/`files_without_blame` y una única línea de resumen.
+* ~~**La nota de migración del `action.yml` no era verificada**~~ 🆕 — PR #267 (`d1a06f3`): prueba de paridad de 5 idiomas y 7 secciones.
+* ~~**La 1.5.0 estaba tagueada pero no publicada**~~ — el PyPI ahora sirve la **1.5.0**.
 
 ---
 
-**Informe generado el:** 2026-11-04  
-**Rama:** `main`  
+**Informe generado el:** 2026-11-08  
+**Rama:** `develop_natan`  
 **Autor:** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))
