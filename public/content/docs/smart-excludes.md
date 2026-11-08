@@ -23,6 +23,7 @@ Controlled by [`templates/gitpr.smart-excludes.json`](https://github.com/gitpr-c
 - **Minified assets:** `*.min.js`, `*.min.css`, `*.bundle.js`
 - **Generated files:** `*.map`, `*.pyc`, `*.log`
 - **OS files:** `.DS_Store`, `Thumbs.db`
+- **Binary assets:** images (`*.png`, `*.jpg`, `*.webp`, `*.ico`, `*.psd`), Office/PDF documents (`*.pdf`, `*.docx`, `*.xlsx`, `*.pptx`), archives/packages (`*.zip`, `*.tar`, `*.gz`, `*.7z`, `*.jar`, `*.whl`, `*.apk`), fonts (`*.woff`, `*.woff2`, `*.ttf`, `*.otf`), audio/video (`*.mp3`, `*.mp4`, `*.wav`, `*.mov`), compiled binaries/libraries (`*.exe`, `*.dll`, `*.so`, `*.dylib`, `*.class`, `*.wasm`), databases/datasets/ML weights (`*.sqlite`, `*.db`, `*.parquet`, `*.pkl`, `*.npy`, `*.pt`, `*.onnx`, `*.safetensors`, `*.bin`, `*.dat`), and binary certificates/keystores (`*.p12`, `*.pfx`, `*.der`, `*.jks`)
 
 ### 2. Documentation Exclusions (Prose)
 Controlled by [`templates/gitpr.docs-smart-excludes.json`](https://github.com/gitpr-cli/gitpr.git/blob/main/templates/gitpr.docs-smart-excludes.json):
@@ -33,6 +34,8 @@ Controlled by [`templates/gitpr.docs-smart-excludes.json`](https://github.com/gi
 - **Man pages:** `.man`, `.1`–`.8`
 
 The two lists are **merged at runtime** into a single `SMART_EXCLUDES` variable, which is appended to every `git diff` command executed by GitPR.
+
+> **Binary Hunk Guard (`U+FFFD` safeguard):** When a binary file has a custom extension or a long ASCII header (> 8,000 bytes before the first `NUL` byte) and Git diffs it as text, decoding with `errors="replace"` would otherwise send long sequences of `U+FFFD` replacement characters to the AI. GitPR automatically inspects diff hunks and collapses any section with a binary `U+FFFD` stream (`>= 8` contiguous `U+FFFD` or `>= 32` total with `>= 10%` hunk density) into a standard `Binary files a/... and b/... differ` marker, while preserving legitimate non-UTF-8 legacy source files (e.g., Latin-1/Windows-1252).
 
 ## 📋 Documentation Metadata (Changed Docs Without Content)
 
@@ -149,6 +152,13 @@ You can edit the cached files in `~/.gitpr/conf/` directly. These changes persis
 ### Disabling Smart Excludes
 
 Set the environment variable `GITPR_SKIP_SMART_EXCLUDES=1` to disable all Smart Excludes filtering for the current session. Use this sparingly — it removes both global and project-local exclusions.
+
+## 🖥️ Configuration TUI (`gitpr config`)
+
+The `gitpr config` command exposes a dedicated **Smart Excludes** section in its sidebar:
+- **Environment variables:** toggle `GITPR_SKIP_SMART_EXCLUDES`, configure custom paths, and check `SMART_EXCLUDES_VERSION` with a direct template download button.
+- **Source selector:** inspect **Global Core** and **Global Docs** lists in read-only mode, or edit **Project Exclusions** (`.gitpr/conf/gitpr.smart-excludes.json`).
+- **Pattern editor:** add or modify exclusions with one glob pattern per line (e.g. `*.pyc`, `dist/`), and press `F2` to save directly to the repository file.
 
 ## ❓ FAQ
 

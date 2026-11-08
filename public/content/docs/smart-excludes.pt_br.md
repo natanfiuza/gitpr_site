@@ -23,6 +23,7 @@ Controladas por [`templates/gitpr.smart-excludes.json`](https://github.com/gitpr
 - **Assets minificados:** `*.min.js`, `*.min.css`, `*.bundle.js`
 - **Arquivos gerados:** `*.map`, `*.pyc`, `*.log`
 - **Arquivos de sistema operacional:** `.DS_Store`, `Thumbs.db`
+- **Ativos binários:** imagens (`*.png`, `*.jpg`, `*.webp`, `*.ico`, `*.psd`), documentos Office/PDF (`*.pdf`, `*.docx`, `*.xlsx`, `*.pptx`), pacotes/compactados (`*.zip`, `*.tar`, `*.gz`, `*.7z`, `*.jar`, `*.whl`, `*.apk`), fontes (`*.woff`, `*.woff2`, `*.ttf`, `*.otf`), áudio/vídeo (`*.mp3`, `*.mp4`, `*.wav`, `*.mov`), binários compilados/bibliotecas (`*.exe`, `*.dll`, `*.so`, `*.dylib`, `*.class`, `*.wasm`), bancos de dados/datasets/pesos de ML (`*.sqlite`, `*.db`, `*.parquet`, `*.pkl`, `*.npy`, `*.pt`, `*.onnx`, `*.safetensors`, `*.bin`, `*.dat`) e certificados/keystores binários (`*.p12`, `*.pfx`, `*.der`, `*.jks`)
 
 ### 2. Exclusões de Documentação (Texto)
 Controladas por [`templates/gitpr.docs-smart-excludes.json`](https://github.com/gitpr-cli/gitpr.git/blob/main/templates/gitpr.docs-smart-excludes.json):
@@ -33,6 +34,8 @@ Controladas por [`templates/gitpr.docs-smart-excludes.json`](https://github.com/
 - **Páginas man:** `.man`, `.1`–`.8`
 
 As duas listas são **mescladas em tempo de execução** em uma única variável `SMART_EXCLUDES`, que é anexada a todo comando `git diff` executado pelo GitPR.
+
+> **Binary Hunk Guard (salvaguarda contra `U+FFFD`):** Quando um arquivo binário possui extensão customizada ou cabeçalho ASCII longo (> 8.000 bytes antes do primeiro byte `NUL`) e o Git o processa como texto, a decodificação com `errors="replace"` enviaria longas sequências de `U+FFFD` para a IA. O GitPR inspeciona automaticamente os hunks do diff e colapsa qualquer seção com fluxo binário de `U+FFFD` (`>= 8` `U+FFFD` contíguos ou `>= 32` no total com densidade `>= 10%` nos hunks) para o marcador padrão `Binary files a/... and b/... differ`, preservando integralmente arquivos de código legado não-UTF-8 (ex.: Latin-1/Windows-1252).
 
 ## 📋 Metadados de Documentação (Documentos Alterados Sem Conteúdo)
 
@@ -149,6 +152,13 @@ Você pode editar diretamente os arquivos em cache em `~/.gitpr/conf/`. Essas al
 ### Desabilitando o Smart Excludes
 
 Defina a variável de ambiente `GITPR_SKIP_SMART_EXCLUDES=1` para desabilitar toda a filtragem do Smart Excludes na sessão atual. Use com moderação — remove tanto as exclusões globais quanto as locais do projeto.
+
+## 🖥️ TUI de Configuração (`gitpr config`)
+
+O comando `gitpr config` disponibiliza uma seção dedicada a **Smart Excludes** no menu lateral:
+- **Variáveis de ambiente:** alterne `GITPR_SKIP_SMART_EXCLUDES`, configure caminhos e confira `SMART_EXCLUDES_VERSION` com botão de download.
+- **Seletor de fontes:** inspecione as listas **Global Core** e **Global Docs** em modo leitura, ou edite as **Exclusões do Projeto** locais.
+- **Editor de padrões:** adicione ou altere regras com um padrão glob por linha (ex: `*.pyc`, `dist/`) e pressione `F2` para salvar no repositório.
 
 ## ❓ FAQ
 

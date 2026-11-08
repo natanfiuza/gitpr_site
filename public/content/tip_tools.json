@@ -349,7 +349,7 @@
     },
     {
         "id": "tip_30",
-        "used": false,
+        "used": true,
         "source": "docs/scm-multiforge.md",
         "content": {
             "en": "GitPR publishes to four forges, not one: GitHub, GitLab, Bitbucket Cloud and Azure DevOps. The forge is auto-detected from the `origin` URL, and `gitpr --init` walks the setup — confirms the provider, asks for the extras (Azure organization and project, Bitbucket username), validates the token up to three times and only then writes the Fernet-encrypted credential to `~/.gitpr/.env`. A self-managed GitLab or Azure needs only `GITPR_SCM_BASE_URL`.",
