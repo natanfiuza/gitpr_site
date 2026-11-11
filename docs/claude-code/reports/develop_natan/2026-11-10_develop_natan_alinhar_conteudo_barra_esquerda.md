@@ -95,11 +95,38 @@ mobile.
 - `grep` no bundle gerado: a string `max-w-4xl mx-auto xl:mr-64` não aparece mais em
   `public/build/assets/DocsLayout-*.js`; a string `max-w-4xl xl:mr-64` está presente.
 
-## Verificação pendente (visual)
+## Verificação visual (Playwright, 2026-11-11)
 
-O ambiente não dispõe de automação de navegador, então a conferência visual fica
-para inspeção manual: `composer run dev` e abrir `/` e uma página interna em 1920px,
-1280px, 1024px e mobile, em tema claro e escuro.
+Executada contra o build de produção (`php artisan serve` + `public/build`), com o
+Playwright MCP. Medições em `getBoundingClientRect()`.
+
+| Viewport | Gap barra esq. → texto | Largura da coluna | Gap texto → sumário | Sumário | Rolagem horizontal |
+| --- | --- | --- | --- | --- | --- |
+| 1920px | **40px** | 896px | 449px | visível | não |
+| 1280px (xl) | **40px** | 673px | 32px | visível | não |
+| 1024px | **40px** | 673px (ocupa o `<main>`) | — | oculto | não |
+| 390px (mobile) | 16px | 343px | — | oculto | não |
+
+Antes da correção, em 1920px o gap barra esquerda → texto era de ~472px.
+
+Outros pontos conferidos:
+
+| Item | Resultado |
+| --- | --- |
+| Sobreposição com o sumário em `xl` | nenhuma (32px de folga) |
+| Tema escuro (toggle do header) | layout idêntico ao claro |
+| Sumário fixo ao rolar (`window.scrollTo(0, 1400)`) | `top` 80px antes e depois |
+| Destaque do item ativo no sumário | funciona ("2. Initializing in a Repository" em negrito) |
+| Página interna `/instalacao` | mesma geometria; nenhum `<pre>`/tabela escapa da coluna |
+| Erros de console | 0 |
+
+### Observação de ambiente
+
+`public/hot` estava datado de 24/09 apontando para `http://[::1]:5173` com o Vite
+parado — o Laravel servia URLs do dev server morto e a página não montava (3 erros de
+console). O arquivo foi movido temporariamente durante o teste e **devolvido ao lugar**
+ao final; se a home aparecer em branco localmente, basta rodar `npm run dev` para
+regenerá-lo.
 
 ## Anexo — automação de navegador (Playwright MCP)
 

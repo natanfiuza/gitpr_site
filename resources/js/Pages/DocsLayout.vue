@@ -93,7 +93,7 @@
             </aside>
 
             <!-- Main Content -->
-            <main class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-10 overflow-auto">
+            <main class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-10 lg:pl-6 overflow-auto">
                 <div class="max-w-4xl xl:mr-64">
                     <h1
                         class="text-sm uppercase tracking-wider text-gitpr_primary mb-6 border-b border-slate-200 dark:border-gitpr_dark_border pb-2 transition-colors duration-300">
