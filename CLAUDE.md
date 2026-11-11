@@ -47,6 +47,7 @@ resources/
   views/app.blade.php    # Root Blade template (Inertia entry)
 public/content/          # Markdown content rendered by the site
 docs/reports/            # GitPR CLI state reports (PT-BR)
+docs/tutorial/           # Tutoriais internos (setup de ferramentas, fluxos)
 ```
 
 ### Design Tokens

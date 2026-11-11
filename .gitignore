@@ -10,6 +10,7 @@
 /.idea
 /.nova
 /.phpunit.cache
+/.playwright-mcp/
 /.vscode
 /.zed
 /auth.json
@@ -27,3 +28,4 @@ Homestead.yaml
 Thumbs.db
 *.txt
 /storage
+.gitpr/conf/issue.yml
