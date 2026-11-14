@@ -82,7 +82,9 @@ Sous l'en-tête viennent les sections, dans l'ordre où elles sont lues :
 | Section | Ce qu'elle répond |
 |---------|-------------------|
 | 💰 Coût | Combien de tokens, et ce qu'ils ont coûté par modèle |
+| 📈 Tendance des Tokens | Consommation quotidienne continue de tokens (jusqu'à 14 jours, en préservant les jours à zéro) avec sparkline Unicode (`▁▂▃▄▅▆▇█`), pic, moyenne quotidienne et barres horizontales quotidiennes |
 | 🧪 Qualité | Taux de réussite du linter et fréquence de déclenchement du chemin map-reduce |
+| 📊 Latence | Distribution des exécutions chronométrées (`duration_ms > 0`) sur 5 tranches de latence (`< 1s`, `1–5s`, `5–15s`, `15–30s`, `≥ 30s`) avec Moyenne, Médiane (P50) et P95 |
 | 🧩 Modules | Quels modules les exécutions ont touchés, et combien de tokens chacun a pris |
 | 🤖 Fournisseurs | Exécutions et tokens par fournisseur — y compris ceux qui n'appellent jamais d'IA |
 | ⏱ Cycle | Combien de temps ont pris les pull requests fusionnées de ce dépôt, lues depuis la forge |
@@ -262,13 +264,18 @@ gitpr metrics dashboard
 Ouvre un **tableau de bord TUI** (Textual) limité au dépôt de la copie de
 travail :
 
+- **Deux onglets :** `Événements` (touche `1`) contient la barre de résumé, les sections et le
+  tableau d'événements ; `Graphiques et Tendances` (touche `2`) contient les graphiques
 - **Barre de résumé :** total d'entrées, lignes reconstruites, total de tokens, durée totale, commandes principales
 - **Tableau d'événements :** horodatage, commande, statut, fournisseur, tokens, durée
-- **Sections :** coût, qualité, modules, fournisseurs et le cycle — les mêmes lignes
+- **Onglet graphiques :** un histogramme vertical de latence — les cinq tranches dessinées en
+  barres, chacune avec son nombre et sa proportion — et une série temporelle quotidienne de tokens
+  sur jusqu'à 14 jours, avec total, pic et moyenne quotidienne
+- **Sections :** coût, tendance des tokens, qualité, histogramme de latence, modules, fournisseurs et le cycle — les mêmes lignes
   que `gitpr metrics` imprime, dessinées avec le markup Textual au lieu des couleurs
   de click
 - **Barre d'état :** la plage de temps couverte par le tableau et son nombre d'entrées
-- **Raccourcis :** `F5` pour actualiser, `Esc` pour quitter
+- **Raccourcis :** `1` / `2` pour changer d'onglet, `F5` pour actualiser, `Esc` pour quitter
 
 Tant que le registre n'existe pas encore, le tableau de bord lit le cache et les
 fichiers d'événements, affiche une barre de progression pendant l'analyse et

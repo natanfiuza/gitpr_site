@@ -505,7 +505,7 @@
     },
     {
         "id": "tip_43",
-        "used": false,
+        "used": true,
         "source": "docs/config-tui.md",
         "content": {
             "en": "`gitpr config` opens a master-detail screen over `~/.gitpr/.env`, so nobody has to remember whether a value is `true`, `1` or `yes`: each field gets the control its type deserves and an invalid value is hard to type. F2 validates and saves, Ctrl+R restores the default (removes the line), `/` searches labels and variables across every category, and Esc leaves after asking before discarding. It edits the same file you already had — not a second source of configuration.",
