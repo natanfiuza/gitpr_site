@@ -79,7 +79,9 @@ Abaixo do cabeçalho vêm as secções, pela ordem em que são lidas:
 | Secção | O que responde |
 |--------|----------------|
 | 💰 Custo | Quantos tokens, e quanto custaram por modelo |
+| 📈 Tendência de Tokens | Consumo diário contínuo de tokens (até 14 dias, preservando dias com zero) com sparkline Unicode (`▁▂▃▄▅▆▇█`), pico, média diária e barras horizontais diárias |
 | 🧪 Qualidade | Taxa de aprovação do linter e com que frequência o caminho map-reduce disparou |
+| 📊 Latência | Distribuição de execuções cronometradas (`duration_ms > 0`) em 5 intervalos de latência (`< 1s`, `1–5s`, `5–15s`, `15–30s`, `≥ 30s`) com Média, Mediana (P50) e P95 |
 | 🧩 Módulos | Que módulos as execuções tocaram, e quantos tokens cada um levou |
 | 🤖 Fornecedores | Execuções e tokens por fornecedor — incluindo os que nunca chamam uma IA |
 | ⏱ Ciclo | Quanto demoraram os pull requests com merge deste repositório, lidos da forja |
@@ -251,13 +253,18 @@ gitpr metrics dashboard
 
 Abre um **dashboard TUI** (Textual) restrito ao repositório da cópia de trabalho:
 
+- **Dois separadores:** `Eventos` (tecla `1`) guarda a barra de resumo, as secções e a tabela de
+  eventos; `Gráficos e Tendências` (tecla `2`) guarda os gráficos
 - **Barra de resumo:** total de entradas, linhas reconstruídas, total de tokens, duração total, top comandos
 - **Tabela de eventos:** timestamp, comando, estado, provedor, tokens, duração
-- **Secções:** custo, qualidade, módulos, fornecedores e o ciclo — as mesmas linhas
+- **Separador de gráficos:** um histograma vertical de latência — as cinco faixas desenhadas como
+  barras, cada uma com a sua contagem e a sua participação — e uma série temporal diária de tokens
+  para até 14 dias, com total, pico e média diária
+- **Secções:** custo, tendência de tokens, qualidade, histograma de latência, módulos, fornecedores e o ciclo — as mesmas linhas
   que `gitpr metrics` imprime, desenhadas com markup do Textual em vez das cores
   do click
 - **Barra de estado:** o intervalo de tempo que a tabela cobre e quantas entradas tem
-- **Atalhos:** `F5` para atualizar, `Esc` para sair
+- **Atalhos:** `1` / `2` para mudar de separador, `F5` para atualizar, `Esc` para sair
 
 Enquanto o registo ainda não existir, o dashboard lê a cache e os ficheiros de
 evento, mostra uma barra de progresso durante a varredura e indica isso na barra
