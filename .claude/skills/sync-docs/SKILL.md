@@ -82,7 +82,7 @@ Em `plans/` e `tutorial/` não há tópico no site: o link aponta para o reposit
    - `python .claude/skills/sync-docs/rewrite_doc_links.py --check --source <gitpr>` não acusa divergência (exit 0): compara fonte e site **depois** de aplicar o mapeamento de sufixos e a reescrita de links. É este comando que substitui o `diff -rq` da versão anterior — o diff cru acusaria diferença em todo arquivo com link cruzado e nem sequer casaria `.es_es.md` com `.es.md`.
    - Nenhum sufixo `.es_es`/`.fr_fr` foi criado no site.
 
-4. **Relatório da tarefa** (regra do CLAUDE.md): escrever `docs/claude-code/reports/{branch}/YYYY-MM-DD_{branch}_sync_docs.md` com tópicos adicionados, atualizados, lacunas de idioma e anomalias reportadas.
+4. **Relatório da tarefa** (regra do `CLAUDE.md` / `GEMINI.md`): escrever no diretório do agente em execução (`docs/claude-code/reports/{branch}/YYYY-MM-DD_{branch}_sync_docs.md` no Claude Code ou `docs/gemini/reports/{branch}/YYYY-MM-DD_{branch}_sync_docs.md` no Antigravity/Gemini) com tópicos adicionados, atualizados, lacunas de idioma e anomalias reportadas.
 
 ## Observações
 

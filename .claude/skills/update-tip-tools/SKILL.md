@@ -47,8 +47,8 @@ Varrer a documentação técnica do site e manter `public/content/tip_tools.json
    - `used` nunca regrediu de `true` para `false`.
    - `public/content/menu.json` não foi alterado.
 
-7. **Relatório da tarefa** (regra do CLAUDE.md):
-   - Escreva `docs/claude-code/reports/{branch}/YYYY-MM-DD_{branch}_update_tip_tools.md` com o resumo: quantas dicas adicionadas/atualizadas, fontes usadas e idiomas.
+7. **Relatório da tarefa** (regra do `CLAUDE.md` / `GEMINI.md`):
+   - Escreva o relatório no diretório do agente em execução (`docs/claude-code/reports/{branch}/YYYY-MM-DD_{branch}_update_tip_tools.md` no Claude Code ou `docs/gemini/reports/{branch}/YYYY-MM-DD_{branch}_update_tip_tools.md` no Antigravity/Gemini) com o resumo: quantas dicas adicionadas/atualizadas, fontes usadas e idiomas.
 
 ## Observações
 
