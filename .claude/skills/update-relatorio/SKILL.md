@@ -41,8 +41,8 @@ Sincronizar `public/content/relatorio.md` e suas traduções com o relatório de
    - Confirme que os 5 arquivos têm o cabeçalho correto no idioma certo e a mesma estrutura de seções.
    - Verifique que nenhum arquivo ficou com trechos em outro idioma.
 
-6. **Relatório da tarefa** (regra do CLAUDE.md):
-   - Escreva `docs/claude-code/reports/{branch}/YYYY-MM-DD_{branch}_atualiza_relatorio_site.md` com o resumo: versão antiga → nova, data, arquivos alterados e idiomas.
+6. **Relatório da tarefa** (regra do `CLAUDE.md` / `GEMINI.md`):
+   - Escreva o relatório no diretório do agente em execução (`docs/claude-code/reports/{branch}/YYYY-MM-DD_{branch}_atualiza_relatorio_site.md` no Claude Code ou `docs/gemini/reports/{branch}/YYYY-MM-DD_{branch}_atualiza_relatorio_site.md` no Antigravity/Gemini) com o resumo: versão antiga → nova, data, arquivos alterados e idiomas.
 
 ## Observações
 

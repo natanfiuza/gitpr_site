@@ -42,8 +42,8 @@ Gerar `public/content/newsletter/{version}/newsletter_body.{lang}.md` nos 5 idio
    - `public/content/menu.json` **não foi alterado** (a newsletter fica fora do menu por design).
    - As dicas usadas foram marcadas `used=true` em `tip_tools.json`.
 
-6. **Relatório da tarefa** (regra do CLAUDE.md):
-   - Escreva `docs/claude-code/reports/{branch}/YYYY-MM-DD_{branch}_generate_newsletter.md` com o resumo: versão, arquivos gerados, dicas consumidas (ids) e idiomas.
+6. **Relatório da tarefa** (regra do `CLAUDE.md` / `GEMINI.md`):
+   - Escreva o relatório no diretório do agente em execução (`docs/claude-code/reports/{branch}/YYYY-MM-DD_{branch}_generate_newsletter.md` no Claude Code ou `docs/gemini/reports/{branch}/YYYY-MM-DD_{branch}_generate_newsletter.md` no Antigravity/Gemini) com o resumo: versão, arquivos gerados, dicas consumidas (ids) e idiomas.
 
 ## Observações
 
