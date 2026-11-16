@@ -1,19 +1,21 @@
-# **🚀 Project Status Report: GitPR CLI — v0.0.25 (2026-11-14)**
+# **🚀 Project Status Report: GitPR CLI — v0.0.26 (2026-11-15)**
 
 ## **📌 Overview**
 
 **GitPR** is an advanced CLI (Command Line Interface) tool for automating Git processes using Artificial Intelligence (Google Gemini / DeepSeek / Ollama). Its main goal is to act as a local intelligent assistant that performs Code Reviews, generates Pull Requests, semantic commit messages, audits technical debt, and injects best practices into the developer workflow (Shift Left).
 
-**What's New in This Version (v0.0.25):**
-- **Map-Reduce stopped having a single ceiling:** `get_map_reduce_thresholds(provider)` resolves the trigger and batch size per provider (`_GEMINI`, `_DEEPSEEK`, `_OLLAMA` → generic → 90,000/50,000), and the slicer became a **cascade**: file → hunks (`@@`) → lines, always preserving the header and the `[file - part N]` marker. An intermediate pre-reduce consolidates partial summaries that still exceed the trigger ([ADR-0022](docs/adr/0022-map-reduce-per-provider-token-partitioning.md)).
-- **Forge detection was fixed and the silent fallback became a warning:** `github.com` is now recognized **before** returning `default=None` — without this, every GitHub repository was treated as an unknown host and received a spurious `scm.provider`. When the remote exists but does not name a known forge, `resolve_scm_settings` now warns and points to `gitpr --init`.
-- **Migration notes gained contracts:** [ADR-0020](docs/adr/0020-per-repo-scm-provisioning-migration.md) formalizes per-repository SCM provisioning (scripts and images must not write the legacy keys), and [ADR-0021](docs/adr/0021-strict-boolean-update-check-migration.md) locks down the strict semantics of `GITPR_SKIP_UPDATE_CHECK`.
-- **The editor extension gained a reproducible publishing path:** the marketplace guide was translated into all **five languages**, and `scripts/marketplace-setup-wizard.sh` walks through the five credential stages (Azure DevOps PAT, Open VSX namespace, GitHub Actions secrets), validating each token against the live API before saving it.
-- **Metrics and Map-Reduce documentation was synchronized:** the **Charts & Trends** tab, Token Trend, and Latency Histogram entered all five languages, with a translation parity guard that prevents an EN-only edit from slipping through unnoticed.
-- **The test suite became stable on Windows:** the headless `CommitApp` flow is skipped on `win32` (Textual's `pilot.pause` blocks without a real TTY) and CLI routing mocks `check_internet_connection`, eliminating the network dependency.
-- **1.8.0 was published:** `__version__` = **1.8.0**, `CHANGELOG.md` has `## [1.8.0] - 2026-11-14`, tag `v1.8.0` and PyPI serving 1.8.0.
-- **Current version:** 1.8.0 (**published to PyPI**; tag `v1.8.0` on commit `6cc0508`, PR #325 merge)
-- **Language dictionary version:** v0.0.43 (🆕 +1 since v0.0.42; delivers the new Map-Reduce and forge warning strings over OTA)
+**What's New in This Version (v0.0.26):**
+- **1.9.0 was published:** `__version__` = **1.9.0**, `CHANGELOG.md` with `## [1.9.0] - 2026-11-15`, tag `v1.9.0` on the PR #336 merge (`3bb8ec6`, which is also `origin/main`) and PyPI serving **1.9.0**. The release delivers GitHub Enterprise support and `pt-PT` for the extension.
+- **GitHub Enterprise stopped being a dead end:** `GitHubProvider.parse_repo_ref` dropped the regex anchored to the literal `github.com` and switched to a generic `_REMOTE_RE` (optional `user@` prefix, host with optional port, `:`/`/` separator and exactly two path segments). Enterprise instance remotes (`github.acme.com`, HTTP/SSH/port/embedded credential) now parse; `GITHUB_BASE_URL` remains what retargets the API.
+- **VS Code extension language coverage closed at five:** `package.nls.pt-pt.json` (14 keys) and `l10n/bundle.l10n.pt-pt.json` (26 keys) joined `en`, `pt-br`, `es` and `fr`. The editor bundles are no longer the only product artifact missing `pt_pt`.
+- **Documentation parity lost its silent exceptions:** `_EN_ONLY` was emptied in `tests/unit/test_docs_translation_parity.py` and `docs/github-issue-prompt-com-gh.md` was moved to `docs/extra/`. `CONTEXT.md` formalized the **Canonical doc** × **Extra doc** distinction, and the root of `docs/` reached **51/51 topics across all five languages**.
+- **ADR-0019 became an executable contract:** `tests/unit/test_project_config_seed_docs.py` (4 scenarios) requires section `9.4`, the `[!IMPORTANT]` callout and `GITPR_SKIP_PROJECT_CONFIG_SEED` across all five variants of `pull-request-publication` **and** `config-tui`, the cross-anchor validated by GitHub-style slug, ADR-0019 and both terms in `CONTEXT.md`. `pull-request-publication` left `_PARITY_EXCEPTIONS`.
+- **SCM migration in ephemeral environments is documented and locked:** `persisted=False`, `os.environ` and `PermissionError` handling are in all five variants of `docs/scm-multiforge.*` and in [ADR-0020](docs/adr/0020-per-repo-scm-provisioning-migration.md), enforced by test.
+- **Map-Reduce became observable outside the code:** cost and latency of `GITPR_MAP_REDUCE_MAX_TOKENS` / `MAX_PART_TOKENS` (and the per-provider variants) entered all five languages of `docs/metricas-telemetria.*`, and [ADR-0022](docs/adr/0022-map-reduce-per-provider-token-partitioning.md) now references metrics.
+- **`--install` now lists `claude-code`:** the unknown-editor message in `src/mcp_server.py` (`_install_for_editor`) lists `vscode, cursor, claude-code, claude, zed, auto`, and all six `langs/` dictionaries were synchronized — the message stopped denying an option that the CLI accepts.
+- **The pending-items survey became an executable roadmap:** `docs/prompts/relatorio_pendencias_proximos_passos_i18n.md` audited all **25 status reports** against the code and organized **8 stages** with acceptance criteria; Stages 1–7 are marked completed and Stage 8 was executed in the code (the marker in the roadmap remained pending).
+- **Current version:** 1.9.0 (**published to PyPI**; tag `v1.9.0` on commit `3bb8ec6`, PR #336 merge)
+- **Language dictionary version:** v0.0.44 (🆕 +1 since v0.0.43; delivers the fixed `--install` message over OTA)
 - **Hook scripts version:** v0.0.4 (unchanged)
 - **Distribution:** PyPI (`pip install gitpr-cli`) — binary channel removed
 - **Website:** [gitpr.natanfiuza.dev.br](https://gitpr.natanfiuza.dev.br/)
@@ -26,21 +28,21 @@
 ## **🏗️ Architecture and Base Libraries**
 
 * **Language:** Python >= 3.10
-* **CLI Framework:** Click (for commands, flags and terminal formatting) — **16 subcommands** (`badge`, `baseline`, `check`, `config`, `demo`, `explain`, `fix`, `mentor`, `metrics`, `policy`, `release`, `review-pr`, `risk`, `seed`, `split`, `tests`). Four of them are **groups**: `baseline` (6 subcommands), `metrics` (8), `policy` (7) and `tests` (1). **34 Click options at the root** — unchanged in this window.
-* **UI/Terminal:** Textual — TUI for interactive chat, issue editing, help screen, metrics dashboard, PR Publisher, **CommitApp** (`src/ui/commit_app.py`, 220 lines), linter errors (`LinterApp`), configuration (`ConfigApp`), the `NoticeScreen` modal, the `gitpr demo` tour (`src/ui/demo/`), the ledger migration assistant (`src/ui/metrics_migration_app.py`) and `PrBaseApp` (`src/ui/pr_base_app.py`). `MetricsApp` retains the **Events** and **Charts & Trends** tabs with `1`/`2` bindings — no new widgets in this window; what entered was tab documentation across all five languages.
+* **CLI Framework:** Click (for commands, flags and terminal formatting) — **16 subcommands** (`badge`, `baseline`, `check`, `config`, `demo`, `explain`, `fix`, `mentor`, `metrics`, `policy`, `release`, `review-pr`, `risk`, `seed`, `split`, `tests`). Four of them are **groups**: `baseline` (6 subcommands), `metrics` (8), `policy` (7) and `tests` (1). **34 Click options at the root** — unchanged in this window (`src/main.py` was not touched).
+* **UI/Terminal:** Textual — TUI for interactive chat, issue editing, help screen, metrics dashboard, PR Publisher, **CommitApp** (`src/ui/commit_app.py`, 220 lines), linter errors (`LinterApp`), configuration (`ConfigApp`), the `NoticeScreen` modal, the `gitpr demo` tour (`src/ui/demo/`), the ledger migration assistant (`src/ui/metrics_migration_app.py`) and `PrBaseApp` (`src/ui/pr_base_app.py`). `MetricsApp` retains the **Events** and **Charts & Trends** tabs with `1`/`2` bindings. No new widgets in this window.
 * **Layered Architecture:** `src/domain/` (pure rules, no I/O) + `src/application/use_cases/` (orchestration, **15 use cases**) + presentation (CLI/TUI). **9 domain packages**: `baseline`, `check`, `finding`, `linter`, `mentor`, `policy`, `pr`, `risk`, `tests_generation`. Outside the domain: `src/issue_autoclose/` (issue closing flow over `ScmProvider` and the local registry), `src/project_config.py` (versioned configuration), `src/scm_settings.py` (forge and credential resolution per repository) and `src/ascii_chart.py` (pure 2D rendering, no I/O).
-* **Editor Extension:** `extensions/vscode/` — thin TypeScript MCP client for **VS Code and Cursor** (Node.js 20+, `@modelcontextprotocol/sdk`, VSIX). Contains no business rules. Marketplace publishing remains decoupled from the package release, with a granular PAT gate.
+* **Editor Extension:** `extensions/vscode/` — thin TypeScript MCP client for **VS Code and Cursor** (Node.js 20+, `@modelcontextprotocol/sdk`, VSIX). Contains no business rules. 🆕 Localization went from four to **five bundles** (`package.nls.*` and `l10n/bundle.l10n.*`): `en`, `pt-br`, `es`, `fr` and **`pt-pt`**. Marketplace publishing remains decoupled from the package release.
 * **Cryptography:** `cryptography.fernet` for local protection of API keys, GitHub tokens and SCM tokens for the forges.
-* **Configuration:** `python-dotenv`, `pyyaml` (static linter and project configuration) + its own declarative schema (`src/config_schema.py`, 🆕 **115 `ConfigField`** and **18 categories**). `DEFAULT_CONFIG` is **derived** from the fields with `seeded=True` (🆕 **55 keys**). The `KIND_FLOAT` type continues serving prices and currency. `packaging` powers the PEP 440 gate version comparison and policy pack compatibility.
-* **AI Providers:** Integration via the official Google GenAI SDK, OpenAI SDK (DeepSeek) and OpenAI SDK (local Ollama). Configured defaults: `gemini-pro-latest` / `gemini-flash-lite-latest` and `deepseek-v4-pro` / `deepseek-v4-flash`. 🆕 Map-Reduce limits are resolved **per provider** in `src/config.py`.
-* **Forge APIs:** `requests` (REST) — multi-forge abstraction in `src/infrastructure/scm/` (GitHub, GitLab, Bitbucket, Azure DevOps) + `web_links.py`; `src/github_api.py` kept as a deprecated shim. The issue contract (`get_issue`, `get_default_branch`, `closing_line`) is implemented by the **four** forges where it makes sense.
+* **Configuration:** `python-dotenv`, `pyyaml` (static linter and project configuration) + its own declarative schema (`src/config_schema.py`, **115 `ConfigField`** and **18 categories**). `DEFAULT_CONFIG` is **derived** from the fields with `seeded=True` (**55 keys**) — unchanged in this window. `packaging` powers the PEP 440 gate version comparison and policy pack compatibility.
+* **AI Providers:** Integration via the official Google GenAI SDK, OpenAI SDK (DeepSeek) and OpenAI SDK (local Ollama). Configured defaults: `gemini-pro-latest` / `gemini-flash-lite-latest` and `deepseek-v4-pro` / `deepseek-v4-flash`. Map-Reduce limits resolved **per provider** in `src/config.py`.
+* **Forge APIs:** `requests` (REST) — multi-forge abstraction in `src/infrastructure/scm/` (GitHub, GitLab, Bitbucket, Azure DevOps) + `web_links.py`; `src/github_api.py` kept as a deprecated shim. 🆕 The GitHub provider stopped requiring the literal `github.com` host when resolving the repository.
 * **Linter / SAST:** YAML regex + Checkstyle bridge + embedded secrets ruleset (`src/security_ruleset.py`) + 4 bridges in `src/infrastructure/linter/external/` (base + Semgrep, Gitleaks, Bandit), with a normalized model in `src/domain/linter/sast_finding_mapper.py` and the canonical finding in `src/domain/finding/`.
 * **CI Infrastructure:** `src/infrastructure/ci/` — `sarif_builder.py` (SARIF 2.1.0), `junit_builder.py` (JUnit XML) and `masking.py` (credential masking before serializing any artifact).
 * **Git Internals:** `src/infrastructure/git/` — `patch_applier.py`, `selective_stager.py`, `identity.py`, `risk_history_reader.py` and `test_matcher.py`.
 * **Local Persistence:** `src/ledger.py` — SQLite (`~/.gitpr/metrics/telemetry.db`) with WAL, `PRAGMA user_version`, UUID keys and bundle transport. The price table lives in `src/config.py` (`DEFAULT_MODEL_PRICES`) and now accepts per-model and currency overrides.
 * **Network:** `src/net.bounded_urlopen` (`UPDATE_FETCH_HARD_TIMEOUT = 3.0`) bounds the **wall clock including DNS** in the update gate. `get_issue()`/`get_default_branch()` use a **5 s** timeout (`GITPR_ISSUE_AUTOCLOSE_TIMEOUT`).
-* **MCP:** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 — **18 annotated tools**, **19 resources**, 7 prompts (count unchanged; no server file changed in this window).
-* **Tests:** Pytest + `unittest.mock` (**166 test modules** — 65 at the root, 12 in `tests/application/use_cases/`, 10 in `tests/fix/`, 10 in `tests/scm/`, 10 in `tests/infrastructure/` (baseline 1, ci 3, git 2, linter 4), 21 in `tests/domain/` (baseline 5, check 3, finding 1, linter 2, mentor 1, policy 4, pr 1, risk 2, tests_generation 2), 7 in `tests/badge/`, 6 in `tests/demo/`, 6 in `tests/split/`, 5 in `tests/issue_autoclose/`, 4 in `tests/review/`, 3 in `tests/integration/`, 7 in `tests/unit/` —, **3469 collected scenarios**) + MCP server e2e tests via a real subprocess (JSON-RPC stdio) + real git repository fixtures (`tests/fix/`, `tests/split/`, `tests/test_full_diff_encoding.py`) + network isolation guards (`tests/demo/conftest.py`, `tests/badge/conftest.py`, `tests/integration/conftest.py`, `tests/split/conftest.py`). The extension has its own Mocha suite (7 tests against the real MCP server).
+* **MCP:** [mcp](https://pypi.org/project/mcp/) >= 1.0.0 — **18 annotated tools**, **19 resources**, 7 prompts (count unchanged; the only touched file was `src/mcp_server.py`, in the `--install` message).
+* **Tests:** Pytest + `unittest.mock` (**167 test modules** — 65 at the root, 12 in `tests/application/use_cases/`, 10 in `tests/fix/`, 10 in `tests/scm/`, 10 in `tests/infrastructure/` (baseline 1, ci 3, git 2, linter 4), 21 in `tests/domain/` (baseline 5, check 3, finding 1, linter 2, mentor 1, policy 4, pr 1, risk 2, tests_generation 2), 7 in `tests/badge/`, 6 in `tests/demo/`, 6 in `tests/split/`, 5 in `tests/issue_autoclose/`, 4 in `tests/review/`, 3 in `tests/integration/`, **8 in `tests/unit/`** —, **3471 collected scenarios**) + MCP server e2e tests via a real subprocess (JSON-RPC stdio) + real git repository fixtures (`tests/fix/`, `tests/split/`, `tests/test_full_diff_encoding.py`) + network isolation guards (`tests/demo/conftest.py`, `tests/badge/conftest.py`, `tests/integration/conftest.py`, `tests/split/conftest.py`). The extension has its own Mocha suite (7 tests against the real MCP server).
 * **Packaging:** setuptools/build (PyPI) — `version = {attr = "src.updater.__version__"}`; embedded packs via `package-data`; `packaging>=23.0`. The extension is packaged separately (`vsce package`, VSIX).
 * **CI/CD:** GitHub Actions — `pr-review.yml` + `action.yml` (calls `gitpr check`) + `tests.yml` (Python 3.10/3.13 matrix) + `extension.yml` (VSIX build, test and packaging; its own release on `ext-v*` and a granular per-marketplace gate) + `release.yml` (tests, tag/version verification via SSOT, sdist/wheel build, `twine check --strict`, Trusted Publishing OIDC to PyPI and GitHub Release creation on `v*` tags).
 
@@ -52,9 +54,9 @@
 
 * **Structured Generation:** Communicates with the LLM requesting a strictly JSON response.
 * **Map-Reduce (Giant Diffs):** When the diff exceeds the **provider trigger** (~90k tokens by default), it is automatically split into batches (`split_diff_into_chunks`), each part is processed (Map) and the summaries are unified (Reduce). Supports PRs, commits and Issues. The `provider`/`model` are aggregated across chunks and the `meta`/`modules` are forwarded to `log_command_metric`.
-* **🆕 Per-Provider Thresholds:** `get_map_reduce_thresholds(provider)` (in `src/config.py`) resolves across three levels — `GITPR_MAP_REDUCE_MAX_TOKENS_<PROVIDER>` / `GITPR_MAP_REDUCE_MAX_PART_TOKENS_<PROVIDER>` → `GITPR_MAP_REDUCE_MAX_TOKENS` / `GITPR_MAP_REDUCE_MAX_PART_TOKENS` → defaults **90,000** (trigger) and **50,000** (batch). `_positive_int_from_raw` rejects invalid or non-positive values, and the `max_part_tokens <= max_tokens` invariant is enforced. `gitpr release` is unaffected; `src/issue_engine.py` and `src/review/remote_pr.py::_chunk_count` now resolve through the same function.
-* **🆕 Slicing Cascade:** `_split_giant_file` splits an individual file above the batch size at its hunks (`@@`); `_split_line_chunk` splits a monolithic hunk by lines/characters. Each sub-batch reattaches the **original header** of the file and the `# [file - part N]` marker, and the partitioner falls back to line-based splitting when the text has no `diff --git`.
-* **🆕 Intermediate Pre-Reduce:** if the set of partial summaries still exceeds the trigger, `generate_pr_content` batches them up to `max_part_tokens` and reconsolidates via `call_ai_model` **before** final synthesis, aggregating telemetry metadata.
+* **Per-Provider Thresholds:** `get_map_reduce_thresholds(provider)` (in `src/config.py`) resolves across three levels — `GITPR_MAP_REDUCE_MAX_TOKENS_<PROVIDER>` / `GITPR_MAP_REDUCE_MAX_PART_TOKENS_<PROVIDER>` → `GITPR_MAP_REDUCE_MAX_TOKENS` / `GITPR_MAP_REDUCE_MAX_PART_TOKENS` → defaults **90,000** (trigger) and **50,000** (batch). `_positive_int_from_raw` rejects invalid or non-positive values, and the `max_part_tokens <= max_tokens` invariant is enforced. `gitpr release` is unaffected; `src/issue_engine.py` and `src/review/remote_pr.py::_chunk_count` resolve through the same function.
+* **Slicing Cascade:** `_split_giant_file` splits an individual file above the batch size at its hunks (`@@`); `_split_line_chunk` splits a monolithic hunk by lines/characters. Each sub-batch reattaches the **original header** of the file and the `# [file - part N]` marker, and the partitioner falls back to line-based splitting when the text has no `diff --git`.
+* **Intermediate Pre-Reduce:** if the set of partial summaries still exceeds the trigger, `generate_pr_content` batches them up to `max_part_tokens` and reconsolidates via `call_ai_model` **before** final synthesis, aggregating telemetry metadata.
 * **Local Tokenizer:** `tokenizer.json` for precise token estimation before sending to the AI.
 * **Token Estimation:** Lightweight heuristic `len() // 4` via `estimate_token_count()` with a fallback to the local tokenizer.
 * **Native Git Optimization:** Flags `-U1`, `-w`, `-M`, `-B` in the `get_git_diff` and `get_git_full_diff` commands.
@@ -63,13 +65,13 @@
 * **Binary Hunk Guard:** every diff entry point (`get_git_diff`, `get_git_staged_diff`, `get_unstaged_diff`, `get_git_full_diff`, `current_diff`, `get_check_diff`, `tests_generate`, `risk`) applies `collapse_binary_hunks()` — hunks with contiguous runs of ≥8 `U+FFFD` (or ≥32 with density ≥10%) become `Binary files … differ`. The O(1) fast path returns the diff untouched when there is no `U+FFFD`, preserving legitimate Latin-1/Windows-1252 files.
 * **Defensive Collapse in `generate_pr_content()`:** the function applies `collapse_binary_hunks(diff_text)` **before** timing and the AI call, also covering external callers that deliver the raw diff — not just the path that came from git.
 * **Local Configuration Seed (`seed_project_configuration()`):** creates `.gitpr/conf/gitpr.config.yml`, `.gitpr/conf/gitpr.smart-excludes.json` and `.gitpr/skill/.gitpr.linter.yml`, returning a structured summary (`config`, `smart_excludes`, `linter`, `skills_downloaded`). It never overwrites without `force=True`.
-* **Project Configuration Seed:** the root callback and `--install` call `ensure_project_config()` (`src/project_config.py`) on every invocation inside a repository, except on help paths. An existing file is **never** overwritten; creation is announced only on the root's interactive path and can be disabled by `GITPR_SKIP_PROJECT_CONFIG_SEED` (escape hatch for the test suite).
+* **Project Configuration Seed:** the root callback and `--install` call `ensure_project_config()` on every invocation inside a repository, except on help paths. `GITPR_SKIP_PROJECT_CONFIG_SEED` disables auto-seeding. 🆕 This behavior became required across all five languages by `tests/unit/test_project_config_seed_docs.py`.
 * **`get_base_branch(quiet=)`:** base resolution delegates to `resolve_pull_request_base()`; `quiet` keeps the fallback warning from corrupting the TUI or the JSON-RPC stream.
 * **Pre-Save (`--pre-save`):** Hidden debug flag that saves the full payload as JSON before every AI call.
 * **Two-Layer Smart Excludes:** Global layer (`~/.gitpr/conf/`) + project-local (`./.gitpr/conf/`), merged at runtime. The global and local loaders were hardened against corrupted `.env` and unreadable paths.
 * **Metrics with Time Tracking:** `log_command_metric()` in all flows, with `meta`, `modules` and `duration_ms`.
 * **Centralized Output Resolution:** `resolve_output_path()` — defaults to `.gitpr/reports/{type}/`.
-* **SCM Wizard (`run_scm_init_wizard()`)**: `gitpr --init` — detects the forge from the origin remote, requests per-forge extras, validates the token and persists **only on success**; it writes to the chosen forge's slot and only creates a project override when that forge differs from the detected one. 🆕 A real `github.com` remote is recognized and does **not** create an override (regression covered by test).
+* **SCM Wizard (`run_scm_init_wizard()`)**: `gitpr --init` — detects the forge from the origin remote, requests per-forge extras, validates the token and persists **only on success**; it writes to the chosen forge's slot and only creates a project override when that forge differs from the detected one.
 * **Release Skill Template (`ensure_release_skill_template()`)**: Downloads `templates/gitpr.release.*.md` on the first use of `gitpr release`.
 * **Corrupted Skill Guard:** `_CORRUPTED_PR_SKILL_ARTIFACT` documents the JSON fragment that leaked into the `pt_br` template, and `get_skill_context()` removes it **in memory** when `action_type == "pr"`.
 * **Shared Skill Registry:** `SKILL_FILES_BY_TYPE` / `SKILL_TYPES` / `DEFAULT_SKILL_TYPE` in `src/config.py`.
@@ -109,9 +111,9 @@
 * **`risk` Subcommand — 4 options:** `--file`, `--format text|json`, `--base`, `--no-history`.
 * **`mentor` Subcommand — 2 options:** `--finding`, `--provider`.
 * **Derived `DEFAULT_CONFIG`:** `src/config.py` imports `DEFAULT_CONFIG` from `src/config_schema.py`, built as `{field.key: field.default for field in FIELDS if field.seeded}` — **55 keys** (recount in this window; the previous figure of 56 was inflated).
-* **🆕 Map-Reduce Limits in the Schema:** six fields `GITPR_MAP_REDUCE_MAX_TOKENS_{GEMINI,DEEPSEEK,OLLAMA}` and `GITPR_MAP_REDUCE_MAX_PART_TOKENS_{GEMINI,DEEPSEEK,OLLAMA}` entered category `ai`, filtered by `show_if` on the active provider. They are **env-first**: they do not enter `DEFAULT_CONFIG` and reach the user via the configuration TUI.
+* **Map-Reduce Limits in the Schema:** six fields `GITPR_MAP_REDUCE_MAX_TOKENS_{GEMINI,DEEPSEEK,OLLAMA}` and `GITPR_MAP_REDUCE_MAX_PART_TOKENS_{GEMINI,DEEPSEEK,OLLAMA}` in category `ai`, filtered by `show_if` on the active provider. They are **env-first**.
 * **Prices and Currency in the Schema:** `GITPR_METRICS_CURRENCY` (default `USD`) and the eight `GITPR_METRICS_PRICE_<MODEL>_{INPUT,OUTPUT}` fields, all with `KIND_FLOAT` and an empty default.
-* **Environment Variables:** the four `GITPR_BASELINE_*`, the two mentor ones, the two policy ones and `GITPR_RISK_INCLUDE_IN_REVIEW`. **Outside `DEFAULT_CONFIG`:** 🆕 the six `GITPR_MAP_REDUCE_*`, `GITPR_METRICS_PRICE_<MODEL>_INPUT`/`_OUTPUT`, `GITPR_METRICS_CURRENCY`, the **9 `GITPR_CHECK_*`**, `GITPR_SKIP_UPDATE_CHECK` (strict boolean) and `GITPR_ISSUE_AUTOCLOSE`, `GITPR_ISSUE_AUTOCLOSE_TIMEOUT` and `GITPR_SKIP_PROJECT_CONFIG_SEED`.
+* **Environment Variables:** the four `GITPR_BASELINE_*`, the two mentor ones, the two policy ones and `GITPR_RISK_INCLUDE_IN_REVIEW`. **Outside `DEFAULT_CONFIG`:** the six `GITPR_MAP_REDUCE_*`, `GITPR_METRICS_PRICE_<MODEL>_INPUT`/`_OUTPUT`, `GITPR_METRICS_CURRENCY`, the **9 `GITPR_CHECK_*`**, `GITPR_SKIP_UPDATE_CHECK`, `GITPR_ISSUE_AUTOCLOSE`, `GITPR_ISSUE_AUTOCLOSE_TIMEOUT` and `GITPR_SKIP_PROJECT_CONFIG_SEED`.
 * **Contextual Help:** `gitpr -h --explain` renders; `HELP_MAP["explain"]` and `HELP_PRIORITY["explain"]` point to `docs/explain-pr`, and `gitpr tests`/`gitpr tests generate` have their own `epilog=`. `HELP_MAP` includes `seed` and the `close_issue`/`no_close_issue` links point to `docs/issue-autoclose`.
 * **`.env` Write Layer:** `read_env_file_values()` reads **only the file** via `dotenv_values`; `save_config_values()` with `set_key`; `remove_config_value()` with `unset_key`.
 * **Baseline Gate in the Flow:** `main.py` resolves the baseline gate before lint, review, full review, file audit, remote review and risk.
@@ -168,11 +170,11 @@
 * **Hardened Fetch (`bounded_urlopen`):** a non-JSON body and a payload without a version are **rejected before entering the cache**. A 3 s wall-clock ceiling, DNS included.
 * **PEP 440 Comparison:** `_coerce_version()` uses `packaging.version.Version`, tolerating the leading `v` and PEP 440 suffixes; `parse_version()` keeps the tuple contract for external callers. `_is_newer()` **ignores a remote pre-release** on a stable installation and treats an unreadable version on either side as unknown.
 * **Mandatory Gate (`enforce_update_required()`):** Returns `True` (after printing both versions and the pip command) when the published version is newer; `False` when it is up to date, when the remote version is **unknown (offline)** or when the check is disabled.
-* **Strict Escape Hatch Semantics:** `GITPR_SKIP_UPDATE_CHECK` is parsed against `_SKIP_TRUTHY_VALUES` (`1`, `true`, `yes`, `on`, `y`). 🆕 The decision is formalized in [ADR-0021](docs/adr/0021-strict-boolean-update-check-migration.md), and `tests/unit/test_auto_update_docs_parity.py` locks the notice across all five languages of `docs/auto-update.*` and the tutorial.
+* **Strict Escape Hatch Semantics:** `GITPR_SKIP_UPDATE_CHECK` is parsed against `_SKIP_TRUTHY_VALUES` (`1`, `true`, `yes`, `on`, `y`), formalized in [ADR-0021](docs/adr/0021-strict-boolean-update-check-migration.md), and `tests/unit/test_auto_update_docs_parity.py` locks the notice across all five languages.
 * **`check_and_update()`:** Only queries and **informs**, never installs.
-* **Centralized Versioning:** `__version__` (**1.8.0** 🆕), `__lang_version__` (**v0.0.43** 🆕), `__scripts_version__` (**v0.0.4**), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`, `LINTER_PRESETS_VERSION`. The package SSOT is an explicit contract ([ADR-014](docs/adr/0014-canonical-package-version-ssot.md)).
-* **✅ Release status — 1.8.0 published:** PyPI serves **1.8.0**, `CHANGELOG.md` has `## [1.8.0] - 2026-11-14` (`6cc0508`) and the `v1.8.0` tag on origin points to the PR #325 merge. ⚠️ The `v1.7.0` tag still points to `b2688c4` (pre-bump, `__version__` 1.6.0) — inherited pending item.
-* **⚠️ SSOT Consistency:** the `92605b9` bump changed only `src/updater.py`; `CLAUDE.md` and `GEMINI.md` still say **1.7.0**, and therefore `tests/unit/test_version_consistency.py` has **2 failures** (`test_claude_md_version_matches_ssot` and `test_gemini_md_version_matches_ssot`).
+* **Centralized Versioning:** `__version__` (**1.9.0** 🆕), `__lang_version__` (**v0.0.44** 🆕), `__scripts_version__` (**v0.0.4**), `SMART_EXCLUDES_VERSION`, `THINKING_WORDS_VERSION`, `LINTER_PRESETS_VERSION`. The package SSOT is an explicit contract ([ADR-014](docs/adr/0014-canonical-package-version-ssot.md)).
+* **✅ Release status — 1.9.0 published:** PyPI serves **1.9.0**, `CHANGELOG.md` has `## [1.9.0] - 2026-11-15` (`3aee652`), the `v1.9.0` tag on origin points to `3bb8ec6` (PR #336 merge, which is also `origin/main`) and `v1.8.0` remains at `6cc0508`. ⚠️ The `v1.7.0` tag still points to `b2688c4` (pre-bump, `__version__` 1.6.0) — inherited pending item, still open.
+* **⚠️ SSOT Consistency (recurring):** the `3aee652` bump changed only `src/updater.py` and `CHANGELOG.md`; `CLAUDE.md` and `GEMINI.md` were aligned to **1.8.0** by `9ad079d` and are now one version behind again — `tests/unit/test_version_consistency.py` has **2 failures** (`test_claude_md_version_matches_ssot` and `test_gemini_md_version_matches_ssot`).
 
 ### **9. Interactive Chat Interface (`src/ui/chat_app.py`)**
 
@@ -188,9 +190,8 @@
 * **Laravel-Inspired System:** `__()` function with named placeholders (`{count}`, `{file}`, etc.).
 * **Automatic Detection:** Detects the OS language on first run and saves it to `GITPR_LANG`; the profile directory is created **before** persisting.
 * **5 Languages, 6 Dictionaries:** en_us (default/fallback), pt_br, pt_pt, es/es_es, fr/fr_fr.
-* **Versioned Files:** `__lang_version__` (**v0.0.43** 🆕) controls package updates (`langs/*.json`).
-* **✅ Coverage:** the **six** files have **1807 keys** each (+20). The code uses the same keys; there is no key without a dictionary and no orphan. `tests/test_i18n.py` remains **22 green**.
-* **🆕 v0.0.43 has content:** the strings for the unknown forge warning (`_default_provider_warning`), per-provider Map-Reduce limits and pre-reduce entered the six dictionaries; the OTA refresh delivers the new translation.
+* **Versioned Files:** `__lang_version__` (**v0.0.44** 🆕) controls package updates (`langs/*.json`).
+* **✅ Coverage:** the **six** files have **1807 keys** each (count unchanged). v0.0.44 did not add a key — it fixed the **value** of the unknown editor message across all six dictionaries. `tests/test_i18n.py` remains **22 green**.
 * **Environment Snapshot (`AMBIENT_ENV_KEYS`):** `frozenset(os.environ)` captured **immediately before** the module-level `load_dotenv()`.
 * **Cache with Language Indexing:** Cached AI responses include the current language in the MD5 keying.
 * **Translation Source in Lockstep:** a new key must exist in the code, in `langs/pt_br.json` (master list), in the FR/ES dicts of `scripts/sync_all_langs.py` and in the curated values of `scripts/fix_mangled_i18n_keys.py`; the extractor uses **AST**.
@@ -207,7 +208,7 @@
 * **3 Supported Providers:** Google Gemini, DeepSeek and Ollama (local), with a primary/secondary per provider.
 * **JSON Mode & Deterministic Parameters:** `temperature=0.0` and `top_p=0.1`; automatic fallback between configured providers.
 * **AI Timeout:** default of **180s** (`GITPR_AI_TIMEOUT`).
-* **🆕 Per-Provider Context Limits:** Map-Reduce stops treating all three providers identically — `get_map_reduce_thresholds()` reads each provider's dedicated ceiling and falls back to the generic one. The trigger and batch size are resolved **before** the first call, and pre-reduce uses the exact same batch size.
+* **Per-Provider Context Limits:** Map-Reduce reads each provider's dedicated ceiling and falls back to the generic one. The trigger and batch size are resolved **before** the first call, and pre-reduce uses the exact same batch size. 🆕 The cost and latency of this path became documented in `docs/metricas-telemetria.*`.
 * **Calls with `quiet`:** release and the new features forward `quiet` down to the AI layer, so the spinner never corrupts a `--format json` output.
 * **One Call at a Time, with Cache:** mentor and explain reuse the MD5 cache per prompt.
 * **Already-Parsed Payload:** `parse_explain_payload()` and `generate_test_file` accept the **dict** the provider delivers, with a fallback to the raw JSON string (old cache responses).
@@ -228,7 +229,7 @@
 
 * **3 Context Engines:** Current diff, branch history (`-ht`) and Blame archaeology (`-b`).
 * **Multi-Forge Publishing:** F3 creates the issue on the forge **resolved for the repository** via `provider.create_issue` — Azure DevOps raises `ScmNotSupportedError`.
-* **Map-Reduce for Issues:** Context above the provider trigger is split and unified; 🆕 `src/issue_engine.py` resolves the ceiling via the same `get_map_reduce_thresholds()` as the PR flow.
+* **Map-Reduce for Issues:** Context above the provider trigger is split and unified via the same `get_map_reduce_thresholds()` as the PR flow.
 * **401 Handling:** Reauthentication signaling without closing the application.
 * **`git remote -v` Decoded Safely:** the call uses `encoding="utf-8"` + `errors="replace"`.
 * **Provider-Agnostic Registry:** after a successful creation on any supported forge, `register_created_issue()` writes the number **and provider** to `.gitpr/conf/issue.yml`. Bookkeeping failures are swallowed — a local problem never turns a successful creation into an error — and the first write adds the file to `.gitignore`.
@@ -244,6 +245,7 @@
 ### **16. MCP Server and Direct CLI Invocation (`src/mcp_server.py`)**
 
 * **18 Annotated MCP Tools:** `get_git_context`, `analyze_diff`, `list_unstaged_files`, `analyze_unstaged_diff`, `get_full_diff`, `generate_commit_message`, `review_code`, `full_review`, `generate_pr_description`, `run_linter`, `analyze_blame`, `generate_issue`, `list_fix_candidates`, `review_remote_pr`, `get_baseline_status`, `get_usage_metrics`, `run_check` and `publish_pull_request`.
+* **🆕 Complete `--install` Message:** `_install_for_editor` now lists `vscode, cursor, claude-code, claude, zed, auto` in the unknown-editor error — previously it omitted `claude-code`, an option that the CLI itself accepts. All six `langs/` translations were synchronized and `test_install_for_unknown_editor_lists_all_valid_options` locks the list.
 * **Opt-In Parameters in the Contract:** `review_code` and `full_review` accept `mentor: bool = False`; `generate_pr_description` accepts `explain: bool = False`. They are **purely per parameter** — they never OR with the `.env` defaults.
 * **19 Resources + 7 Templated Prompts:** `skill://list` + `skill://{pr,commit,review,filereview,issue,blame,release,fix}` + `linter://config` + `baseline://summary` + `prompt://list` + 7 prompts.
 * **Aligned Skill Registry:** `mcp_server.SKILL_FILES` has **11 entries** (`tests`, `explain` and `mentor` included); `TestSkillRegistryAgreement` passes.
@@ -267,7 +269,7 @@
 * **Ledger Reading:** the dashboard queries `telemetry.db` on the worker thread, rendering the sections (cost, quality, modules, providers, cycle) from the same renderers the CLI uses.
 * **Migration Assistant (`src/ui/metrics_migration_app.py`):** offers to import the legacy files, import **and** rebuild from the AI cache, or "not now".
 * **Untracked Export Artifacts:** `.gitignore` is the single source about `.gitpr/metrics/export/`.
-* **🆕 Synchronized Documentation:** the **Charts & Trends** tab, latency histogram and token series are now described in all **five languages** of `docs/metricas-telemetria.*`, with a translation parity guard (`tests/unit/test_docs_translation_parity.py`, 3 scenarios).
+* **Synchronized Documentation:** the **Charts & Trends** tab, latency histogram and token series are described across all **five languages** of `docs/metricas-telemetria.*`.
 * **Tests:** `tests/test_ascii_chart.py` (**9 scenarios**) covers formatters, empty states, populated histogram/series, tab composition and tab switching.
 
 ### **18. Metrics and Telemetry System (`src/metrics.py`)**
@@ -280,6 +282,7 @@
 * **`duration_ms` is no longer lost:** the ledger uses `meta["duration_ms"]` as a fallback before writing `0`.
 * **Configurable Cost per Model:** `DEFAULT_MODEL_PRICES` (in `src/config.py`) prices the four models and the aliases `gemini-pro-latest` (**1.25 / 10.00** per 1M tokens) and `gemini-flash-lite-latest` (**0.10 / 0.40**). The `GITPR_METRICS_PRICE_<MODEL>_INPUT`/`_OUTPUT` overrides still beat the table; **both rates are mandatory**.
 * **Configurable Currency:** `GITPR_METRICS_CURRENCY` (default `USD`) labels the total and, when it is not USD, discards the embedded table instead of mislabeling a dollar price. A total that leaves models out still reads `Total (partial)`.
+* **🆕 Map-Reduce Documented:** all five languages of `docs/metricas-telemetria.*` now explain the cost and latency impact of `GITPR_MAP_REDUCE_MAX_TOKENS` / `GITPR_MAP_REDUCE_MAX_PART_TOKENS` (and the per-provider variants), including the `map_reduce`/`chunks_count`/`duration_ms` columns; [ADR-0022](docs/adr/0022-map-reduce-per-provider-token-partitioning.md) references metrics.
 * **Export and Cleanup:** `gitpr metrics export` (CSV/JSON), `prune`, `purge` with interactive confirmation, `bundle`/`merge` to transport and merge windows.
 * **Interactive Commit Also Measures:** the `commit` path keeps recording the command line with `meta` and `modules`.
 
@@ -312,7 +315,8 @@
 * **`supports_merged_dates`:** class attribute, `False` on Bitbucket Cloud, which publishes `merged_at` **empty**.
 * **`web_links.py`:** pure functions (`repo_web_base`, `commit_url`, `pull_request_url`, `user_url`) normalize any remote format.
 * **`get_pull_request(repo, pr_id)` — concrete method of the ABC:** the default raises `ScmNotSupportedError` and each forge implements it.
-* **🆕 Fixed Detection:** `detect_provider_from_remote(remote, default=None)` evaluates the `github` match **before** returning the default. Before this fix, every `github.com` remote was treated as an unknown host when the caller requested `default=None` — the wizard offered to pick the forge and a spurious `scm.provider` ended up written to the project file.
+* **Forge Detection:** `detect_provider_from_remote(remote, default=None)` evaluates the `github` match **before** returning the default; a host that does not name a forge receives an explicit warning from `resolve_scm_settings`.
+* **🆕 `parse_repo_ref` Accepts Custom Domains:** the regex anchored to `github.com` was replaced by `_REMOTE_RE` — optional `user@`, host with optional port, `:` (SSH) or `/` (HTTPS) separator, scheme stripped before matching and **exactly two** non-empty path segments (`workspace`/`name`), otherwise raising `ValueError`. **GitHub Enterprise Server** remotes (`github.acme.com`, HTTP/SSH/port/embedded credential) are now accepted; paths with depth other than two (nested subgroups) and malformed URLs remain rejected. `raw`, `workspace`, `name` and `provider` of `RepoRef` remain intact, and `GITHUB_BASE_URL` remains what points to the Enterprise API.
 * **Per-Repository Resolution:** the registry does not read `GITPR_SCM_PROVIDER`; `resolve_scm_provider(config)` receives the provider already resolved by `src/scm_settings.py` (section 46).
 * **GitHub:** `GET /repos/{o}/{r}/issues/{n}` (marking `pull_request` and falling back to the requested number when absent), `GET /repos/{o}/{r}` for `default_branch` (empty string when absent) and the `close #N` keyword.
 * **Synthesized GitLab Headers:** `changes[].diff` is a loose hunk; `old_path`/`new_path` build the `diff --git a/… / --- / +++` headers, honoring `/dev/null`. And `overflow: true` **raises** instead of reviewing half of a truncated diff.
@@ -321,7 +325,7 @@
 * **Fail-Fast per Forge:** Azure requires `GITPR_SCM_ORGANIZATION`/`GITPR_SCM_PROJECT`; Bitbucket requires `GITPR_SCM_USERNAME`; `create_issue` on Azure raises `ScmNotSupportedError`.
 * **Release Publication:** `provider.create_release()` used by `gitpr release --publish`.
 * **Shared PR Publication:** `src/application/use_cases/publish_pull_request.py`, used by `--no-edit` and by the MCP tool. Validates title/body, **requires `provider.token` only when `check_remote_state=True`**, optionally checks for an existing PR and an unpushed branch, masks error messages and returns `PublishPrOutcome`.
-* **Artifacts:** Glossary + ADR-001/ADR-005/ADR-016/🆕 [ADR-0020](docs/adr/0020-per-repo-scm-provisioning-migration.md); `docs/scm-multiforge.*.md` family in 5 languages; **10 test files, 391 scenarios** (370 → 391: detection and fallback warning).
+* **Artifacts:** Glossary + ADR-001/ADR-005/ADR-016/[ADR-0020](docs/adr/0020-per-repo-scm-provisioning-migration.md); `docs/scm-multiforge.*.md` family in 5 languages; **10 test files, 373 scenarios** (`test_github_provider.py` 83 with the new `TestParseRepoRef`, `test_scm_settings.py` 28, `test_init_wizard.py` 21, `test_factory.py` 15).
 
 ### **22. `gitpr release` Subcommand — Changelog / Release Notes (`src/release_engine.py`)**
 
@@ -335,14 +339,14 @@
 * **Front Matter Declares the Skill's Language:** `src/skill_frontmatter.py` (`split_front_matter()`) reads an initial YAML block with `language: <code>` (allowlist `en_us`, `pt_br`, `pt_pt`, `es_es`, `fr_fr`), **removes the block** before the body becomes a system instruction and swaps the i18n language for the duration of the generation — headings, labels **and** the language requested from the AI, even with the summary disabled.
 * **Classifier (`src/commit_classifier.py`)** and **Builder with Translatable Sections (`src/changelog_builder.py`)**.
 * **Semantic Bump (`src/version_bump.py`)** and **Publication** (`--publish`, `--draft`, `--format markdown|json`, `--force`). **6 options on the subcommand.**
-* **🆕 Release status:** the `## [1.8.0] - 2026-11-14` section was generated and committed with the `92605b9` bump; PyPI serves 1.8.0 and the `v1.8.0` tag is on origin. ⚠️ The section **summary** opens with "Version 1.7.0 improves…" — the AI summary text stayed stuck on the previous version (editorial fix pending).
+* **🆕 Release status:** the `## [1.9.0] - 2026-11-15` section was generated by `gitpr release` (artifact `.gitpr/reports/release/develop_natan_20261115190040_RELEASE.md`) and committed with the `3aee652` bump; PyPI serves 1.9.0 and the `v1.9.0` tag is on origin. ⚠️ The section **summary** ends with "The release is version 1.8.0" — the AI summary cites the previous version (same class of editorial defect that 1.8.0 had, now in 1.9.0).
 * **The subcommand goes through the update gate** when run in an interactive terminal.
 * **Artifacts:** `docs/release-notes.*.md` in 5 languages, ADR and `tests/test_web_links.py`.
 
 ### **23. `gitpr config` Subcommand — Configuration TUI**
 
 * **Master-Detail Screen (`src/ui/config_app.py`):** Categories on the left, fields on the right, edited inline. Header with search (`/`) and a pending counter; footer `F1 Help · F2 Save · ^R Restore · / Search · Esc`. `ENABLE_COMMAND_PALETTE = False`.
-* **Declarative Schema (`src/config_schema.py`) — the single source of truth:** **18 categories** and 🆕 **115 `ConfigField`** (was 109), of which **7 advanced** and 🆕 **55 `seeded`** (recount; the previous report stated 56).
+* **Declarative Schema (`src/config_schema.py`) — the single source of truth:** **18 categories** and **115 `ConfigField`**, of which **7 advanced** and **55 `seeded`**.
 * **Derived `DEFAULT_CONFIG`:** the dictionary is built from `seeded=True`, so a new key in the schema is either born seeded or deliberately not seeded.
 * **`check` Category:** the nine `GITPR_CHECK_*` (`BASE`, `FORMAT`, `OUTPUT`, `FAIL_ON`, `NO_IA`, `IA_ONLY_HIGH_RISK`, `BASELINE_PATH`, `POLICY`, `TIMEOUT_SECONDS`) now appear here, with the same defaults as the pipeline.
 * **`smart_excludes` Category:** replaces the old `Diff Filters` label; `SMART_EXCLUDES_VERSION` changed group and the category has its own panel (see below).
@@ -351,7 +355,7 @@
 * **`scm` Category per Forge:** gained the editable `PROJECT_SCM_PROVIDER` line, the read-only `PROJECT_EFFECTIVE_PROVIDER` line (forge in use and origin) and a `gitlab` group; tokens and base URLs of **all** forges are always listed, and the token test uses the slot's own host.
 * **`issue` Category:** `GITPR_ISSUE_AUTOCLOSE` and `GITPR_ISSUE_AUTOCLOSE_TIMEOUT` appear here.
 * **`KIND_FLOAT` Type:** the schema's first float field is `GITPR_METRICS_CURRENCY`, alongside the eight per-model price fields. Validation accepts empty and refuses a negative or non-numeric value with the message "Use a number greater than or equal to zero.".
-* **`ai` Category with Prices:** the `*_INPUT`/`*_OUTPUT` fields are visible when the corresponding `DEFAULT_AI_PROVIDER` is selected; an empty value preserves the previous behavior. 🆕 The six `GITPR_MAP_REDUCE_*` fields follow the same per-provider `show_if`.
+* **`ai` Category with Prices:** the `*_INPUT`/`*_OUTPUT` fields are visible when the corresponding `DEFAULT_AI_PROVIDER` is selected. The six `GITPR_MAP_REDUCE_*` fields follow the same per-provider `show_if`.
 * **Write by Store:** `ConfigApp` dispatches by `store`: project values **never** go through `save_config_values()`, are written first, support removal on emptying, refuse the current branch and never overwrite unreadable YAML. The effective base line is updated in place after saving.
 * **`policy` and `baseline` Categories:** the pack fields and the four baseline ones.
 * **Aligned Skills Section:** `SKILL_LABELS` has **11 entries** (`tests`, `explain`, `mentor`).
@@ -361,8 +365,9 @@
 * **Restore (`Ctrl+R`):** Removes the line from `.env` instead of rewriting the default; `Esc` with pending changes asks for confirmation.
 * **Project-Scoped Sections:** Edits `.gitpr/skill/*.md`, `.gitpr/conf/gitpr.config.yml` and the project's smart-excludes, writing atomically and preserving CRLF/LF.
 * **Forced Downloads:** Buttons that force re-download of smart-excludes, translations, presets and thinking words via `force=`.
-* **Lightweight Links Module (`src/doc_links.py`):** `doc_url()` moved out of `core.py` so the UI can get the link without importing AI SDKs. `DOC_LANG_PARAMS` maps `es_es`→`es` and `fr_fr`→`fr`, and `CURRENT_LANG` is read **at call time**, so `set_lang()` propagates to the links.
-* **Tests:** `test_config_app.py` (94), `test_config_schema.py` (**55**), `test_config_validation.py` (40), `test_config_store.py` (22), `test_config_cli.py` (9) and `test_config_issue_autoclose.py` (10).
+* **Lightweight Links Module (`src/doc_links.py`):** `doc_url()` moved out of `core.py` so the UI can get the link without importing AI SDKs. `DOC_LANG_PARAMS` maps `es_es`→`es` and `fr_fr`→`fr`.
+* **🆕 Translated Documentation:** the seed/CI and opt-out (`GITPR_SKIP_PROJECT_CONFIG_SEED`) notes reached all four variants of `docs/config-tui.*`, with a cross-anchor validated by test against `pull-request-publication`.
+* **Tests:** `test_config_app.py` (94), `test_config_schema.py` (55), `test_config_validation.py` (40), `test_config_store.py` (22), `test_config_cli.py` (9) and `test_config_issue_autoclose.py` (10).
 
 ### **24. General Usage Log (`src/usage_log.py`)**
 
@@ -489,10 +494,10 @@
 * **Order Matters:** `src.updater` is imported **before** the language variables are defined.
 * **Worker-Test Stability:** `test_config_app.py` and `test_metrics.py` wait for `workers.wait_for_complete()` before asserting.
 * **Workflow Dependency:** The clean runner has no `~/.gitpr`, and `test_demo_isolation.py` asserts that the profile exists — the job explicitly creates the directory and the empty `.env`.
-* **🆕 In this window the suite gained 33 scenarios and 6 modules:** `test_map_reduce_chunking.py` (10), `test_auto_update_docs_parity.py` (4), `test_docs_translation_parity.py` (3), `test_marketplace_publishing_guide_docs_parity.py` (4), `test_marketplace_wizard_syntax.py` (3) and `test_scm_multiforge_docs_parity.py` (3), plus `test_scm_settings.py` (24 → **28**), `test_factory.py` (14 → **15**) and `test_init_wizard.py` (20 → **21**). **Total: 3469 scenarios in 166 files.**
-* **🆕 Documentation parity tests are a family:** five modules simultaneously lock `auto-update`, `check-ci`, `scm-multiforge`, the marketplace guide and the translation map. An EN-only edit intentionally breaks CI.
-* **🆕 Windows stopped being flaky:** `TestCommitAppHeadlessFlow.test_headless_full_flow` is skipped on `sys.platform == "win32"` (Textual's `pilot.pause` blocks without a real TTY) and `TestCliCommitRouting` mocks `src.main.check_internet_connection`, removing the network dependency.
-* **⚠️ 2 known failures:** `tests/unit/test_version_consistency.py::test_claude_md_version_matches_ssot` and `::test_gemini_md_version_matches_ssot` fail because `CLAUDE.md`/`GEMINI.md` still say 1.7.0 while `src/updater.__version__` is already 1.8.0.
+* **🆕 In this window the suite gained 1 module and 2 net scenarios:** `tests/unit/test_project_config_seed_docs.py` (**4 scenarios**) entered, `test_mcp_server.py` went from 117 to **118** (`test_install_for_unknown_editor_lists_all_valid_options`), `test_github_provider.py` recounted at **83** with `TestParseRepoRef`, and the documentation parity tests were hardened without changing counts (`test_docs_translation_parity.py` 3, `test_scm_multiforge_docs_parity.py` 3). **Total: 3471 scenarios in 167 files.**
+* **🆕 The documentation parity family has no language exceptions left:** `_EN_ONLY = {}` — the structure still exists as an escape hatch, but no document uses it. `_PARITY_EXCEPTIONS` retains seven recorded debts (`ARCHITECTURE`, `check-ci`, `git-hooks-locais`, `git-status`, `linter-regras-customizadas`, `mentor-mode`, `skill-template`); `pull-request-publication` left the list because parity became real.
+* **🆕 The cross-anchor test is real:** `tests/unit/test_project_config_seed_docs.py` computes the GitHub-style slug (`_github_heading_slug`) to validate the link from `config-tui` to section `9.4` of `pull-request-publication` — renaming the heading breaks the test instead of producing a dead link.
+* **⚠️ 2 known failures:** `tests/unit/test_version_consistency.py::test_claude_md_version_matches_ssot` and `::test_gemini_md_version_matches_ssot` fail because `CLAUDE.md`/`GEMINI.md` still say 1.8.0 while `src/updater.__version__` is already 1.9.0.
 * **Extension workflow:** `.github/workflows/extension.yml` runs `npm install`, compiles, tests and packages the VSIX. The `github-release` job attaches the `.vsix` to the GitHub Releases of `ext-v*` tags; the `publish-marketplaces` job evaluates each PAT independently and is non-blocking.
 * **Release Workflow:** `release.yml` runs the tests, checks tag ↔ `src.updater.__version__` consistency, builds sdist/wheel, validates with `twine check --strict`, publishes via Trusted Publishing (OIDC) and creates the GitHub Release. The version SSOT also has its own test (`tests/unit/test_version_consistency.py`).
 
@@ -598,14 +603,14 @@
 * **Two-Step Publication:** `generatePr` opens an editable Markdown document; `publishPr` asks for modal confirmation and handles `success`, `needs_push`, `already_exists`, `auth_required` and `error`.
 * **Diagnostics in the Problems Panel:** `run_check` is converted into `DiagnosticCollection("gitpr")`.
 * **Double-Depth Masking:** `masking.ts` mirrors `src/infrastructure/ci/masking.py`.
-* **Extension Localization:** bundles in **en, es, fr and pt-br** (4 languages) — the GitPR UI itself remains at 5.
-* **Marketplace Metadata:** `package.json` has `icon` (`images/icon.png`), `homepage` and `bugs.url`; the package carries `LICENSE` (LGPL-2.1), the minimum condition for a credible listing.
-* **Decoupled VSIX Release:** `extension.yml` has a dedicated `github-release` job that attaches the compiled `.vsix` to the official GitHub Releases of `ext-v*` tags — the editor artifact no longer depends on the Python package release.
+* **🆕 Complete Localization in Five Languages:** besides `en`, `pt-br`, `es` and `fr`, `extensions/vscode/package.nls.pt-pt.json` (14 keys: `displayName`, `description`, command titles and configuration descriptions `mcpCommand`, `mcpArgs`, `provider`, `checkUseAI`) and `extensions/vscode/l10n/bundle.l10n.pt-pt.json` (26 runtime keys: commit generation, review, PR draft/publication, auth prompts and GitPR Check notifications) entered. The GitPR UI remains at 5 languages and the extension matches it.
+* **Marketplace Metadata:** `package.json` has `icon` (`images/icon.png`), `homepage` and `bugs.url`; the package carries `LICENSE` (LGPL-2.1).
+* **Decoupled VSIX Release:** `extension.yml` has a dedicated `github-release` job that attaches the compiled `.vsix` to the official GitHub Releases of `ext-v*` tags.
 * **Granular Marketplace Gate:** the `publish-marketplaces` job evaluates `VSCE_PAT` and `OVSX_PAT` **independently**, does not block the rest of the workflow and reports each result in `$GITHUB_STEP_SUMMARY`.
-* **🆕 Marketplace Guide in 5 Languages:** `docs/marketplace-publishing-guide.*` moved from EN-only to all **five languages**, with `tests/unit/test_marketplace_publishing_guide_docs_parity.py` (4 scenarios) locking tokens, steps and links in every variant.
-* **🆕 Credentials Wizard (`scripts/marketplace-setup-wizard.sh`):** 5-stage interactive CLI — prerequisites (`gh`, `npx`, with graceful degradation) → Azure DevOps PAT creation ("All accessible organizations" scope) → `VSCE_PAT` validation via `npx @vscode/vsce verify-pat` and secret storage → Open VSX namespace registration → `OVSX_PAT` validation via `npx ovsx verify-pat`, secret storage and offer to create/push the `ext-v0.1.0` tag. It is **re-runnable** (current values become defaults), performs idempotent upsert in `.env` and lists at the end what still depends on manual action. `PUBLISHER_ID` and the tag are hardcoded and need editing in forks. Covered by `tests/unit/test_marketplace_wizard_syntax.py` (3 scenarios, including static `bash -n`).
-* **What the Extension Does Not Do:** it does not commit, push or publish without confirmation. The extension's `gitpr.commit` command calls the `generate_commit_message` MCP tool — it does **not** open the TUI, which is exclusive to the terminal. Automatic issue closing is also **exclusive to the CLI**.
-* **Tests:** its own Mocha suite (7 scenarios, including real stdio; the integration test timeout went from 20s to 60s) + `tests/test_mcp_server.py` (117 scenarios).
+* **Marketplace Guide in 5 Languages:** `docs/marketplace-publishing-guide.*` across all five languages, with a parity test locking tokens, steps and links.
+* **Credentials Wizard (`scripts/marketplace-setup-wizard.sh`):** 5-stage interactive CLI — prerequisites (`gh`, `npx`) → Azure DevOps PAT creation → `VSCE_PAT` validation via `npx @vscode/vsce verify-pat` → Open VSX namespace registration → `OVSX_PAT` validation via `npx ovsx verify-pat`. It is **re-runnable**, performs idempotent upsert in `.env` and lists at the end what still depends on manual action.
+* **What the Extension Does Not Do:** it does not commit, push or publish without confirmation. The extension's `gitpr.commit` command calls the `generate_commit_message` MCP tool — it does **not** open the TUI.
+* **Tests:** its own Mocha suite (7 scenarios, including real stdio) + `tests/test_mcp_server.py` (**118 scenarios**). 🆕 There is currently no test comparing the key set of the `pt-pt` bundles with English — Stage 8 validation was manual.
 * **Artifacts:** `docs/editor-extension.*` in **5 languages**, `docs/marketplace-publishing-guide.*` in **5 languages**, [ADR-014](docs/adr/0014-canonical-package-version-ssot.md), `glossary-editor-extension.md`, specs, `plansfacts` and reports.
 
 ### **43. Interactive Commit TUI (`src/ui/commit_app.py`)**
@@ -623,7 +628,7 @@
 * **TTY Guard:** without `--hook`, routing now consults `_may_ask_the_user()`; with a TTY, it opens `CommitApp`; without a TTY (CI, pipe, cron), it falls back to the silent console flow.
 * **Configuration:** `GITPR_SKIP_UNSTAGED_CHECK` (skips the Stage Selector) and `GITPR_AUTO_STAGE` (stages everything and proceeds), both in `DEFAULT_CONFIG` and in the configuration TUI schema.
 * **Textual Details:** `ENABLE_COMMAND_PALETTE = False`; `on_button_pressed` handles `#btn_close`; `_on_commit_progress_dismissed` reads `_commit_success` instead of assuming success when the modal closes.
-* **🆕 Windows Stability:** the full headless flow test is skipped on `win32`; TTY/non-TTY routing now mocks the internet check. No production behavior change.
+* **Windows Stability:** the full headless flow test is skipped on `win32`; TTY/non-TTY routing mocks the internet check.
 * **Tests:** `tests/test_commit_app.py` (**17 scenarios**) — every state transition and callback, a complete headless flow and `TestCliCommitRouting` (routing with and without TTY).
 * **Domain:** `CONTEXT.md` keeps the **Stage selector** and **Commit flow** terms.
 * **Artifacts:** `docs/commit-message-ia.*` in the **5 languages** and the Gemini task report.
@@ -655,10 +660,10 @@
 * **Configuration TUI:** `project` category with a `store` attribute (`env` vs `project`), `KIND_BRANCH` and three fields: file path (read-only), target branch (editable) and effective base with origin (read-only).
 * **Repair Modal (`src/ui/pr_base_app.py`, 98 lines):** when the target is the current branch itself and the run is interactive, a focused modal asks for the replacement branch and writes it to the project file.
 * **CLI:** `--base` goes through `_resolve_pr_target()`; the file is seeded on every invocation inside a repository (help excepted), announced only on the root's interactive path; `GITPR_SKIP_PROJECT_CONFIG_SEED` disables the seed. `gitpr seed` does the same explicitly and idempotently (section 47).
-* **Formalized Boundary:** [ADR-0019](docs/adr/0019-project-configuration-seed-segregation.md) separates the **runtime auto-seed** (only `gitpr.config.yml`, on first use) from **explicit provisioning** (`gitpr seed`, which covers config, smart excludes and linter). `docs/config-tui.md` and `docs/pull-request-publication.md` have the migration note and the opt-out for CI/monorepo.
+* **Formalized Boundary:** [ADR-0019](docs/adr/0019-project-configuration-seed-segregation.md) separates the **runtime auto-seed** from **explicit provisioning**. 🆕 This boundary became required by test across all five language variants (`test_project_config_seed_docs.py`).
 * **MCP:** `publish_pull_request` uses the shared resolver, returns an error envelope for `BaseBranchError` and exposes `warnings` in the payload and in the catalog.
 * **Declared Side Effect:** running `gitpr` in a repository now creates the file on first execution. An existing file is never overwritten; if `.gitignore` excludes the path, a warning explains that the value will not be versioned.
-* **Tests:** `tests/test_project_config.py` (**49**), `tests/test_project_config_cli.py` (7), `tests/test_pr_base_app.py` (12) + extensions in `test_config_app.py` (94), `test_config_schema.py` (**55**), `test_config_store.py` (22), `test_mcp_server.py` (117) and `test_core.py` (49).
+* **Tests:** `tests/test_project_config.py` (**49**), `tests/test_project_config_cli.py` (7), `tests/test_pr_base_app.py` (12) + extensions in `test_config_app.py` (94), `test_config_schema.py` (55), `test_config_store.py` (22), `test_mcp_server.py` (118) and `test_core.py` (49).
 * **Artifacts:** [ADR-015](docs/plans/ADR-015-project-local-pr-base.md), [ADR-0019](docs/adr/0019-project-configuration-seed-segregation.md), `docs/plans/develop_natan/20261030_project_pr_base_plansfacts.md`, `docs/survey/20261030_project_pr_base_surveyfacts.md`, and `docs/config-tui.*`/`docs/install-wizard.*`/`docs/pr-descricao-padrao.*`/`docs/pull-request-publication.*` in the 5 languages.
 
 ### **46. SCM Configuration per Repository and per Forge (`src/scm_settings.py`)**
@@ -666,11 +671,11 @@
 * **What it was:** the forge (`GITPR_SCM_PROVIDER`), the token (`GITPR_SCM_TOKEN_ENCRYPTED`) and the base URL were **machine-global** settings in `~/.gitpr/.env`. One machine could no longer serve more than one forge at a time, the wrong credential went to the wrong host when a repository's remote changed, and any unrecognized self-hosted host was silently mapped to GitHub.
 * **What it is:** the forge and the credential became **properties of the repository** ([ADR-016](docs/plans/ADR-016-per-provider-scm-settings.md)). A single resolver answers "which forge, which token, which base URL apply here?" for all surfaces.
 * **Resolution Order (`resolve_provider_choice`):** project override (`scm.provider` in `.gitpr/conf/gitpr.config.yml`) → `detect_provider_from_remote(origin, default=None)` → `github`. An unknown forge value in the project file is **ignored with a warning**, never fatal; `default=None` lets the wizard distinguish "recognized as GitHub" from "not recognized" and **ask** instead of assuming.
-* **🆕 Fixed Regression:** `detect_provider_from_remote` returned `default` **before** testing `github`, so every `github.com` remote was "unknown" when the caller requested `default=None`. The order was inverted, and a regression test covers HTTPS and SSH.
-* **🆕 Explicit Fallback Warning:** `_default_provider_warning()` is emitted by `resolve_scm_settings` when a remote exists but the forge came from the default — previously the user was silently mapped to GitHub. Without a remote, the warning does **not** appear (the caller already has its own error), and a project override silences it. The string entered all six dictionaries.
-* **One Slot per Forge:** `GITHUB_TOKEN_ENCRYPTED`, `GITLAB_TOKEN_ENCRYPTED`, `BITBUCKET_TOKEN_ENCRYPTED`, `AZURE_DEVOPS_TOKEN_ENCRYPTED` (Fernet) and the corresponding `*_BASE_URL`. A token never answers for another forge; the raw `GITPR_SCM_TOKEN` remains the global CI/CD override and is tried first on every provider.
-* **Single Idempotent Migration (`migrate_legacy_scm_config`, under a lock):** moves `GITPR_SCM_PROVIDER` + `GITPR_SCM_TOKEN_ENCRYPTED` + `GITPR_SCM_BASE_URL` into the slot of the forge they name, **never overwrites** an already filled slot, removes the legacy lines and keeps working when `.env` is read-only (it degrades to the process environment). A legacy token **without** a registered provider is deliberately **left in place**, not guessed.
-* **🆕 Provisioning Contract:** [ADR-0020](docs/adr/0020-per-repo-scm-provisioning-migration.md) formalizes that scripts, images and devcontainers must write the **per-forge slots** — never the legacy keys —, that `git.empresa.com` must receive `scm.provider` in the **versioned** project file, and that raw `GITPR_SCM_TOKEN` remains valid in CI. `docs/scm-multiforge.*` was updated across all five languages.
+* **Fixed Regression:** `detect_provider_from_remote` returned `default` **before** testing `github`, so every `github.com` remote was "unknown" when the caller requested `default=None`. A regression test covers HTTPS and SSH.
+* **Explicit Fallback Warning:** `_default_provider_warning()` is emitted by `resolve_scm_settings` when a remote exists but the forge came from the default. Without a remote, the warning does **not** appear, and a project override silences it.
+* **One Slot per Forge:** `GITHUB_TOKEN_ENCRYPTED`, `GITLAB_TOKEN_ENCRYPTED`, `BITBUCKET_TOKEN_ENCRYPTED`, `AZURE_DEVOPS_TOKEN_ENCRYPTED` (Fernet) and the corresponding `*_BASE_URL`. The raw `GITPR_SCM_TOKEN` remains the global CI/CD override and is tried first on every provider.
+* **Single Idempotent Migration (`migrate_legacy_scm_config`, under a lock):** moves `GITPR_SCM_PROVIDER` + `GITPR_SCM_TOKEN_ENCRYPTED` + `GITPR_SCM_BASE_URL` into the slot of the forge they name, **never overwrites** an already filled slot, removes the legacy lines and keeps working when `.env` is read-only (degrades to the process environment, `persisted=False`).
+* **🆕 The Fallback Path Is Documented:** [ADR-0020](docs/adr/0020-per-repo-scm-provisioning-migration.md) and all five variants of `docs/scm-multiforge.*` explicitly describe that, when the credentials file cannot be written (`PermissionError`), the value lives in `os.environ` and the migration reports `persisted=False` — instead of pretending it wrote. An operator on CI/read-only containers is no longer surprised.
 * **Wizard (`gitpr --init`):** persists **only on success**, writes to the chosen forge's slot, offers the stored base URL as the prompt default (non-GitHub) and only writes `scm.provider` in the project file when the chosen forge differs from the detected one — the file is committed and shared with the team.
 * **Configuration TUI:** editable `PROJECT_SCM_PROVIDER` line and read-only `PROJECT_EFFECTIVE_PROVIDER` line (forge in use + origin), tokens and base URLs of all forges always listed, token test against the slot's own host and a `gitlab` group.
 * **Converted Surfaces:** `src/main.py`, `src/metrics.py`, `src/release_engine.py` and `src/mcp_server.py` resolve through `get_scm_settings()` and propagate the resolver's warnings.
@@ -686,11 +691,12 @@
   * `.gitpr/conf/gitpr.smart-excludes.json` (project exclusions);
   * `.gitpr/skill/.gitpr.linter.yml` (local linter rules).
 * **Never Destroys Without a Request:** an existing file is **never** overwritten; `--force/-f` overwrites on purpose, and `--all/-a` also includes the download of all AI skills. The function returns a structured summary (`config`, `smart_excludes`, `linter`, `skills_downloaded`) and the command records the `seed` metric.
-* **Boundary with the Auto-Seed:** [ADR-0019](docs/adr/0019-project-configuration-seed-segregation.md) formalizes the segregation: the root callback/`--install` keeps seeding **only** `gitpr.config.yml` on first use, while the complete provisioning (smart excludes + linter + skills) is always explicit through `gitpr seed`. The `GITPR_SKIP_PROJECT_CONFIG_SEED` opt-out covers CI and monorepos where the auto-seed must not run.
-* **5-Step Installation Wizard:** **1)** Project Local Configuration (new, confirmable), **2)** Skill Templates (with the optional setup of external linter bridges), **3)** Git Hooks, **4)** MCP Configuration, **5)** API Key. Skipping became explicit.
-* **Compatibility:** `generate_skill_template()` keeps auto-seeding the smart-excludes, so the old path does not break; `ensure_project_config()` and `download_skill_file()` gained the `force` parameter while keeping the no-clobber default.
+* **Boundary with the Auto-Seed:** [ADR-0019](docs/adr/0019-project-configuration-seed-segregation.md) formalizes the segregation: the root callback/`--install` keeps seeding **only** `gitpr.config.yml` on first use, while the complete provisioning is always explicit through `gitpr seed`. The `GITPR_SKIP_PROJECT_CONFIG_SEED` opt-out covers CI and monorepos.
+* **🆕 Documented and Translated in All 5 Languages:** all four variants of `docs/config-tui.*` and `docs/pull-request-publication.*` now describe the opt-out and the migration note, with structural parity verified by test.
+* **5-Step Installation Wizard:** **1)** Project Local Configuration, **2)** Skill Templates, **3)** Git Hooks, **4)** MCP Configuration, **5)** API Key. Skipping became explicit.
+* **Compatibility:** `generate_skill_template()` keeps auto-seeding the smart-excludes; `ensure_project_config()` and `download_skill_file()` gained the `force` parameter while keeping the no-clobber default.
 * **Help:** `HELP_MAP["seed"]` points to `docs/install-wizard.md` and describes `--force`/`--all`.
-* **Tests:** `tests/test_seed_command.py` (**8 scenarios**) — creation, idempotency, forced overwrite, `--all`, CLI and flag; `tests/test_install_wizard.py` now mocks the external linter setup.
+* **Tests:** `tests/test_seed_command.py` (**8 scenarios**) + 🆕 `tests/unit/test_project_config_seed_docs.py` (**4 scenarios**, ADR-0019 contract parity).
 * **Artifacts:** `docs/install-wizard.*` (5 languages), [ADR-0019](docs/adr/0019-project-configuration-seed-segregation.md), `docs/plans/develop_natan/20261105_seed_local_conf_plansfacts.md`, survey and walkthrough, and the **Project configuration seed** term in `CONTEXT.md`.
 
 ---
@@ -729,9 +735,9 @@
 | `tests/test_linter_metrics.py` | 4 | Linter metrics: errors, warnings, duration |
 | `tests/test_linter_presets.py` | 5 | Linter presets: resolution and forced re-download |
 | `tests/test_main_suggest_reviewers.py` | 8 | `--no-suggest-reviewers` flag in the CLI and in the contextual help |
-| `tests/test_map_reduce_chunking.py` | 10 🆕 | Per-provider threshold resolution, env precedence, cap, invalid input and the three cascade levels |
+| `tests/test_map_reduce_chunking.py` | 10 | Per-provider threshold resolution, env precedence, cap, invalid input and the three cascade levels |
 | `tests/test_mcp_prompts.py` | 11 | MCP prompt templates and language fallback |
-| `tests/test_mcp_server.py` | 117 | MCP tools (18), resources (19), annotations, patching, direct CLI, offload, extension contract, PR base |
+| `tests/test_mcp_server.py` | 118 🆕 | MCP tools (18), resources (19), annotations, patching, direct CLI, offload, extension contract, PR base and the complete editor list in the `--install` error |
 | `tests/test_mcp_server_e2e.py` | 6 | Real MCP server via subprocess + JSON-RPC stdio |
 | `tests/test_mentor_cli.py` | 4 ✅ | `mentor` CLI and `--mentor` opt-in — patches in `src.main` |
 | `tests/test_metrics.py` | 175 | **Ledger**: synchronous write, export, bundle/merge, migration, renderers, cost, currency, quality, modules, providers, cycle, Token Trend and Latency Histogram |
@@ -845,37 +851,38 @@
 | `tests/scm/test_azure_devops_provider.py` | 51 | Azure DevOps provider: org/project, PRs, `ScmNotSupportedError`, issue read-back |
 | `tests/scm/test_bitbucket_provider.py` | 49 | Bitbucket provider: Basic auth, workspace, PRs, `close #N` |
 | `tests/scm/test_contract.py` | 44 | `ScmProvider` contract: signatures, dataclasses, errors, issue defaults |
-| `tests/scm/test_factory.py` | 15 🆕 | `resolve_scm_provider()` + `detect_provider_from_remote()` with `default=None` and GitHub recognized |
+| `tests/scm/test_factory.py` | 15 | `resolve_scm_provider()` + `detect_provider_from_remote()` with `default=None` and GitHub recognized |
 | `tests/scm/test_github_api_shim.py` | 18 | Deprecated `github_api` shim → delegates to the provider |
-| `tests/scm/test_github_provider.py` | 86 | GitHub provider: REST, headers, PRs, issues, releases, reviewer read-back |
+| `tests/scm/test_github_provider.py` | 83 🆕 | GitHub provider: REST, headers, PRs, issues, releases, reviewer read-back and **`TestParseRepoRef`** (github.com HTTPS/SSH, Enterprise HTTP/SSH/port/credential and rejection of malformed paths) |
 | `tests/scm/test_gitlab_provider.py` | 56 | GitLab provider: API v4, namespace, synthesized headers, `overflow`, `Closes #N` |
-| `tests/scm/test_init_wizard.py` | 21 🆕 | `--init` wizard: forge detection, per-forge slot, validation, persistence, real GitHub without override |
+| `tests/scm/test_init_wizard.py` | 21 | `--init` wizard: forge detection, per-forge slot, validation, persistence, real GitHub without override |
 | `tests/scm/test_release_publish.py` | 8 | Release publication per forge (GitHub/GitLab) |
-| `tests/scm/test_scm_settings.py` | 28 🆕 | Forge/credential resolver: precedence, legacy migration, fallback warning, read-only |
+| `tests/scm/test_scm_settings.py` | 28 | Forge/credential resolver: precedence, legacy migration, fallback warning, read-only |
 | `tests/split/test_apply_split_plan.py` | 11 | The only mutating module: selective staging, one commit per group |
 | `tests/split/test_generate_split_plan.py` | 12 | Diff → units → groups → conflict pre-validation → messages |
 | `tests/split/test_hunk_grouper.py` | 18 | Prompt, budget/trimming, AI call, response validation |
 | `tests/split/test_hunk_parser.py` | 18 | `parse_units()`/`build_patch()`: text ↔ model, pure |
 | `tests/split/test_selective_stager.py` | 11 | Subset staging, check against HEAD, clean index |
 | `tests/split/test_split_cli.py` | 31 | Split CLI: options, dry run default, `--apply` |
-| `tests/unit/test_version_consistency.py` | 5 ⚠️ | Version SSOT: `pyproject.toml`, `CLAUDE.md` and `GEMINI.md` against `src.updater.__version__` — **2 failures** because both docs still say 1.7.0 |
+| `tests/unit/test_version_consistency.py` | 5 ⚠️ | Version SSOT: `pyproject.toml`, `CLAUDE.md` and `GEMINI.md` against `src.updater.__version__` — **2 failures** because both docs still say 1.8.0 |
 | `tests/unit/test_check_ci_docs_parity.py` | 3 | 5-language and 7-section parity of `docs/check-ci.*` + ADR-0011 + references in `action.yml` |
-| `tests/unit/test_auto_update_docs_parity.py` | 4 🆕 | Notice, accepted literals, `GITPR_SKIP_UPDATE_CHECK` and ADR-0021 across all 5 languages of `auto-update` and the tutorial |
-| `tests/unit/test_docs_translation_parity.py` | 3 🆕 | Generic translation parity guard across the language variants |
-| `tests/unit/test_marketplace_publishing_guide_docs_parity.py` | 4 🆕 | Marketplace guide in 5 languages: tokens, stages and credentials wizard |
-| `tests/unit/test_marketplace_wizard_syntax.py` | 3 🆕 | Presence/shebang, wizard markers and stages, static `bash -n` |
-| `tests/unit/test_scm_multiforge_docs_parity.py` | 3 🆕 | SCM provisioning note in 5 languages + terms in `CONTEXT.md` |
+| `tests/unit/test_auto_update_docs_parity.py` | 4 | Notice, accepted literals, `GITPR_SKIP_UPDATE_CHECK` and ADR-0021 across all 5 languages |
+| `tests/unit/test_docs_translation_parity.py` | 3 🆕 | Generic structural parity guard: `_EN_ONLY` empty and no exception for `pull-request-publication` |
+| `tests/unit/test_marketplace_publishing_guide_docs_parity.py` | 4 | Marketplace guide in 5 languages: tokens, stages and credentials wizard |
+| `tests/unit/test_marketplace_wizard_syntax.py` | 3 | Presence/shebang, wizard markers and stages, static `bash -n` |
+| `tests/unit/test_project_config_seed_docs.py` | 4 🆕 | Section `9.4`, `[!IMPORTANT]` and `GITPR_SKIP_PROJECT_CONFIG_SEED` in all 5 variants of `pull-request-publication` and `config-tui`, GitHub-slug anchor, ADR-0019 and terms in `CONTEXT.md` |
+| `tests/unit/test_scm_multiforge_docs_parity.py` | 3 🆕 | SCM provisioning note in 5 languages + `persisted=False`/`os.environ`/`PermissionError` in §3.1 and ADR-0020 |
 | `tests/sync_i18n.py` | — | i18n coverage verification script (scaffold; never executed) |
 
-**Total:** **3469 scenarios collected in 166 test modules** (65 at the root + 12 in `tests/application/use_cases/` + 10 in `tests/fix/` + 10 in `tests/scm/` + 10 in `tests/infrastructure/` + 21 in `tests/domain/` + 7 in `tests/badge/` + 6 in `tests/demo/` + 6 in `tests/split/` + 5 in `tests/issue_autoclose/` + 4 in `tests/review/` + 3 in `tests/integration/` + 7 in `tests/unit/`; **+33 scenarios, +6 files** since the previous report).
+**Total:** **3471 scenarios collected in 167 test modules** (65 at the root + 12 in `tests/application/use_cases/` + 10 in `tests/fix/` + 10 in `tests/scm/` + 10 in `tests/infrastructure/` + 21 in `tests/domain/` + 7 in `tests/badge/` + 6 in `tests/demo/` + 6 in `tests/split/` + 5 in `tests/issue_autoclose/` + 4 in `tests/review/` + 3 in `tests/integration/` + **8 in `tests/unit/`**; **+2 scenarios, +1 file** since the previous report).
 
 **Quality notes for this version:**
-- **✅ The blocker that froze the suite stays closed:** `-c` without `--hook` does not open `CommitApp` when there is no TTY — routing consults `_may_ask_the_user()`.
-- **🆕 Windows is no longer a false negative:** the headless `CommitApp` flow is skipped on `win32` and routing mocks the internet check — two flakiness causes left the matrix.
-- **🆕 Map-Reduce has edge coverage:** `test_map_reduce_chunking.py` proves env precedence, value cap, invalid input, slicing by file/hunk/line and the fallback without `diff --git`.
-- **🆕 Documentation parity became a test family:** `auto-update`, `check-ci`, `scm-multiforge`, marketplace guide and the translation map are checked across all five languages — each one intentionally fails when a variant falls behind.
-- **🆕 The marketplace wizard has a static test:** `bash -n` validates the script without running it, and the test prefers Git Bash on Windows so it does not trigger blocking WSL calls.
-- **⚠️ 2 version-consistency failures:** `CLAUDE.md` and `GEMINI.md` still declare 1.7.0 while `src/updater.py` is already at 1.8.0; `tests/unit/test_version_consistency.py` fails those two scenarios. The fix is to update both documents.
+- **🆕 Documentation parity became uniform:** `_EN_ONLY` is empty and `pull-request-publication` left `_PARITY_EXCEPTIONS`; any new document at the root of `docs/` needs all four translations, or CI intentionally fails.
+- **🆕 The anchor test is stronger than a `grep`:** `test_project_config_seed_docs.py` computes the heading slug to validate the link between `config-tui` and `pull-request-publication`, so renaming the section breaks the test instead of generating a dead link.
+- **🆕 GitHub Enterprise coverage is explicit:** `TestParseRepoRef` covers `github.com` HTTPS/SSH, Enterprise with HTTP, SSH, port and embedded credential, and rejection of malformed URLs and paths with depth other than two.
+- **🆕 The read-only SCM provisioning contract became a test:** `test_scm_multiforge_docs_parity.py` requires `persisted=False`, `os.environ` and `PermissionError` in the documentation and in ADR-0020.
+- **⚠️ 2 version-consistency failures (recurring):** `CLAUDE.md` and `GEMINI.md` were aligned to 1.8.0 by `9ad079d`, but the `3aee652` bump took the SSOT to 1.9.0 — `tests/unit/test_version_consistency.py` fails both scenarios again. The pattern repeats on every release: the bump changes only `src/updater.py`.
+- **⚠️ No parity test for the extension bundles:** the `pt-pt` files were verified by manual script (keys and `{n}` placeholders); nothing in the suite prevents a new `package.nls.*` from being born incomplete.
 - **`tests/conftest.py` remains hermetic:** `GITPR_SHOW_LOGS=false`, `GITPR_SKIP_UPDATE_CHECK=true`, `GITPR_LANG=en_us`, `GITPR_LINTER_SECURITY=false`, `LANG_VERSION` at the code version and `GITPR_SKIP_PROJECT_CONFIG_SEED=true`.
 - **Network guard in several places:** `tests/demo/conftest.py`, `tests/badge/conftest.py`, `tests/integration/conftest.py` and `tests/split/conftest.py`.
 - **Real git fixtures:** `tests/fix/git_fixture.py`, `tests/split/git_fixture.py` and `tests/test_full_diff_encoding.py`.
@@ -886,27 +893,28 @@
 
 ## **🌐 Internationalization and Documentation**
 
-* **i18n coverage:** **1807 keys** in **all six** dictionaries (`es.json`, `es_es.json`, `fr.json`, `fr_fr.json`, `pt_br.json`, `pt_pt.json`). The code uses the same keys: **0 untranslated** and **0 orphans**. It was 1787 × 6 in the previous window.
-* **🆕 `__lang_version__` went up to v0.0.43:** the strings for the unknown forge warning, per-provider Map-Reduce limits and pre-reduce entered the six dictionaries; the OTA refresh delivers the new translation without reinstalling.
+* **i18n coverage:** **1807 keys** in **all six** dictionaries (`es.json`, `es_es.json`, `fr.json`, `fr_fr.json`, `pt_br.json`, `pt_pt.json`). The code uses the same keys: **0 untranslated** and **0 orphans**. The count did not change because v0.0.44 fixed the **value** of an existing key (the unknown editor message) in all six files.
+* **🆕 `__lang_version__` rose to v0.0.44:** OTA delivers the fixed `--install` string without reinstalling, across all languages.
 * **Translation sources in lockstep:** a new key must exist in the code (source), in `langs/pt_br.json` (**master list**), in the FR/ES dicts of `scripts/sync_all_langs.py` and in the curated values of `scripts/fix_mangled_i18n_keys.py`; the key extractor is **AST** on both sides.
-* **New topics:** **no** new canonical topic in this window — the documentation worked on existing topics and on the ADRs.
+* **New topics:** **no** new canonical topic in this window — the work was synchronization, parity debt and consolidation.
+* **🆕 The root of `docs/` reached 100%:** **51 canonical topics** × 5 languages = **255 files**, with no partial topic. The former single EN-only topic (`github-issue-prompt-com-gh`) left the root and became an **Extra doc** in `docs/extra/`, outside the parity contract.
+* **🆕 `CONTEXT.md` formalized the distinction:** **Canonical doc** (guide in the root of `docs/`, EN as source, mirrored in the four suffixes with identical structural anchors) and **Extra doc** (standalone how-to in `docs/extra/`, outside the 5-language contract) entered. The glossary went from **53 to 55 terms**.
 * **🆕 Topics updated in this window:**
-  - `docs/marketplace-publishing-guide.*` (**5 files** 🆕) — stopped being EN-only: the complete guide, including the credentials wizard, exists in PT-BR, PT-PT, ES and FR.
-  - `docs/metricas-telemetria.*` (**5 files** 🆕) — Charts & Trends tab, Token Trend and Latency Histogram synchronized across all five languages.
-  - `docs/scm-multiforge.*` (**5 files**) — per-repository provisioning note and override on custom domain ([ADR-0020](docs/adr/0020-per-repo-scm-provisioning-migration.md)).
-  - `docs/auto-update.*` (**5 files**) — strict semantics of `GITPR_SKIP_UPDATE_CHECK` ([ADR-0021](docs/adr/0021-strict-boolean-update-check-migration.md)).
-  - `docs/tutorial/install-from-source.*` (**5 files**) — same migration note for the update switch.
-  - `docs/map-reduce-diff.*` (**5 files**) — trigger, batch size, cascade and pre-reduce ([ADR-0022](docs/adr/0022-map-reduce-per-provider-token-partitioning.md)).
-  - `docs/editor-extension.*` (**5 files**) — links to the translated marketplace guide and to the `ext-v*` releases.
-  - `README.md` — links for VSIX installation and the credentials wizard.
-* **`CONTEXT.md` (updated):** the domain glossary went from **44 to 53 terms** (+9). Among others, **Update check switch**, **Map-reduce trigger threshold**, **Map-reduce part size**, **Cascade chunking**, **SCM provisioning**, **Forge fallback warning** and the intra-file slicing terms entered.
-* **Documentation in 5 languages:** **52 canonical topics** in `docs/` (count unchanged) — 🆕 **51 with complete coverage in the 5 languages** and **1 partial topic** (`github-issue-prompt-com-gh`). `marketplace-publishing-guide` left the partial list.
-* **New specification artifacts:** [ADR-0020](docs/adr/0020-per-repo-scm-provisioning-migration.md), [ADR-0021](docs/adr/0021-strict-boolean-update-check-migration.md) and [ADR-0022](docs/adr/0022-map-reduce-per-provider-token-partitioning.md) in `docs/adr/` (now **11 files**; `docs/adr/` numbering is not continuous because ADR-012/013/015/016 live in `docs/plans/`).
+  - `docs/config-tui.*` (**5 files** 🆕) — runtime seed note, the `GITPR_SKIP_PROJECT_CONFIG_SEED` opt-out and the anchor to §9.4.
+  - `docs/pull-request-publication.*` (**5 files** 🆕) — section `9.4` with `[!IMPORTANT]`, examples and the opt-out note for CI/monorepo.
+  - `docs/scm-multiforge.*` (**5 files**) — read-only/ephemeral path (`persisted=False`, `os.environ`, `PermissionError`) in §3.1 and GitHub Enterprise custom domain support in §1.2.
+  - `docs/metricas-telemetria.*` (**5 files**) — Map-Reduce cost and latency, per-provider limits and the `map_reduce`/`chunks_count`/`duration_ms` columns.
+  - `README.md`, `README.pt_br.md`, `README.pt_pt.md`, `README.es_es.md` and `README.fr_fr.md` — documentation index completed with six guides (`gitpr-issue-option`, `guia-regex-gitpr`, `marketplace-publishing-guide`, `otimizacao-de-tokens`, `untracked-files`, `version-markers`) and `mentor-mode` in the translations.
+  - `docs/ARCHITECTURE.*` (**5 files**) and `docs/adr/0022-map-reduce-per-provider-token-partitioning.md` — content adjustments tied to the edits above.
+  - `docs/adr/0020-per-repo-scm-provisioning-migration.md` — read-only fallback and `PermissionError` handling.
+* **🆕 A new operations document:** `docs/prompts/relatorio_pendencias_proximos_passos_i18n.md` (252 lines) audits all **25 status reports** against the code, separates what has already been done from what remains open (`P1`–`P8`, `M1`–`M3`) and describes **8 executable stages** with acceptance criteria and verification commands. Stages 1–7 are marked completed; Stage 8 was delivered in the code (`5b44c0b`) without updating the marker.
+* **Documentation in 5 languages:** **51 canonical topics** (🆕 **51 complete, 0 partial**) + **6 entries in `docs/extra/`** (`como_reverter_commit_git_localmente.md`, `deepseek_v3_tokenizer/`, `github-issue-prompt-com-gh.md`, `gitpr_sintese_monetizacao.md`, `progit.pdf`, `testar_sem_usar_pypi.md`), explicitly outside the contract.
+* **New specification artifacts:** no new ADR in this window — `docs/adr/` remains at **11 files**, and ADR-0020/ADR-0022 were updated. `docs/adr/` numbering is not continuous because ADR-012/013/015/016 live in `docs/plans/`.
 * **Claude Code local skills:** `.claude/skills/` with **29 skills** (count unchanged).
-* **Memory Index:** `.claude/memory/MEMORY.md` with **40 patterns** (recount in this window).
-* **Task reports:** `docs/claude-code/reports/develop_natan/` (**122**; **+3**) + `docs/claude-code/reports/feat/` (**12**, unchanged) + `docs/claude-code/reports/main/` (**1**) and `docs/gemini/reports/` (**62**; **+8**), plus `docs/gemini/walkthrough/` (**38**; **+7**).
-* **Status reports:** `docs/reports/` — this is the **25th report** (v0.0.25); v0.0.24 is never overwritten.
-* **Development plans:** **180** files in `docs/plans/` (+6) + **43 files in `docs/gemini/plans/`** (+7) + **55 files in `docs/survey/`** (+9).
+* **Memory Index:** `.claude/memory/MEMORY.md` with **40 patterns** (unchanged).
+* **Task reports:** `docs/claude-code/reports/develop_natan/` (**123**; **+1**) + `docs/claude-code/reports/feat/` (**12 files** in 1 folder, unchanged) + `docs/claude-code/reports/main/` (**1**) and `docs/gemini/reports/` (**71**; **+9**), plus `docs/gemini/walkthrough/` (**45**; **+7**).
+* **Status reports:** `docs/reports/` — this is the **26th report** (v0.0.26); v0.0.25 is never overwritten.
+* **Development plans:** **191** files in `docs/plans/` (+11) + **51 files in `docs/gemini/plans/`** (+8) + **63 files in `docs/survey/`** (+8).
 
 ---
 
@@ -917,90 +925,92 @@
 3. **GitHub Releases:** production automated by `release.yml` on `v*` tags — build, validation, Trusted Publishing and release creation with artifacts.
 4. **GitHub Actions:** `pr-review.yml` workflow + `action.yml` (installs via pip) + `tests.yml` (Python 3.10 and 3.13 matrix) + `extension.yml` (VSIX; `github-release` job on `ext-v*` and `publish-marketplaces` job with a granular per-PAT gate) + `release.yml` (PyPI + GitHub Release on `v*`). `action.yml` calls a single `gitpr check` step — a **declared break** for those who used `--linter` + `--fullreview`, covered by the documentation parity test and by ADR-0011.
 5. **MCP Server:** `gitpr-mcp` entry point via `pyproject.toml`
-6. **Editor Extension:** independent VSIX package (`natanfiuza.gitpr`), with VS Code Marketplace and Open VSX channels; requires Node.js 20+ only for the build, not for use. The `.vsix` is attached to the GitHub Release of `ext-v*` even when marketplace publication is turned off.
-7. **Templates and OTA languages:** `templates/` and `langs/*.json` served from GitHub (main) — `__lang_version__` **v0.0.43** 🆕 refreshes the local copies in `~/.gitpr/langs/`; `__scripts_version__` **v0.0.4** refreshes the hooks.
+6. **Editor Extension:** independent VSIX package (`natanfiuza.gitpr`), with VS Code Marketplace and Open VSX channels; requires Node.js 20+ only for the build, not for use. 🆕 The VSIX now carries **five** locales; the workflow must include both `pt-pt` files in the package.
+7. **Templates and OTA languages:** `templates/` and `langs/*.json` served from GitHub (main) — `__lang_version__` **v0.0.44** 🆕 refreshes the local copies in `~/.gitpr/langs/`; `__scripts_version__` **v0.0.4** refreshes the hooks.
 8. **Version derived from the code:** `pyproject.toml` uses `version = {attr = "src.updater.__version__"}` — `__version__` is the **single** source, guaranteed by [ADR-014](docs/adr/0014-canonical-package-version-ssot.md) and by `tests/unit/test_version_consistency.py`.
 9. **`package-data` matters:** the four embedded packs (`src/policy_packs/*`) travel in the wheel.
-10. **✅ Release status — 1.8.0 published:** PyPI serves **1.8.0**, section `## [1.8.0] - 2026-11-14` is in `CHANGELOG.md` (commit `6cc0508`), tag `v1.8.0` points to the PR #325 merge and `develop_natan` is merged into `main` (HEAD = `origin/main` = `6cc0508`).
-11. **⚠️ 1.7.0 tag remains misaligned (inherited):** live `v1.7.0` points to `b2688c4`, a commit **prior** to the bump, where `__version__` was 1.6.0. It does not block 1.8.0, but the 1.7.0 GitHub Release still does not reflect the published code.
+10. **✅ Release status — 1.9.0 published:** PyPI serves **1.9.0**, section `## [1.9.0] - 2026-11-15` is in `CHANGELOG.md` (commit `3aee652`), tag `v1.9.0` points to the PR #336 merge (`3bb8ec6`) and `origin/main` = `3bb8ec6`. Tag `v1.8.0` remains at `6cc0508`.
+11. **⚠️ 1.7.0 tag remains misaligned (inherited):** live `v1.7.0` points to `b2688c4`, a commit **prior** to the bump, where `__version__` was 1.6.0. It does not block 1.9.0, but the 1.7.0 GitHub Release still does not reflect the published code.
+12. **⚠️ Local repository state:** local `main` branch is stuck at `4723bd5` (v0.0.22 report) — anyone reading the release should look at `origin/main`; and local `develop_natan` is a few commits ahead of `origin/develop_natan` because of local merge commits, even though those commits are already in `origin/main`.
 
 ---
 
-## **📈 Evolution since the Previous Report (v0.0.24)**
+## **📈 Evolution since the Previous Report (v0.0.25)**
 
-| Area | v0.0.24 (previous) | v0.0.25 (current) |
+| Area | v0.0.25 (previous) | v0.0.26 (current) |
 |------|-------------------|-----------------|
-| **GitPR Version** | 1.7.0 — published on PyPI; `v1.7.0` tag pointing to the pre-bump commit | **1.8.0** — published on PyPI; `v1.8.0` tag at the PR #325 merge |
-| **Language Version** | v0.0.42 | **v0.0.43** — dictionaries synchronized, +20 keys |
+| **GitPR Version** | 1.8.0 — published on PyPI; `v1.8.0` tag at the PR #325 merge | **1.9.0** — published on PyPI; `v1.9.0` tag at the PR #336 merge |
+| **Language Version** | v0.0.43 | **v0.0.44** — same number of keys, value fixed |
 | **Hook Scripts Version** | v0.0.4 | v0.0.4 (unchanged) |
 | **AI Providers** | Gemini + DeepSeek + Ollama | Unchanged |
-| **Languages** | 5 languages, 6 dictionaries | Unchanged |
-| **Subcommands** | 16 | 16 — unchanged; 4 groups (baseline 6, metrics 8, policy 7, tests 1) |
+| **Languages** | 5 languages, 6 dictionaries | Unchanged; 🆕 extension also with 5 bundles |
+| **Subcommands** | 16 | 16 — unchanged |
 | **CLI Flags** | 34 root options | 34 — unchanged |
-| **SCM Configuration** | Per repository and per forge | Model unchanged; 🆕 detection fixed and fallback warning + provisioning contract (ADR-0020) |
+| **SCM Configuration** | Detection fixed and fallback warning (ADR-0020) | + 🆕 **read-only fallback documented and locked** (`persisted=False`) |
+| **GitHub Enterprise** | `parse_repo_ref` required the literal `github.com` | 🆕 **accepts custom domains** (HTTP/SSH/port) |
 | **Issue Closing** | Multi-forge | Unchanged |
-| **Configuration Seed** | `gitpr seed`/`--seed` + 5-step wizard | Unchanged |
+| **Configuration Seed** | `gitpr seed`/`--seed` + 5-step wizard | Unchanged in code; 🆕 ADR-0019 contract locked across the 5 translations |
 | **Layers** | 9 domain packages, 15 use cases | Unchanged |
-| **Map-Reduce** | Single 90k-token ceiling for all providers | 🆕 **Per-provider threshold + file→hunk→line cascade + pre-reduce** |
-| **MCP Tools** | 18 tools / 19 resources / 7 prompts | Unchanged |
-| **`DEFAULT_CONFIG`** | 56 keys, derived from the schema (`seeded`) | **55 keys** — recount; the previous 56 was inflated |
-| **Config Schema** | 109 `ConfigField` / 18 categories / 56 `seeded` | **115 / 18 / 55** — +6 `GITPR_MAP_REDUCE_*` fields |
-| **i18n (keys per file)** | 1787 × 6 | **1807 × 6** — 0 missing, 0 orphans ✅ |
-| **Update Gate** | 1 h elapsed TTL, `-u` always online, PEP 440 | Code unchanged; 🆕 strict semantics formalized in ADR-0021 and locked by tests across 5 languages |
+| **Map-Reduce** | Per-provider threshold + cascade + pre-reduce | Unchanged in code; 🆕 **cost/latency documented** across the 5 languages |
+| **MCP Tools** | 18 tools / 19 resources / 7 prompts | Unchanged; 🆕 `--install` message lists `claude-code` |
+| **`DEFAULT_CONFIG`** | 55 keys | 55 — unchanged |
+| **Config Schema** | 115 `ConfigField` / 18 categories / 55 `seeded` | Unchanged |
+| **i18n (keys per file)** | 1807 × 6 | **1807 × 6** — 0 missing, 0 orphans ✅ |
+| **Update Gate** | 1 h elapsed TTL, `-u` always online, PEP 440 | Unchanged |
 | **Linter** | Regex + secrets + SAST + `findings_out` + baseline-aware | Unchanged |
-| **Diff / Smart Excludes** | Binary hunk guard and 100+ patterns | Unchanged; 🆕 Map-Reduce slicer gained file/hunk/line boundaries |
-| **Git Hooks** | post-checkout/post-merge/pre-push in the ledger | Unchanged — `prepare-commit-msg` remains non-interactive |
-| **SCM Layer** | 4 forges, pagination, `web_links.py` | 🆕 `github.com` recognized with `default=None` + fallback warning |
-| **Release engine** | `[1.7.0]` section; 1.7.0 published; tag misaligned | `[1.8.0]` section; **1.8.0 published and tagged**; 1.7.0 tag remains misaligned |
-| **Metrics** | ASCII charts and tabs in the dashboard; per-model prices and currency | Code unchanged; 🆕 documentation in 5 languages with parity guard |
-| **Commit TUI** | TTY guard and stable headless test | 🆕 Headless test skipped on Windows; routing without network dependency |
-| **Extension** | Decoupled VSIX release and granular per-marketplace gate | + **guide translated into 5 languages** and **credentials wizard** |
-| **Documentation** | 52 topics (50 complete + 2 partial) | **52 topics (51 complete + 1 partial)** — 3 new ADRs |
-| **Domain agenda** | `CONTEXT.md` with 44 terms | **53 terms** — Update check switch, Cascade chunking, SCM provisioning etc. |
-| **CI** | `tests.yml` + `action.yml` + `extension.yml` + `release.yml` | Unchanged; + 5 documentation parity modules |
-| **Test Suite** | 3436 scenarios (160 files) | **3469 scenarios (166 files) — +33 scenarios, +6 files** |
-| **Suite Stability** | 2 version-consistency failures (docs at 1.6.0) | **2 version-consistency failures** (docs at 1.7.0); Windows stabilized |
-| **Dependencies** | No new Python dependencies | None new — the marketplace wizard uses only `gh`/`npx` at runtime |
-| **Commits since the report** | 13 commits, 13 merges | **24 commits, 12 merges** |
-| **Referenced PRs** | 13 merged PRs (#295–#310) | **11 new PRs** (#311, #312, #314, #316, #318, #319, #320, #321, #322, #324, #325); issues closed #313, #315, #317 and #323 |
-| **Memory Index** | 41 patterns | **40 patterns** (recount) |
-| **Task reports** | 119 claude-code, 54 gemini, 31 walkthrough | **122 claude-code (+12 feat, +1 main), 62 gemini, 38 walkthrough** |
-| **Development plans** | 174 plans, 36 gemini, 46 surveys | **180 plans, 43 gemini, 55 surveys** |
+| **Diff / Smart Excludes** | Binary hunk guard and 100+ patterns | Unchanged |
+| **Git Hooks** | post-checkout/post-merge/pre-push in the ledger | Unchanged |
+| **SCM Layer** | 4 forges, pagination, `web_links.py` | 🆕 generic `parse_repo_ref` and Enterprise; 373 scenarios |
+| **Release engine** | `[1.8.0]` section; 1.8.0 published and tagged | `[1.9.0]` section; **1.9.0 published and tagged**; ⚠️ summary cites 1.8.0 |
+| **Metrics** | ASCII charts and tabs in the dashboard; per-model prices and currency | + 🆕 Map-Reduce cost/latency documentation |
+| **Commit TUI** | Headless test skipped on Windows | Unchanged |
+| **Extension** | Guide translated into 5 languages and credentials wizard | + 🆕 **`pt-pt` localization** (5 bundles) |
+| **Documentation** | 52 topics (51 complete + 1 partial) | **51 topics (51 complete + 0 partial)** + `docs/extra/` outside the contract |
+| **Documentation parity** | 1 language exception + 8 parity debts | 🆕 **0 language exceptions** + 7 parity debts |
+| **Domain agenda** | `CONTEXT.md` with 53 terms | **55 terms** — Canonical doc, Extra doc |
+| **CI** | `tests.yml` + `action.yml` + `extension.yml` + `release.yml` | Unchanged |
+| **Test Suite** | 3469 scenarios (166 files) | **3471 scenarios (167 files) — +2 scenarios, +1 file** |
+| **Suite Stability** | 2 version-consistency failures (docs at 1.7.0) | **2 version-consistency failures** (docs at 1.8.0) — the pattern repeats |
+| **Dependencies** | No new Python dependencies | None new |
+| **Commits since the report** | 24 commits, 12 merges | **13 commits, 6 merges** |
+| **Referenced PRs** | 11 new PRs (#311–#325); issues #313–#323 | **6 new PRs** (#327, #329, #331, #333, #335, #336); issues closed #326, #328, #330, #332 and #334 |
+| **Pending-items roadmap** | Did not exist | 🆕 `docs/prompts/relatorio_pendencias_proximos_passos_i18n.md` with 8 stages |
+| **Memory Index** | 40 patterns | 40 patterns (unchanged) |
+| **Task reports** | 122 claude-code, 62 gemini, 38 walkthrough | **123 claude-code (+12 feat, +1 main), 71 gemini, 45 walkthrough** |
+| **Development plans** | 180 plans, 43 gemini, 55 surveys | **191 plans, 51 gemini, 63 surveys** |
 
 ---
 
 ## **🚧 Next Steps**
 
-* **🆕 Update `CLAUDE.md` and `GEMINI.md` to 1.8.0:** the `92605b9` bump changed only `src/updater.py`, and both documents still say 1.7.0. `tests/unit/test_version_consistency.py` has **2 failures** because of this — it is the most urgent fix of this window.
-* **🆕 Fix the `[1.8.0]` changelog section summary:** the text opens with "Version 1.7.0 improves…" — the AI summary got stuck on the previous version and needs to be rewritten for 1.8.0.
-* **🆕 Align the `v1.7.0` tag (inherited):** the tag on origin points to `b2688c4` (pre-bump). Moving/recreating the tag on the bump commit makes the 1.7.0 GitHub Release match PyPI.
-* **Translate the EN-only editions of `config-tui` and `pull-request-publication`:** the seed/CI and opt-out migration notes entered only the English version. **Inherited item, still open.**
-* **Publish the extension to the marketplaces:** the granular gate already evaluates `VSCE_PAT` and `OVSX_PAT`, the VSIX is already attached to the GitHub Release and the credentials wizard already validates both tokens — what remains is running the wizard with the real credentials and triggering `ext-v*`.
-* **Per-repository SCM migration note:** ✅ **completed** — [ADR-0020](docs/adr/0020-per-repo-scm-provisioning-migration.md) and `docs/scm-multiforge.*` across the 5 languages, with parity test.
-* **Translate `docs/metricas-telemetria.*`:** ✅ **completed** — all 5 languages are synchronized, including the charts.
-* **Translate `marketplace-publishing-guide`:** ✅ **completed** — 5 languages + parity test.
-* **Document prices/currency in `metricas-telemetria`:** ✅ **completed** — the `GITPR_METRICS_PRICE_*` and `GITPR_METRICS_CURRENCY` fields are explained in the topic.
-* **Document the `GITPR_MAP_REDUCE_*` thresholds:** 🆕 `docs/map-reduce-diff.*` and the TUI's `ai` category describe trigger and batch; all that remains is a cost/latency example per provider in the telemetry topic.
-* **Track the unrecognized self-hosted host:** ✅ **improved** — fallback now warns and points to `gitpr --init`; the override remains the user's responsibility.
-* **More providers:** OpenAI direct, additional local providers. **Inherited item, still open.**
-* **GitHub Enterprise hosts:** `GITHUB_BASE_URL` retargets the API, but `parse_repo_ref` still requires the `github.com` literal. **Inherited item, still open.**
-* **Automatic migration of legacy SCM keys in CI:** migration is one-shot and degrades to the process environment when `.env` is read-only — worth documenting the behavior on ephemeral runners (ADR-0020 §4).
+* **🆕 Update `CLAUDE.md` and `GEMINI.md` to 1.9.0:** the `3aee652` bump changed only `src/updater.py` and `CHANGELOG.md`; both documents fell one version behind again. `tests/unit/test_version_consistency.py` has **2 failures** because of this — it is the most urgent fix of this window, and the pattern repeats on every release.
+* **🆕 Fix the `[1.9.0]` changelog section summary:** the text ends with "The release is version 1.8.0". The cause is the same as 1.8.0 (the AI summary cites the previous version); it is worth fixing the text **and** checking the release engine prompt so the header version is injected as a fact.
+* **🆕 Mark Stage 8 as completed in the roadmap:** `docs/prompts/relatorio_pendencias_proximos_passos_i18n.md` still shows `P8` as pending and the Stage 8 heading without `✅`, even though `5b44c0b` delivered both `pt-pt` bundles.
+* **🆕 Create a parity test for the extension bundles:** Stage 8 was validated by a manual script. A test that compares the key set and `{n}` placeholders of `package.nls.pt-pt.json`/`bundle.l10n.pt-pt.json` with the English files would prevent a new locale from being born incomplete.
+* **🆕 Reduce the 7 `_PARITY_EXCEPTIONS` debts:** `ARCHITECTURE`, `check-ci`, `git-hooks-locais`, `git-status`, `linter-regras-customizadas`, `mentor-mode` and `skill-template` remain divergent in headings, tables or fences. Each one closed is one less line in the list.
+* **Align the `v1.7.0` tag (inherited):** the tag on origin points to `b2688c4` (pre-bump). Moving/recreating the tag on the bump commit makes the 1.7.0 GitHub Release match PyPI.
+* **Publish the extension to the marketplaces:** the granular gate already evaluates `VSCE_PAT` and `OVSX_PAT`, the VSIX is already attached to the GitHub Release and the credentials wizard already validates both tokens — what remains is running the wizard with the real credentials and triggering `ext-v*`. With `pt-pt` included, it is worth confirming that both files entered the package.
+* **Track the unrecognized self-hosted host:** the fallback warns and points to `gitpr --init`; hosts with `github` in the name already parse. An arbitrary domain (`git.acme.com`) still depends on `scm.provider` in the project file — documented behavior, not automatic.
+* **More providers:** OpenAI direct, additional local providers. **Inherited item, still open (M3 of the roadmap).**
+* **Document the release operation in `docs/`:** the pattern "bump changes only `src/updater.py`, and docs fall behind" has now appeared in two consecutive releases; a checklist (or a test that runs on `release`) would prevent the third.
+* **Keep `origin/main` and local `main` synchronized:** local `main` is at `4723bd5`, which confuses any reading of the repository state.
 
-### ✅ Completed in this window (2026-11-10 → 2026-11-14)
+### ✅ Completed in this window (2026-11-15)
 
-* ~~**Every large diff was sliced by the same 90k ceiling**~~ 🆕 — `c7d95d7` / issue #317: `get_map_reduce_thresholds(provider)`, file→hunk→line cascade and pre-reduce ([ADR-0022](docs/adr/0022-map-reduce-per-provider-token-partitioning.md)).
-* ~~**A `github.com` remote was treated as an unknown forge**~~ 🆕 — `c3da6ba` / issue #323: detection order fixed and `_default_provider_warning()` in the resolver.
-* ~~**Per-repository SCM provisioning had no contract**~~ 🆕 — `05df908`: [ADR-0020](docs/adr/0020-per-repo-scm-provisioning-migration.md) and `docs/scm-multiforge.*` across the 5 languages.
-* ~~**Strict `GITPR_SKIP_UPDATE_CHECK` semantics were not formalized**~~ 🆕 — `77230b0` / issue #315: [ADR-0021](docs/adr/0021-strict-boolean-update-check-migration.md) + parity tests across the 5 languages.
-* ~~**The marketplace guide was EN-only**~~ 🆕 — `6b47f04`: `docs/marketplace-publishing-guide.*` across the 5 languages + parity test.
-* ~~**Configuring marketplace credentials was manual and error-prone**~~ 🆕 — `a9544f3` / issue #313: `scripts/marketplace-setup-wizard.sh` with 5 stages and live token validation.
-* ~~**The Charts & Trends tab was not documented**~~ 🆕 — `0b3b899` and `0f2f0d4`: `docs/metricas-telemetria.*` across the 5 languages + translation parity guard.
-* ~~**The headless test broke on Windows and CLI depended on network**~~ 🆕 — `3d80bb1`: skip on `win32` and mock `check_internet_connection`.
-* ~~**The package and dictionary version was at 1.7.0/v0.0.42**~~ 🆕 — `92605b9`: bump to **1.8.0** and **v0.0.43**, `## [1.8.0]` changelog and PyPI publication.
-* ~~**The window was in `develop_natan`, without a merge**~~ — PR #325 took the branch to `main` and received the `v1.8.0` tag.
+* ~~**`CLAUDE.md` and `GEMINI.md` said 1.7.0**~~ 🆕 — `9ad079d` / issue #326: aligned to 1.8.0 (and outdated again after the bump to 1.9.0).
+* ~~**The `[1.8.0]` section summary opened with "Version 1.7.0 improves…"**~~ 🆕 — `9ad079d`: rewritten for 1.8.0.
+* ~~**The translations of `config-tui` and `pull-request-publication` were outdated**~~ 🆕 — `47f506d` / issue #326: section `9.4`, `[!IMPORTANT]` and `GITPR_SKIP_PROJECT_CONFIG_SEED` in all 5 languages, plus `tests/unit/test_project_config_seed_docs.py`; `pull-request-publication` left `_PARITY_EXCEPTIONS`.
+* ~~**`github-issue-prompt-com-gh` was the only partial topic**~~ 🆕 — `5eed732` / issue #328: moved to `docs/extra/`, `_EN_ONLY` emptied, READMEs completed and the **Canonical doc**/**Extra doc** terms in `CONTEXT.md`.
+* ~~**Read-only SCM migration was not documented**~~ 🆕 — `af5fad0` / issue #330: `persisted=False`, `os.environ` and `PermissionError` in all 5 languages and in ADR-0020, locked by test.
+* ~~**Map-Reduce cost/latency was not documented**~~ 🆕 — `5eed732`: `docs/metricas-telemetria.*` in all 5 languages + reference in ADR-0022.
+* ~~**GitHub Enterprise was rejected by `parse_repo_ref`**~~ 🆕 — `5bbb499` / issue #332: generic `_REMOTE_RE`, `TestParseRepoRef` and `docs/scm-multiforge.*` updated.
+* ~~**The extension did not have `pt-pt`**~~ 🆕 — `5b44c0b` / issue #334: `package.nls.pt-pt.json` and `bundle.l10n.pt-pt.json`.
+* ~~**The `--install` message omitted `claude-code`**~~ 🆕 — `5b44c0b` / issue #334: message fixed, six dictionaries synchronized and dedicated test.
+* ~~**There was no survey of what remained pending in the reports**~~ 🆕 — `9ad079d`: `docs/prompts/relatorio_pendencias_proximos_passos_i18n.md` with 25 audited reports and 8 stages.
+* ~~**The package and dictionary version was at 1.8.0 / v0.0.43**~~ 🆕 — `3aee652` / PR #336: bump to **1.9.0** and **v0.0.44**, `[1.9.0]` release in the changelog and PyPI publication with `v1.9.0` tag.
 
 ---
 
-**Report generated on:** 2026-11-14  
+**Report generated on:** 2026-11-15  
 **Branch:** `develop_natan`  
 **Author:** Natan Fiuza ([contato@natanfiuza.dev.br](mailto:contato@natanfiuza.dev.br))

@@ -37,7 +37,7 @@
     },
     {
         "id": "tip_4",
-        "used": false,
+        "used": true,
         "source": "docs/readme.md",
         "content": {
             "en": "Hidden debug flag: run any AI command with `--pre-save` (e.g. `gitpr -c --pre-save`) and GitPR dumps the full payload — system instruction, prompt and character counters — to a JSON file in the current folder. No file is generated when the answer comes from cache.",
