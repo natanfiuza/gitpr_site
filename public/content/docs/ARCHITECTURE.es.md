@@ -246,9 +246,9 @@ Cada funcionalidad tiene una guía dedicada en `docs/` (inglés canónico + `.pt
 
 Tutoriales (solo en portugués):
 
-* [github-issue-prompt-com-gh.md](/docs/github-issue-prompt-com-gh?lang=es) — Formatear y actualizar issues mediante gh CLI  
-* [como_reverter_commit_git_localmente.md](/docs/como_reverter_commit_git_localmente?lang=es) — Revertir commits localmente  
-* [testar_sem_usar_pypi.md](/docs/testar_sem_usar_pypi?lang=es) — Probar sin gastar una versión en PyPI  
+* [github-issue-prompt-com-gh.md](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/extra/github-issue-prompt-com-gh.md) — Formatear y actualizar issues mediante gh CLI  
+* [como_reverter_commit_git_localmente.md](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/extra/como_reverter_commit_git_localmente.md) — Revertir commits localmente  
+* [testar_sem_usar_pypi.md](https://github.com/gitpr-cli/gitpr.git/blob/main/docs/extra/testar_sem_usar_pypi.md) — Probar sin gastar una versión en PyPI  
 * [otimizacao-de-tokens.md](/docs/otimizacao-de-tokens?lang=es) — Optimización de tokens en los archivos de contexto (.gitpr.*.md)  
 
 ---
